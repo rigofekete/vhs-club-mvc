@@ -28,26 +28,8 @@ func NewTapeRepository() TapeRepository {
 func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	exist, checkedTape := r.tapeExists(tape)
-	if !exist {
-		r.tapes = append(r.tapes, *checkedTape)
-		return checkedTape
-	}
-	return checkedTape
-}
-
-// Private Helper for the Save method
-func (r *tapeRepository) tapeExists(tape model.Tape) (bool, *model.Tape) {
-	for i, checkedTape := range r.tapes {
-		if checkedTape.ID == r.tapes[i].ID {
-			// TODO: increment quantity in the DB! For now, increment directly and return to respond with message.
-			r.tapes[i].Quantity += 1
-			// only return copies
-			checkedTape = r.tapes[i]
-			return true, &checkedTape
-		}
-	}
-	return false, &tape
+	r.tapes = append(r.tapes, tape)
+	return &tape
 }
 
 func (r *tapeRepository) FindAll() []model.Tape {
