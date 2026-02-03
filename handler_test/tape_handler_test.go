@@ -116,7 +116,7 @@ func TestCreate_Success(t *testing.T) {
 
 	expectation := model.Tape{
 		ID: "1", Title: "Taxi Driver",
-		Director: "Martin Scorcese", Genre: "Thriller",
+		Director: "Martin Scorsese", Genre: "Thriller",
 		Quantity: 1, Price: 5999.99,
 	}
 
@@ -139,7 +139,7 @@ func TestCreate_Success(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, w.Code)
 	jsonExpected := `
 	{"id": "1", "title": "Taxi Driver", 
-		"director": "Martin Scorcese", "genre": "Thriller", 
+		"director": "Martin Scorsese", "genre": "Thriller", 
 		"quantity": 1, "price": 5999.99
 	}`
 	assert.JSONEq(t, jsonExpected, w.Body.String())
