@@ -54,7 +54,7 @@ func (m *mockTapeRespository) Delete(id string) bool {
 	return args.Bool(0)
 }
 
-func TestFindByID(t *testing.T) {
+func TestFindByID_Success(t *testing.T) {
 	mockRepo := NewMockRepository()
 
 	expected := model.Tape{
@@ -71,3 +71,24 @@ func TestFindByID(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+func TestFindByID_NotFound(t *testing.T) {
+	mockRepo := NewMockRepository()
+
+	mockRepo.On("FindByID", "22").Return(nil, false)
+
+	svc := service.NewTapeService(mockRepo)
+
+	tape, found := svc.GetTapeByID("22")
+
+	assert.False(t, found)
+	assert.Nil(t, tape)
+
+	mockRepo.AssertExpectations(t)
+}
+
+//
+// func (m *mockTapeRespository) Save(tape model.Tape) *model.Tape {
+//
+// func TestSave()
+//
