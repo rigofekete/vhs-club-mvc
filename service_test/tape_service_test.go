@@ -183,13 +183,13 @@ func TestUpdate_Success(t *testing.T) {
 
 	id := "1"
 	partialUpdate := model.Tape{
-		Genre: "Difficult to lable",
+		Genre: "Difficult to label",
 	}
 	updatedTape := model.Tape{
 		ID:       "1",
 		Title:    "Hana-bi",
 		Director: "Takeshi Kitano",
-		Genre:    "Difficult to lable",
+		Genre:    "Difficult to label",
 		Quantity: 1,
 		Price:    5999.99,
 	}
