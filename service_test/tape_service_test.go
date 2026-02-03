@@ -87,10 +87,10 @@ func TestFindByID_NotFound(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func TestCreate(t *testing.T) {
+func TestCreate_Success(t *testing.T) {
 	mockRepo := NewMockRepository()
 
-	expectation := model.Tape{
+	inputTape := model.Tape{
 		ID:       "1",
 		Title:    "Sleeper",
 		Director: "Woody ALlen",
@@ -99,33 +99,41 @@ func TestCreate(t *testing.T) {
 		Price:    5999.99,
 	}
 
-	mockRepo.On("Save", expectation).Return(&expectation)
+	createdTape := &model.Tape{
+		ID:       "1",
+		Title:    "Sleeper",
+		Director: "Woody ALlen",
+		Genre:    "Comedy",
+		Quantity: 1,
+		Price:    5999.99,
+	}
+
+	mockRepo.On("Save", inputTape).Return(createdTape)
 
 	svc := service.NewTapeService(mockRepo)
-	tape := svc.Create(expectation)
+	tape := svc.Create(inputTape)
 
-	assert.Equal(t, &expectation, tape)
+	assert.Equal(t, createdTape, tape)
 
 	mockRepo.AssertExpectations(t)
 }
 
-// func Test
+func TestCreate_InvalidTape(t *testing.T) {
+	mockRepo := NewMockRepository()
 
-// func TestFindByID_Success(t *testing.T) {
-// 	mockRepo := NewMockRepository()
-//
-// 	expected := model.Tape{
-// 		ID: "1", Title: "Alien", Director: "Ridley Scott", Genre: "Horror", Quantity: 1, Price: 5999.99,
-// 	}
-// 	mockRepo.On("FindByID", "1").Return(&expected, true)
-//
-// 	svc := service.NewTapeService(mockRepo)
-//
-// 	tape, found := svc.GetTapeByID("1")
-//
-// 	assert.True(t, found)
-// 	assert.Equal(t, &expected, tape)
-//
-// 	mockRepo.AssertExpectations(t)
-// }
-//
+	inputTape := model.Tape{
+		ID:       "1",
+		Title:    "",
+		Director: "Woody ALlen",
+		Genre:    "Comedy",
+		Quantity: 0,
+		Price:    5999.99,
+	}
+
+	svc := service.NewTapeService(mockRepo)
+	tape := svc.Create(inputTape)
+
+	assert.Nil(t, tape)
+
+	mockRepo.AssertExpectations(t)
+}
