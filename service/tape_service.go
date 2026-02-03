@@ -24,7 +24,18 @@ func NewTapeService(r repository.TapeRepository) TapeService {
 }
 
 func (s *tapeService) Create(tape model.Tape) *model.Tape {
+	if !validTape(tape) {
+		return nil
+	}
 	return s.repo.Save(tape)
+}
+
+// Helper for Create
+func validTape(tape model.Tape) bool {
+	if tape.Title == "" || tape.Director == "" || tape.Genre == "" || tape.Quantity == 0 || tape.Price == 0 {
+		return false
+	}
+	return true
 }
 
 func (s *tapeService) List() []model.Tape {
