@@ -137,3 +137,43 @@ func TestCreate_InvalidTape(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+func TestList(t *testing.T) {
+	mockRepo := NewMockRepository()
+
+	expectedTapes := []model.Tape{
+		{
+			ID:       "1",
+			Title:    "The Terminator",
+			Director: "James Cameron",
+			Genre:    "Action",
+			Quantity: 1,
+			Price:    3999.99,
+		},
+		{
+			ID:       "2",
+			Title:    "The Predator",
+			Director: "John McTiernan",
+			Genre:    "Action",
+			Quantity: 1,
+			Price:    3999.99,
+		},
+		{
+			ID:       "3",
+			Title:    "Apocalypse Now",
+			Director: "Francis Ford Coppola",
+			Genre:    "Drama",
+			Quantity: 1,
+			Price:    5999.99,
+		},
+	}
+
+	mockRepo.On("FindAll").Return(expectedTapes)
+
+	svc := service.NewTapeService(mockRepo)
+	tapes := svc.List()
+
+	assert.Equal(t, expectedTapes, tapes)
+
+	mockRepo.AssertExpectations(t)
+}
