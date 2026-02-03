@@ -55,6 +55,7 @@ func (r *tapeRepository) Update(id string, updated model.Tape) (*model.Tape, boo
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	// TODO: Shouldn't this data validation be done in the service layer?
 	for i, tape := range r.tapes {
 		if tape.ID == id {
 			if updated.Title != "" {
