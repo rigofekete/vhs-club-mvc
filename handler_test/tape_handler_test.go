@@ -114,20 +114,26 @@ func TestCreate_Success(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	mockSvc := NewMockTapeService()
 
-	expectation := model.Tape{
+	inputTape := model.Tape{
 		ID: "1", Title: "Taxi Driver",
 		Director: "Martin Scorsese", Genre: "Thriller",
 		Quantity: 1, Price: 5999.99,
 	}
 
-	mockSvc.On("Create", expectation).Return(&expectation, true)
+	createdTape := &model.Tape{
+		ID: "1", Title: "Taxi Driver",
+		Director: "Martin Scorsese", Genre: "Thriller",
+		Quantity: 1, Price: 5999.99,
+	}
+
+	mockSvc.On("Create", inputTape).Return(&createdTape, true)
 
 	h := handler.NewTapeHandler(mockSvc)
 
 	r := gin.Default()
 	r.POST("/tapes", h.CreateTape)
 
-	data, err := json.Marshal(expectation)
+	data, err := json.Marshal(inputTape)
 	if err != nil {
 		t.Fatal(err)
 	}
