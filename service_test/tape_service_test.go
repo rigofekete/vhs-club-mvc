@@ -223,3 +223,29 @@ func TestUpdate_NotFound(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+func TestDelete_Success(t *testing.T) {
+	mockRepo := NewMockRepository()
+	id := "4"
+	mockRepo.On("Delete", "4").Return(true)
+
+	svc := service.NewTapeService(mockRepo)
+	deleted := svc.Delete(id)
+
+	assert.True(t, deleted)
+
+	mockRepo.AssertExpectations(t)
+}
+
+func TestDelete_NotFound(t *testing.T) {
+	mockRepo := NewMockRepository()
+	id := "74"
+	mockRepo.On("Delete", "74").Return(false)
+
+	svc := service.NewTapeService(mockRepo)
+	deleted := svc.Delete(id)
+
+	assert.False(t, deleted)
+
+	mockRepo.AssertExpectations(t)
+}
