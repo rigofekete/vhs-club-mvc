@@ -99,7 +99,7 @@ func TestCreate(t *testing.T) {
 		Price:    5999.99,
 	}
 
-	mockRepo.On("Save", expectation).Return(&expectation, true)
+	mockRepo.On("Save", expectation).Return(&expectation)
 
 	svc := service.NewTapeService(mockRepo)
 	tape := svc.Create(expectation)
@@ -108,6 +108,8 @@ func TestCreate(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+// func Test
 
 // func TestFindByID_Success(t *testing.T) {
 // 	mockRepo := NewMockRepository()
