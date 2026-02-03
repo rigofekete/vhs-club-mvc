@@ -177,3 +177,49 @@ func TestList(t *testing.T) {
 
 	mockRepo.AssertExpectations(t)
 }
+
+func TestUpdate_Success(t *testing.T) {
+	mockRepo := NewMockRepository()
+
+	id := "1"
+	partialUpdate := model.Tape{
+		Genre: "Difficult to lable",
+	}
+	updatedTape := model.Tape{
+		ID:       "1",
+		Title:    "Hana-bi",
+		Director: "Takeshi Kitano",
+		Genre:    "Difficult to lable",
+		Quantity: 1,
+		Price:    5999.99,
+	}
+
+	mockRepo.On("Update", id, partialUpdate).Return(&updatedTape, true)
+
+	svc := service.NewTapeService(mockRepo)
+	updated, found := svc.Update(id, partialUpdate)
+
+	assert.True(t, found)
+	assert.Equal(t, &updatedTape, updated)
+
+	mockRepo.AssertExpectations(t)
+}
+
+func TestUpdate_NotFound(t *testing.T) {
+	mockRepo := NewMockRepository()
+
+	id := "1904"
+	partialUpdate := model.Tape{
+		Title: "Superman",
+	}
+
+	mockRepo.On("Update", id, partialUpdate).Return(nil, false)
+
+	svc := service.NewTapeService(mockRepo)
+	updated, found := svc.Update(id, partialUpdate)
+
+	assert.False(t, found)
+	assert.Nil(t, updated)
+
+	mockRepo.AssertExpectations(t)
+}
