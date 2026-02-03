@@ -1,12 +1,20 @@
 package service_test
 
 import (
+	"testing"
+
 	"github.com/rigofekete/vhs-club-mvc/model"
+	"github.com/rigofekete/vhs-club-mvc/service"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 type mockTapeRespository struct {
 	mock.Mock
+}
+
+func NewMockRepository() *mockTapeRespository {
+	return &mockTapeRespository{}
 }
 
 func (m *mockTapeRespository) Save(tape model.Tape) *model.Tape {
@@ -44,4 +52,22 @@ func (m *mockTapeRespository) Update(id string, updated model.Tape) (*model.Tape
 func (m *mockTapeRespository) Delete(id string) bool {
 	args := m.Called(id)
 	return args.Bool(0)
+}
+
+func TestFindByID(t *testing.T) {
+	mockRepo := NewMockRepository()
+
+	expected := model.Tape{
+		ID: "1", Title: "Alien", Director: "Ridley Scott", Genre: "Horror", Quantity: 1, Price: 5999.99,
+	}
+	mockRepo.On("FindByID", "1").Return(&expected, true)
+
+	svc := service.NewTapeService(mockRepo)
+
+	tape, found := svc.GetTapeByID("1")
+
+	assert.True(t, found)
+	assert.Equal(t, &expected, tape)
+
+	mockRepo.AssertExpectations(t)
 }
