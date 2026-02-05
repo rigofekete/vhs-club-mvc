@@ -126,7 +126,7 @@ func TestCreate_Success(t *testing.T) {
 		Quantity: 1, Price: 5999.99,
 	}
 
-	mockSvc.On("Create", inputTape).Return(&createdTape, true)
+	mockSvc.On("Create", inputTape).Return(createdTape, true)
 
 	h := handler.NewTapeHandler(mockSvc)
 
@@ -143,11 +143,14 @@ func TestCreate_Success(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
-	jsonExpected := `
-	{"id": "1", "title": "Taxi Driver", 
-		"director": "Martin Scorsese", "genre": "Thriller", 
-		"quantity": 1, "price": 5999.99
-	}`
+	jsonExpected := `{
+  "id": "1",
+  "title": "Taxi Driver",
+  "director": "Martin Scorsese",
+  "genre": "Thriller",
+  "quantity": 1,
+  "price": 5999.99
+}`
 	assert.JSONEq(t, jsonExpected, w.Body.String())
 
 	mockSvc.AssertExpectations(t)
