@@ -2,12 +2,14 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/handler"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
 func main() {
+	config.Load()
 	router := gin.Default()
 
 	router.GET("/health", func(c *gin.Context) {
