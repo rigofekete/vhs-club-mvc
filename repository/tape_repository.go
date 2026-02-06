@@ -3,6 +3,7 @@ package repository
 import (
 	"sync"
 
+	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
 
@@ -17,6 +18,7 @@ type TapeRepository interface {
 type tapeRepository struct {
 	mu    sync.Mutex
 	tapes []model.Tape
+	DB    *database.Queries
 }
 
 func NewTapeRepository() TapeRepository {
