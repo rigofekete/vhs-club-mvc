@@ -1,8 +1,12 @@
 package repository
 
 import (
+	"context"
+	"log"
 	"sync"
 
+	"github.com/google/uuid"
+	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
@@ -10,9 +14,9 @@ import (
 type TapeRepository interface {
 	Save(tape model.Tape) *model.Tape
 	FindAll() []model.Tape
-	FindByID(id string) (*model.Tape, bool)
-	Update(id string, updated model.Tape) (*model.Tape, bool)
-	Delete(id string) bool
+	FindByID(id uuid.UUID) (*model.Tape, bool)
+	Update(id uuid.UUID, updated model.Tape) (*model.Tape, bool)
+	Delete(id uuid.UUID) bool
 }
 
 type tapeRepository struct {
@@ -23,15 +27,37 @@ type tapeRepository struct {
 
 func NewTapeRepository() TapeRepository {
 	return &tapeRepository{
-		tapes: make([]model.Tape, 0),
+		DB: config.AppConfig.DB,
+		// tapes: make([]model.Tape, 0),
 	}
 }
 
 func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.tapes = append(r.tapes, tape)
-	return &tape
+	tapeParams := database.CreateTapeParams{
+		Title:    tape.Title,
+		Director: tape.Director,
+		Genre:    tape.Genre,
+		Quantity: int32(tape.Quantity),
+		Price:    int32(tape.Price),
+	}
+	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
+	if err != nil {
+		log.Fatalf("error creating tape in the db: %v", err)
+	}
+	savedTape := &model.Tape{
+		ID:        dbTape.ID,
+		CreatedAt: dbTape.CreatedAt,
+		UpdatedAt: dbTape.UpdatedAt,
+		Title:     dbTape.Title,
+		Director:  dbTape.Director,
+		Genre:     dbTape.Genre,
+		Quantity:  int(dbTape.Quantity),
+		Price:     float64(dbTape.Price),
+	}
+	// r.tapes = append(r.tapes, tape)
+	return savedTape
 }
 
 func (r *tapeRepository) FindAll() []model.Tape {
@@ -41,7 +67,7 @@ func (r *tapeRepository) FindAll() []model.Tape {
 	return append([]model.Tape(nil), r.tapes...)
 }
 
-func (r *tapeRepository) FindByID(id string) (*model.Tape, bool) {
+func (r *tapeRepository) FindByID(id uuid.UUID) (*model.Tape, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -53,7 +79,7 @@ func (r *tapeRepository) FindByID(id string) (*model.Tape, bool) {
 	return nil, false
 }
 
-func (r *tapeRepository) Update(id string, updated model.Tape) (*model.Tape, bool) {
+func (r *tapeRepository) Update(id uuid.UUID, updated model.Tape) (*model.Tape, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -81,7 +107,7 @@ func (r *tapeRepository) Update(id string, updated model.Tape) (*model.Tape, boo
 	return nil, false
 }
 
-func (r *tapeRepository) Delete(id string) bool {
+func (r *tapeRepository) Delete(id uuid.UUID) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
