@@ -25,7 +25,7 @@ func Load() {
 	}
 }
 
-// Refactor this later when we will need to fill more config fields
+// TODO: Refactor this later when we will need to fill more config fields
 func getEnv(dbString string) *database.Queries {
 	dbURL := os.Getenv(dbString)
 	if dbURL == "" {
@@ -33,11 +33,11 @@ func getEnv(dbString string) *database.Queries {
 	}
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
-		log.Fatalf("error opening databse: %v", err)
+		log.Fatalf("error opening database: %v", err)
 	}
 
 	if err := dbConn.Ping(); err != nil {
-		log.Fatalf("error connection to the db: %v", err)
+		log.Fatalf("error connecting to the db: %v", err)
 	}
 
 	dbQueries := database.New(dbConn)
