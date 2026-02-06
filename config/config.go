@@ -35,6 +35,11 @@ func getEnv(dbString string) *database.Queries {
 	if err != nil {
 		log.Fatalf("error opening databse: %v", err)
 	}
+
+	if err := dbConn.Ping(); err != nil {
+		log.Fatalf("error connection to the db: %v", err)
+	}
+
 	dbQueries := database.New(dbConn)
 
 	return dbQueries
