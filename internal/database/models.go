@@ -6,7 +6,20 @@ package database
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
+
+type Tape struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Title     string
+	Director  string
+	Genre     string
+	Quantity  int32
+	Price     int32
+}
 
 type User struct {
 	ID        int32
