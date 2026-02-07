@@ -57,6 +57,16 @@ func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, e
 	return i, err
 }
 
+const deleteTape = `-- name: DeleteTape :exec
+DELETE FROM tapes
+WHERE id = $1
+`
+
+func (q *Queries) DeleteTape(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.ExecContext(ctx, deleteTape, id)
+	return err
+}
+
 const getTape = `-- name: GetTape :one
 SELECT id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
 WHERE id = $1

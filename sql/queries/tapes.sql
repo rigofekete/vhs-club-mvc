@@ -31,3 +31,7 @@ SET
   price =       COALESCE(sqlc.narg('price'), price)
 WHERE id = $1
 RETURNING *;
+
+-- name: DeleteTape :exec
+DELETE FROM tapes
+WHERE id = $1;
