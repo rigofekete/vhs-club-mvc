@@ -23,6 +23,7 @@ WHERE id = $1;
 -- name: UpdateTape :one
 UPDATE tapes
 SET
+  updated_at =  NOW(),
   title =       COALESCE(sqlc.narg('title'), title),
   director =    COALESCE(sqlc.narg('director'), director),
   genre =       COALESCE(sqlc.narg('genre'), genre),

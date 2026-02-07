@@ -118,6 +118,7 @@ func (q *Queries) GetTapes(ctx context.Context) ([]Tape, error) {
 const updateTape = `-- name: UpdateTape :one
 UPDATE tapes
 SET
+  updated_at =  NOW(),
   title =       COALESCE($2, title),
   director =    COALESCE($3, director),
   genre =       COALESCE($4, genre),
