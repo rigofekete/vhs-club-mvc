@@ -37,6 +37,9 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 	changes := false
 
 	if updated.Title != nil {
+		if *updated.Title == "" {
+			return nil
+		}
 		dbUpdatedParams.Title = sql.NullString{String: *updated.Title, Valid: true}
 		changes = true
 	} else {
@@ -44,6 +47,9 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 	}
 
 	if updated.Director != nil {
+		if *updated.Director == "" {
+			return nil
+		}
 		dbUpdatedParams.Director = sql.NullString{String: *updated.Director, Valid: true}
 		changes = true
 	} else {
@@ -51,6 +57,9 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 	}
 
 	if updated.Genre != nil {
+		if *updated.Genre == "" {
+			return nil
+		}
 		dbUpdatedParams.Genre = sql.NullString{String: *updated.Genre, Valid: true}
 		changes = true
 	} else {
@@ -58,6 +67,10 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 	}
 
 	if updated.Quantity != nil {
+		// TODO: Decide if I should allow 0 quantity in Update function or not
+		// if *updated.Quantity == 0 {
+		// 	return nil
+		// }
 		dbUpdatedParams.Quantity = sql.NullInt32{Int32: *updated.Quantity, Valid: true}
 		changes = true
 	} else {
@@ -65,6 +78,9 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 	}
 
 	if updated.Price != nil {
+		if *updated.Price == 0 {
+			return nil
+		}
 		dbUpdatedParams.Price = sql.NullFloat64{Float64: *updated.Price, Valid: true}
 		changes = true
 	} else {
@@ -81,21 +97,14 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 // TapeService Methods
 //////////////////////
 
+// TODO: Validate fields to create new tape (e.g. no empty strings, and no 0.00 price)
+// NOTE: Consider using the same validateUpdatedTape helper function and the database.UpdateTapeParams type in this function
 func (s *tapeService) Create(tape model.Tape) *model.Tape {
 	// if !validTape(tape) {
 	// 	return nil
 	// }
 	return s.repo.Save(tape)
 }
-
-// NOTE: With the DB we won't need this any longer
-// Helper for Create
-// func validTape(tape model.Tape) bool {
-// 	if tape.Title == "" || tape.Director == "" || tape.Genre == "" || tape.Quantity == 0 || tape.Price == 0 {
-// 		return false
-// 	}
-// 	return true
-// }
 
 func (s *tapeService) List() []model.Tape {
 	return s.repo.FindAll()
