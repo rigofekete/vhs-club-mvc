@@ -56,15 +56,31 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 		Quantity:  int(dbTape.Quantity),
 		Price:     float64(dbTape.Price),
 	}
-	// r.tapes = append(r.tapes, tape)
 	return savedTape
 }
 
 func (r *tapeRepository) FindAll() []model.Tape {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-
-	return append([]model.Tape(nil), r.tapes...)
+	dbTapes, err := r.DB.GetTapes(context.Background())
+	if err != nil {
+		log.Fatalf("error getting tapes list from the db: %v", err)
+	}
+	tapes := make([]model.Tape, 0)
+	for _, tape := range dbTapes {
+		t := model.Tape{
+			ID:        tape.ID,
+			CreatedAt: tape.CreatedAt,
+			UpdatedAt: tape.UpdatedAt,
+			Title:     tape.Title,
+			Director:  tape.Director,
+			Genre:     tape.Genre,
+			Quantity:  int(tape.Quantity),
+			Price:     float64(tape.Price),
+		}
+		tapes = append(tapes, t)
+	}
+	return tapes
 }
 
 func (r *tapeRepository) FindByID(id uuid.UUID) (*model.Tape, bool) {
