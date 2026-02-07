@@ -13,6 +13,14 @@ type Tape struct {
 	Title     string    `json:"title"`
 	Director  string    `json:"director"`
 	Genre     string    `json:"genre"`
-	Quantity  int       `json:"quantity"`
+	Quantity  int32     `json:"quantity"`
 	Price     float64   `json:"price"`
+}
+
+type UpdatedTape struct {
+	Title    *string  `json:"title"`
+	Director *string  `json:"director"`
+	Genre    *string  `json:"genre"`
+	Quantity *int32   `json:"quantity"`
+	Price    *float64 `json:"price"`
 }
