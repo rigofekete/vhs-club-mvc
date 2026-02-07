@@ -53,7 +53,7 @@ func (h *TapeHandler) GetTapeByID(c *gin.Context) {
 
 func (h *TapeHandler) UpdateTape(c *gin.Context) {
 	id := c.Param("id")
-	var update model.Tape
+	var update model.UpdatedTape
 	if err := c.ShouldBindJSON(&update); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
