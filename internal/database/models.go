@@ -18,12 +18,5 @@ type Tape struct {
 	Director  string
 	Genre     string
 	Quantity  int32
-	Price     int32
-}
-
-type User struct {
-	ID        int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Email     string
+	Price     float64
 }

@@ -31,7 +31,7 @@ type CreateTapeParams struct {
 	Director string
 	Genre    string
 	Quantity int32
-	Price    int32
+	Price    float64
 }
 
 func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, error) {
