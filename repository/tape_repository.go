@@ -15,7 +15,7 @@ type TapeRepository interface {
 	Save(tape model.Tape) *model.Tape
 	FindAll() []model.Tape
 	FindByID(id uuid.UUID) (*model.Tape, bool)
-	Update(id uuid.UUID, updated model.Tape) (*model.Tape, bool)
+	Update(id uuid.UUID, updated database.UpdateTapeParams) (*model.Tape, bool)
 	Delete(id uuid.UUID) bool
 }
 
@@ -39,8 +39,8 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 		Title:    tape.Title,
 		Director: tape.Director,
 		Genre:    tape.Genre,
-		Quantity: int32(tape.Quantity),
-		Price:    float64(tape.Price),
+		Quantity: tape.Quantity,
+		Price:    tape.Price,
 	}
 
 	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
@@ -54,8 +54,8 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 		Title:     dbTape.Title,
 		Director:  dbTape.Director,
 		Genre:     dbTape.Genre,
-		Quantity:  int(dbTape.Quantity),
-		Price:     float64(dbTape.Price),
+		Quantity:  dbTape.Quantity,
+		Price:     dbTape.Price,
 	}
 	return savedTape
 }
@@ -76,8 +76,8 @@ func (r *tapeRepository) FindAll() []model.Tape {
 			Title:     tape.Title,
 			Director:  tape.Director,
 			Genre:     tape.Genre,
-			Quantity:  int(tape.Quantity),
-			Price:     float64(tape.Price),
+			Quantity:  tape.Quantity,
+			Price:     tape.Price,
 		}
 		tapes = append(tapes, t)
 	}
@@ -102,39 +102,35 @@ func (r *tapeRepository) FindByID(id uuid.UUID) (*model.Tape, bool) {
 		Title:     dbTape.Title,
 		Director:  dbTape.Director,
 		Genre:     dbTape.Genre,
-		Quantity:  int(dbTape.Quantity),
-		Price:     float64(dbTape.Price),
+		Quantity:  dbTape.Quantity,
+		Price:     dbTape.Price,
 	}
 
 	return tape, true
 }
 
-func (r *tapeRepository) Update(id uuid.UUID, updated model.Tape) (*model.Tape, bool) {
+func (r *tapeRepository) Update(id uuid.UUID, updated database.UpdateTapeParams) (*model.Tape, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// TODO: Shouldn't this data validation be done in the service layer?
-	for i, tape := range r.tapes {
-		if tape.ID == id {
-			if updated.Title != "" {
-				r.tapes[i].Title = updated.Title
-			}
-			if updated.Director != "" {
-				r.tapes[i].Director = updated.Director
-			}
-			if updated.Genre != "" {
-				r.tapes[i].Genre = updated.Genre
-			}
-			if updated.Quantity != 0 {
-				r.tapes[i].Quantity = updated.Quantity
-			}
-			if updated.Price != 0 {
-				r.tapes[i].Price = updated.Price
-			}
-			return &updated, true
-		}
+	dbTape, err := r.DB.UpdateTape(context.Background(), updated)
+	if err != nil {
+		log.Printf("error updating tape in the db: %v", err)
+		return nil, false
 	}
-	return nil, false
+
+	tape := &model.Tape{
+		ID:        dbTape.ID,
+		CreatedAt: dbTape.CreatedAt,
+		UpdatedAt: dbTape.UpdatedAt,
+		Title:     dbTape.Title,
+		Director:  dbTape.Director,
+		Genre:     dbTape.Genre,
+		Quantity:  dbTape.Quantity,
+		Price:     dbTape.Price,
+	}
+
+	return tape, true
 }
 
 func (r *tapeRepository) Delete(id uuid.UUID) bool {
