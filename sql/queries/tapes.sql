@@ -20,3 +20,13 @@ ORDER BY created_at ASC;
 SELECT * FROM tapes
 WHERE id = $1;
 
+-- name: UpdateTape :one
+UPDATE tapes
+SET
+  title =       COALESCE(sqlc.narg('title'), title),
+  director =    COALESCE(sqlc.narg('director'), director),
+  genre =       COALESCE(sqlc.narg('genre'), genre),
+  quantity =    COALESCE(sqlc.narg('quantity'), quantity),
+  price =       COALESCE(sqlc.narg('price'), price)
+WHERE id = $1
+RETURNING *;

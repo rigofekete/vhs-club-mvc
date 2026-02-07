@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -112,4 +113,48 @@ func (q *Queries) GetTapes(ctx context.Context) ([]Tape, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateTape = `-- name: UpdateTape :one
+UPDATE tapes
+SET
+  title =       COALESCE($2, title),
+  director =    COALESCE($3, director),
+  genre =       COALESCE($4, genre),
+  quantity =    COALESCE($5, quantity),
+  price =       COALESCE($6, price)
+WHERE id = $1
+RETURNING id, created_at, updated_at, title, director, genre, quantity, price
+`
+
+type UpdateTapeParams struct {
+	ID       uuid.UUID
+	Title    sql.NullString
+	Director sql.NullString
+	Genre    sql.NullString
+	Quantity sql.NullInt32
+	Price    sql.NullFloat64
+}
+
+func (q *Queries) UpdateTape(ctx context.Context, arg UpdateTapeParams) (Tape, error) {
+	row := q.db.QueryRowContext(ctx, updateTape,
+		arg.ID,
+		arg.Title,
+		arg.Director,
+		arg.Genre,
+		arg.Quantity,
+		arg.Price,
+	)
+	var i Tape
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Title,
+		&i.Director,
+		&i.Genre,
+		&i.Quantity,
+		&i.Price,
+	)
+	return i, err
 }
