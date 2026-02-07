@@ -90,8 +90,7 @@ func (r *tapeRepository) FindByID(id uuid.UUID) (*model.Tape, bool) {
 
 	dbTape, err := r.DB.GetTape(context.Background(), id)
 	if err != nil {
-		// Debug error print
-		// fmt.Errorf("error from DB.GetTape request: %v", err)
+		log.Printf("error from DB.GetTape request: %v", err)
 		return nil, false
 	}
 
@@ -137,11 +136,10 @@ func (r *tapeRepository) Delete(id uuid.UUID) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	for i, tape := range r.tapes {
-		if tape.ID == id {
-			r.tapes = append(r.tapes[:i], r.tapes[i+1:]...)
-			return true
-		}
+	err := r.DB.DeleteTape(context.Background(), id)
+	if err != nil {
+		log.Printf("error deleting tape from the db: %v", err)
+		return false
 	}
-	return false
+	return true
 }
