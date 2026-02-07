@@ -7,8 +7,7 @@ CREATE TABLE tapes(
   director    TEXT NOT NULL,
   genre       TEXT NOT NULL,
   quantity    INT NOT NULL,
-  price       INT NOT NULL
-  -- user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE
+  price       FLOAT NOT NULL
 );
 
 -- +goose Down
