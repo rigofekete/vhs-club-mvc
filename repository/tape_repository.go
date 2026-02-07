@@ -40,8 +40,9 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 		Director: tape.Director,
 		Genre:    tape.Genre,
 		Quantity: int32(tape.Quantity),
-		Price:    int32(tape.Price),
+		Price:    float64(tape.Price),
 	}
+
 	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
 	if err != nil {
 		log.Fatalf("error creating tape in the db: %v", err)
@@ -87,12 +88,25 @@ func (r *tapeRepository) FindByID(id uuid.UUID) (*model.Tape, bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	for _, tape := range r.tapes {
-		if tape.ID == id {
-			return &tape, true
-		}
+	dbTape, err := r.DB.GetTape(context.Background(), id)
+	if err != nil {
+		// Debug error print
+		// fmt.Errorf("error from DB.GetTape request: %v", err)
+		return nil, false
 	}
-	return nil, false
+
+	tape := &model.Tape{
+		ID:        dbTape.ID,
+		CreatedAt: dbTape.CreatedAt,
+		UpdatedAt: dbTape.UpdatedAt,
+		Title:     dbTape.Title,
+		Director:  dbTape.Director,
+		Genre:     dbTape.Genre,
+		Quantity:  int(dbTape.Quantity),
+		Price:     float64(dbTape.Price),
+	}
+
+	return tape, true
 }
 
 func (r *tapeRepository) Update(id uuid.UUID, updated model.Tape) (*model.Tape, bool) {
