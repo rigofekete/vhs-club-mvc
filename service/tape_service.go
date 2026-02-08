@@ -94,15 +94,20 @@ func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.Upda
 	return &dbUpdatedParams
 }
 
+// Helper for Create
+func validTape(tape model.Tape) bool {
+	return tape.Title != "" && tape.Director != "" &&
+		tape.Genre != "" && tape.Quantity != 0 && tape.Price != 0
+}
+
 // TapeService Methods
 //////////////////////
 
-// TODO: Validate fields to create new tape (e.g. no empty strings, and no 0.00 price)
-// NOTE: Consider using the same validateUpdatedTape helper function and the database.UpdateTapeParams type in this function
 func (s *tapeService) Create(tape model.Tape) *model.Tape {
-	// if !validTape(tape) {
-	// 	return nil
-	// }
+	if !validTape(tape) {
+		return nil
+	}
+
 	return s.repo.Save(tape)
 }
 
