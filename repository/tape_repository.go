@@ -20,15 +20,13 @@ type TapeRepository interface {
 }
 
 type tapeRepository struct {
-	mu    sync.Mutex
-	tapes []model.Tape
-	DB    *database.Queries
+	mu sync.Mutex
+	DB *database.Queries
 }
 
 func NewTapeRepository() TapeRepository {
 	return &tapeRepository{
 		DB: config.AppConfig.DB,
-		// tapes: make([]model.Tape, 0),
 	}
 }
 
