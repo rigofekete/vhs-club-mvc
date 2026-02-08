@@ -58,6 +58,11 @@ func (m *mockTapeRespository) Delete(id uuid.UUID) bool {
 	return args.Bool(0)
 }
 
+func (m *mockTapeRespository) DeleteAllTapes() bool {
+	args := m.Called()
+	return args.Bool(0)
+}
+
 func TestCreate_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
@@ -67,8 +72,7 @@ func TestCreate_Success(t *testing.T) {
 		Title:    "Sleeper",
 		Director: "Woody ALlen",
 		Genre:    "Comedy",
-		Quantity: 1,
-		Price:    5999.99,
+		Quantity: 1, Price: 5999.99,
 	}
 
 	createdTape := &model.Tape{
@@ -271,6 +275,19 @@ func TestDelete_NotFound(t *testing.T) {
 	deleted := svc.Delete(id.String())
 
 	assert.False(t, deleted)
+
+	mockRepo.AssertExpectations(t)
+}
+
+func TestDeleteAllTapes(t *testing.T) {
+	mockRepo := NewTapeMockRepository()
+
+	mockRepo.On("DeleteAllTapes").Return(true)
+
+	svc := service.NewTapeService(mockRepo)
+	deleted := svc.DeleteAll()
+
+	assert.True(t, deleted)
 
 	mockRepo.AssertExpectations(t)
 }
