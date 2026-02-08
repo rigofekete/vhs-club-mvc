@@ -16,6 +16,7 @@ type TapeService interface {
 	GetTapeByID(id string) (*model.Tape, bool)
 	Update(id string, updated model.UpdatedTape) (*model.Tape, bool)
 	Delete(id string) bool
+	DeleteAll() bool
 }
 
 type tapeService struct {
@@ -147,4 +148,8 @@ func (s *tapeService) Delete(id string) bool {
 		return false
 	}
 	return s.repo.Delete(tapeID)
+}
+
+func (s *tapeService) DeleteAll() bool {
+	return s.repo.DeleteAllTapes()
 }
