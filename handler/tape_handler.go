@@ -33,6 +33,10 @@ func (h *TapeHandler) CreateTape(c *gin.Context) {
 		return
 	}
 	created := h.tapeService.Create(newTape)
+	if created == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tape"})
+		return
+	}
 	c.JSON(http.StatusCreated, created)
 }
 

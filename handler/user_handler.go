@@ -28,6 +28,10 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 	created := h.userService.Create(newUser)
+	if created == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user cannot be created"})
+		return
+	}
 	c.JSON(http.StatusCreated, created)
 }
 
