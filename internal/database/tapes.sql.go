@@ -57,6 +57,15 @@ func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, e
 	return i, err
 }
 
+const deleteAllTapes = `-- name: DeleteAllTapes :exec
+DELETE FROM tapes
+`
+
+func (q *Queries) DeleteAllTapes(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllTapes)
+	return err
+}
+
 const deleteTape = `-- name: DeleteTape :exec
 DELETE FROM tapes
 WHERE id = $1
