@@ -103,7 +103,7 @@ func TestCreate_InvalidTape(t *testing.T) {
 		Price:    5999.99,
 	}
 
-	mockRepo.Mock.On("Save", inputTape).Return(nil)
+	// mockRepo.Mock.On("Save", inputTape).Return(nil)
 
 	svc := service.NewTapeService(mockRepo)
 	tape := svc.Create(inputTape)
