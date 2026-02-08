@@ -17,6 +17,7 @@ type TapeRepository interface {
 	FindByID(id uuid.UUID) (*model.Tape, bool)
 	Update(id uuid.UUID, updated database.UpdateTapeParams) (*model.Tape, bool)
 	Delete(id uuid.UUID) bool
+	DeleteAllTapes() bool
 }
 
 type tapeRepository struct {
@@ -139,6 +140,18 @@ func (r *tapeRepository) Delete(id uuid.UUID) bool {
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
 		log.Printf("error deleting tape from the db: %v", err)
+		return false
+	}
+	return true
+}
+
+func (r *tapeRepository) DeleteAllTapes() bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	err := r.DB.DeleteAllTapes(context.Background())
+	if err != nil {
+		log.Printf("error deleting all tapes from the db: %v", err)
 		return false
 	}
 	return true
