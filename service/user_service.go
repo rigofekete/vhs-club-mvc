@@ -14,6 +14,10 @@ type userService struct {
 	repo repository.UserRepository
 }
 
+func validUserFields(user model.User) bool {
+	return user.Name != "" && user.Email != ""
+}
+
 func NewUserService(r repository.UserRepository) UserService {
 	return &userService{
 		repo: r,
@@ -21,6 +25,9 @@ func NewUserService(r repository.UserRepository) UserService {
 }
 
 func (s *userService) Create(user model.User) *model.User {
+	if !validUserFields(user) {
+		return nil
+	}
 	return s.repo.Save(user)
 }
 
