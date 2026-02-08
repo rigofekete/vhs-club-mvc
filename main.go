@@ -19,6 +19,11 @@ func main() {
 	})
 
 	// Dependency Injections
+	userRepository := repository.NewUserRepository()
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(userService)
+	userHandler.RegisterRoutes(router)
+
 	tapeRepository := repository.NewTapeRepository()
 	tapeService := service.NewTapeService(tapeRepository)
 	tapeHandler := handler.NewTapeHandler(tapeService)
