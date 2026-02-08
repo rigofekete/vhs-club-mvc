@@ -24,6 +24,7 @@ func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
 	r.GET("/tapes/:id", h.GetTapeByID)
 	r.PATCH("/tapes/:id", h.UpdateTape)
 	r.DELETE("/tapes/:id", h.DeleteTape)
+	r.DELETE("/tapes", h.DeleteAllTapes)
 }
 
 func (h *TapeHandler) CreateTape(c *gin.Context) {
@@ -76,5 +77,10 @@ func (h *TapeHandler) DeleteTape(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "tape not found"})
 		return
 	}
+	c.Status(http.StatusNoContent)
+}
+
+func (h *TapeHandler) DeleteAllTapes(c *gin.Context) {
+	_ = h.tapeService.DeleteAll()
 	c.Status(http.StatusNoContent)
 }
