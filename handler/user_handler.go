@@ -19,6 +19,7 @@ func NewUserHandler(s service.UserService) *UserHandler {
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/users", h.CreateUser)
 	r.GET("/users", h.GetUsers)
+	r.DELETE("/users", h.DeleteAllUsers)
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
@@ -38,4 +39,9 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 func (h *UserHandler) GetUsers(c *gin.Context) {
 	users := h.userService.List()
 	c.JSON(http.StatusOK, users)
+}
+
+func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
+	h.userService.DeleteAll()
+	c.Status(http.StatusNoContent)
 }
