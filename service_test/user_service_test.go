@@ -34,6 +34,11 @@ func (m *mockUserRespository) FindAll() []model.User {
 	return nil
 }
 
+func (m *mockUserRespository) DeleteAllUsers() bool {
+	args := m.Called()
+	return args.Bool(0)
+}
+
 func Test_User_Create_Success(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
@@ -74,6 +79,19 @@ func Test_Create_InvalidUser(t *testing.T) {
 	user := svc.Create(inputUser)
 
 	assert.Nil(t, user)
+
+	mockRepo.AssertExpectations(t)
+}
+
+func TestDeleteAllUsers(t *testing.T) {
+	mockRepo := NewUserMockRepository()
+
+	mockRepo.On("DeleteAllUsers").Return(true)
+
+	svc := service.NewUserService(mockRepo)
+	deleted := svc.DeleteAll()
+
+	assert.True(t, deleted)
 
 	mockRepo.AssertExpectations(t)
 }
