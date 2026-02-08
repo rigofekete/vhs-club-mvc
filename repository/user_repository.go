@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"log"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -12,6 +13,7 @@ import (
 type UserRepository interface {
 	Save(user model.User) *model.User
 	FindAll() []model.User
+	DeleteAllUsers() bool
 }
 
 type userRepository struct {
@@ -68,4 +70,16 @@ func (r *userRepository) FindAll() []model.User {
 		users = append(users, u)
 	}
 	return users
+}
+
+func (r *userRepository) DeleteAllUsers() bool {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	err := r.DB.DeleteAllUsers(context.Background())
+	if err != nil {
+		log.Printf("error deleting all users from the db: %v", err)
+		return false
+	}
+	return true
 }
