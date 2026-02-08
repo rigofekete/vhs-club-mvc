@@ -20,3 +20,11 @@ type Tape struct {
 	Quantity  int32
 	Price     float64
 }
+
+type User struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Name      string
+	Email     string
+}
