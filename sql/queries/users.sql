@@ -13,6 +13,8 @@ RETURNING *;
 SELECT * FROM users
 ORDER BY created_at ASC;
 
+-- name: DeleteAllUsers :exec
+DELETE FROM users;
 
 
 

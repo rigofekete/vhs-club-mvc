@@ -35,3 +35,6 @@ RETURNING *;
 -- name: DeleteTape :exec
 DELETE FROM tapes
 WHERE id = $1;
+
+-- name: DeleteAllTapes :exec
+DELETE FROM tapes;
