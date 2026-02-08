@@ -43,7 +43,8 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 
 	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
 	if err != nil {
-		log.Fatalf("error creating tape in the db: %v", err)
+		// TODO: Should we return the err together with the object pointer?
+		return nil
 	}
 	savedTape := &model.Tape{
 		ID:        dbTape.ID,
@@ -63,7 +64,8 @@ func (r *tapeRepository) FindAll() []model.Tape {
 	defer r.mu.Unlock()
 	dbTapes, err := r.DB.GetTapes(context.Background())
 	if err != nil {
-		log.Fatalf("error getting tapes list from the db: %v", err)
+		// TODO: Should we return the err together with the object pointer?
+		return nil
 	}
 	tapes := make([]model.Tape, 0)
 	for _, tape := range dbTapes {
