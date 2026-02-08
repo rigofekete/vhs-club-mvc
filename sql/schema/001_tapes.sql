@@ -3,7 +3,7 @@ CREATE TABLE tapes(
   id UUID     PRIMARY KEY,
   created_at  TIMESTAMP NOT NULL,
   updated_at  TIMESTAMP NOT NULL,
-  title       TEXT NOT NULL,
+  title       TEXT NOT NULL UNIQUE,
   director    TEXT NOT NULL,
   genre       TEXT NOT NULL,
   quantity    INT NOT NULL,
@@ -11,3 +11,4 @@ CREATE TABLE tapes(
 );
 
 -- +goose Down
+DROP TABLE tapes;
