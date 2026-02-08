@@ -8,6 +8,7 @@ import (
 type UserService interface {
 	Create(model.User) *model.User
 	List() []model.User
+	DeleteAll() bool
 }
 
 type userService struct {
@@ -33,4 +34,8 @@ func (s *userService) Create(user model.User) *model.User {
 
 func (s *userService) List() []model.User {
 	return s.repo.FindAll()
+}
+
+func (s *userService) DeleteAll() bool {
+	return s.repo.DeleteAllUsers()
 }
