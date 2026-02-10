@@ -5,10 +5,20 @@
 package database
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type Rental struct {
+	ID         uuid.UUID
+	CreatedAt  time.Time
+	UserID     uuid.UUID
+	TapeID     uuid.UUID
+	RentedAt   time.Time
+	ReturnedAt sql.NullTime
+}
 
 type Tape struct {
 	ID        uuid.UUID
