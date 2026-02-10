@@ -19,6 +19,7 @@ func NewUserHandler(s service.UserService) *UserHandler {
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/users", h.CreateUser)
 	r.GET("/users", h.GetUsers)
+	// TODO: Add find User by id
 	r.DELETE("/users", h.DeleteAllUsers)
 }
 
