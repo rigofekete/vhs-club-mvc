@@ -29,12 +29,15 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	created := h.userService.Create(newUser)
-	if created == nil {
+
+	// TODO use DTO package to return DTO obj instead
+	createdUser := h.userService.Create(newUser)
+	// TODO: rename this created var, it is too ambiguous
+	if createdUser == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user cannot be created"})
 		return
 	}
-	c.JSON(http.StatusCreated, created)
+	c.JSON(http.StatusCreated, createdUser)
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
