@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -17,16 +16,21 @@ func NewRentalHandler(s service.RentalService) *RentalHandler {
 }
 
 func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
-	r.POST("/rentals", h.CreateRental)
+	r.POST("/rentals/:id", h.CreateRental)
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {
-	var newRental model.Rental
-	if err := c.ShouldBindJSON(&newRental); err != nil {
+	type parameters struct {
+		UserID string `json:"user_id"`
+	}
+
+	tapeID := c.Param("id")
+	var params parameters
+	if err := c.ShouldBindJSON(&params); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	created := h.rentalService.Create(newRental)
+	created := h.rentalService.Create(tapeID, params.UserID)
 	if created == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid rental"})
 		return
