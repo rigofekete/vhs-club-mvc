@@ -30,10 +30,10 @@ func (h *RentalHandler) CreateRental(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	created := h.rentalService.Create(tapeID, params.UserID)
-	if created == nil {
+	createdRental := h.rentalService.Create(tapeID, params.UserID)
+	if createdRental == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid rental"})
 		return
 	}
-	c.JSON(http.StatusCreated, created)
+	c.JSON(http.StatusCreated, createdRental)
 }
