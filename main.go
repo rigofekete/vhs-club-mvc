@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/handler"
@@ -13,12 +15,13 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{
+		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",
 		})
 	})
 
 	// Dependency Injections
+
 	userRepository := repository.NewUserRepository()
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
@@ -28,6 +31,11 @@ func main() {
 	tapeService := service.NewTapeService(tapeRepository)
 	tapeHandler := handler.NewTapeHandler(tapeService)
 	tapeHandler.RegisterRoutes(router)
+
+	rentalRepository := repository.NewRentalRepository()
+	rentalService := service.NewRentalService(rentalRepository)
+	rentalHandler := handler.NewRentalHandler(rentalService)
+	rentalHandler.RegisterRoutes(router)
 
 	_ = router.Run(":8080")
 }
