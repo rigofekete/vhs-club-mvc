@@ -33,12 +33,12 @@ func (h *TapeHandler) CreateTape(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	created := h.tapeService.Create(newTape)
-	if created == nil {
+	createdTape := h.tapeService.Create(newTape)
+	if createdTape == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tape"})
 		return
 	}
-	c.JSON(http.StatusCreated, created)
+	c.JSON(http.StatusCreated, createdTape)
 }
 
 func (h *TapeHandler) GetTapes(c *gin.Context) {
@@ -73,7 +73,7 @@ func (h *TapeHandler) UpdateTape(c *gin.Context) {
 
 func (h *TapeHandler) DeleteTape(c *gin.Context) {
 	id := c.Param("id")
-	if deleted := h.tapeService.Delete(id); !deleted {
+	if deletedTape := h.tapeService.Delete(id); !deletedTape {
 		c.JSON(http.StatusNotFound, gin.H{"error": "tape not found"})
 		return
 	}
