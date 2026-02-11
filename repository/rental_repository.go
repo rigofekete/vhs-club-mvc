@@ -2,15 +2,18 @@ package repository
 
 import (
 	"context"
+	"database/sql"
+	"log"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
 
 type RentalRepository interface {
-	Save(tape model.Rental) *model.Rental
+	Save(tapeID, userID uuid.UUID) *model.Rental
 }
 
 type rentalRepository struct {
@@ -24,12 +27,21 @@ func NewRentalRepository() RentalRepository {
 	}
 }
 
-func (r *rentalRepository) Save(rental model.Rental) *model.Rental {
+func (r *rentalRepository) Save(tapeID, userID uuid.UUID) *model.Rental {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
+	tape, err := r.DB.GetTape(context.Background(), tapeID)
+	if err != nil {
+		// TODO: decide how to handle such errors back to the controller layer
+		log.Printf("error: requested tape does not exist in the database: %v", err)
+		return nil
+	}
+
 	rentalParams := database.CreateRentalParams{
-		UserID: rental.UserID,
-		TapeID: rental.TapeID,
+		UserID:     userID,
+		TapeID:     tape.ID,
+		ReturnedAt: sql.NullTime{Valid: false},
 	}
 
 	dbRental, err := r.DB.CreateRental(context.Background(), rentalParams)
