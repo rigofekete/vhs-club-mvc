@@ -3,7 +3,6 @@ package service_test
 import (
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
 	"github.com/stretchr/testify/assert"
@@ -42,7 +41,7 @@ func (m *mockUserRespository) DeleteAllUsers() bool {
 func Test_User_Create_Success(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(14)
 	inputUser := model.User{
 		Name:  "Miles Davis",
 		Email: "grumpy.genius@cool.com",

@@ -2,9 +2,9 @@ package service_test
 
 import (
 	"database/sql"
+	"strconv"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
@@ -36,7 +36,7 @@ func (m *mockTapeRespository) FindAll() []model.Tape {
 	return nil
 }
 
-func (m *mockTapeRespository) FindByID(id uuid.UUID) (*model.Tape, bool) {
+func (m *mockTapeRespository) FindByID(id int32) (*model.Tape, bool) {
 	args := m.Called(id)
 	if tape := args.Get(0); tape != nil {
 		return tape.(*model.Tape), args.Bool(1)
@@ -44,16 +44,16 @@ func (m *mockTapeRespository) FindByID(id uuid.UUID) (*model.Tape, bool) {
 	return nil, args.Bool(1)
 }
 
-func (m *mockTapeRespository) Update(id uuid.UUID, updated database.UpdateTapeParams) (*model.Tape, bool) {
-	updated.ID = id
-	args := m.Called(id, updated)
+func (m *mockTapeRespository) Update(id int32, updatedTape database.UpdateTapeParams) (*model.Tape, bool) {
+	updatedTape.ID = id
+	args := m.Called(id, updatedTape)
 	if tape := args.Get(0); tape != nil {
 		return tape.(*model.Tape), args.Bool(1)
 	}
 	return nil, false
 }
 
-func (m *mockTapeRespository) Delete(id uuid.UUID) bool {
+func (m *mockTapeRespository) Delete(id int32) bool {
 	args := m.Called(id)
 	return args.Bool(0)
 }
@@ -66,7 +66,7 @@ func (m *mockTapeRespository) DeleteAllTapes() bool {
 func TestCreate_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(5)
 	inputTape := model.Tape{
 		ID:       id,
 		Title:    "Sleeper",
@@ -97,7 +97,7 @@ func TestCreate_Success(t *testing.T) {
 func TestCreate_InvalidTape(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(22)
 	inputTape := model.Tape{
 		ID:       id,
 		Title:    "The Shining",
@@ -120,9 +120,9 @@ func TestCreate_InvalidTape(t *testing.T) {
 func TestList(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id1 := uuid.New()
-	id2 := uuid.New()
-	id3 := uuid.New()
+	id1 := returnInt32(5)
+	id2 := returnInt32(7)
+	id3 := returnInt32(100)
 	expectedTapes := []model.Tape{
 		{
 			ID:       id1,
@@ -163,7 +163,7 @@ func TestList(t *testing.T) {
 func TestFindByID_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(76)
 	expected := model.Tape{
 		ID: id, Title: "Alien", Director: "Ridley Scott", Genre: "Horror", Quantity: 1, Price: 5999.99,
 	}
@@ -171,7 +171,7 @@ func TestFindByID_Success(t *testing.T) {
 
 	svc := service.NewTapeService(mockRepo)
 
-	tape, found := svc.GetTapeByID(id.String())
+	tape, found := svc.GetTapeByID(strconv.Itoa(int(id)))
 
 	assert.True(t, found)
 	assert.Equal(t, &expected, tape)
@@ -182,12 +182,12 @@ func TestFindByID_Success(t *testing.T) {
 func TestFindByID_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(8)
 	mockRepo.On("FindByID", id).Return(nil, false)
 
 	svc := service.NewTapeService(mockRepo)
 
-	tape, found := svc.GetTapeByID(id.String())
+	tape, found := svc.GetTapeByID(strconv.Itoa(int(id)))
 
 	assert.False(t, found)
 	assert.Nil(t, tape)
@@ -198,7 +198,7 @@ func TestFindByID_NotFound(t *testing.T) {
 func TestUpdate_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(44)
 	genre := "Difficult to label"
 	partialForRepoCall := database.UpdateTapeParams{
 		ID:    id,
@@ -219,10 +219,10 @@ func TestUpdate_Success(t *testing.T) {
 	partialForSvc := model.UpdatedTape{
 		Genre: &genre,
 	}
-	updated, found := svc.Update(id.String(), partialForSvc)
+	partialUpdatedTape, found := svc.Update(strconv.Itoa(int(id)), partialForSvc)
 
 	assert.True(t, found)
-	assert.Equal(t, &updatedTape, updated)
+	assert.Equal(t, &updatedTape, partialUpdatedTape)
 
 	mockRepo.AssertExpectations(t)
 }
@@ -230,7 +230,7 @@ func TestUpdate_Success(t *testing.T) {
 func TestUpdate_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(2001)
 	partialForRepoCall := database.UpdateTapeParams{
 		ID:    id,
 		Title: sql.NullString{String: "Superman", Valid: true},
@@ -244,10 +244,10 @@ func TestUpdate_NotFound(t *testing.T) {
 	partialForSvcCall := model.UpdatedTape{
 		Title: &title,
 	}
-	updated, found := svc.Update(id.String(), partialForSvcCall)
+	updatedTape, found := svc.Update(strconv.Itoa(int(id)), partialForSvcCall)
 
 	assert.False(t, found)
-	assert.Nil(t, updated)
+	assert.Nil(t, updatedTape)
 
 	mockRepo.AssertExpectations(t)
 }
@@ -255,26 +255,26 @@ func TestUpdate_NotFound(t *testing.T) {
 func TestDelete_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := uuid.New()
+	id := returnInt32(43)
 	mockRepo.On("Delete", id).Return(true)
 
 	svc := service.NewTapeService(mockRepo)
-	deleted := svc.Delete(id.String())
+	deletedTape := svc.Delete(strconv.Itoa(int(id)))
 
-	assert.True(t, deleted)
+	assert.True(t, deletedTape)
 
 	mockRepo.AssertExpectations(t)
 }
 
 func TestDelete_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
-	id := uuid.New()
+	id := returnInt32(20)
 	mockRepo.On("Delete", id).Return(false)
 
 	svc := service.NewTapeService(mockRepo)
-	deleted := svc.Delete(id.String())
+	deletedTape := svc.Delete(strconv.Itoa(int(id)))
 
-	assert.False(t, deleted)
+	assert.False(t, deletedTape)
 
 	mockRepo.AssertExpectations(t)
 }
@@ -285,9 +285,9 @@ func TestDeleteAllTapes(t *testing.T) {
 	mockRepo.On("DeleteAllTapes").Return(true)
 
 	svc := service.NewTapeService(mockRepo)
-	deleted := svc.DeleteAll()
+	deletedTape := svc.DeleteAll()
 
-	assert.True(t, deleted)
+	assert.True(t, deletedTape)
 
 	mockRepo.AssertExpectations(t)
 }
