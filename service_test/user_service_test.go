@@ -41,7 +41,7 @@ func (m *mockUserRespository) DeleteAllUsers() bool {
 func Test_User_Create_Success(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	id := returnInt32(14)
+	id := int32(14)
 	inputUser := model.User{
 		Name:  "Miles Davis",
 		Email: "grumpy.genius@cool.com",

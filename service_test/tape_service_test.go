@@ -66,7 +66,8 @@ func (m *mockTapeRespository) DeleteAllTapes() bool {
 func TestCreate_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(5)
+	// id := int32(5)
+	id := int32(5)
 	inputTape := model.Tape{
 		ID:       id,
 		Title:    "Sleeper",
@@ -97,7 +98,7 @@ func TestCreate_Success(t *testing.T) {
 func TestCreate_InvalidTape(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(22)
+	id := int32(22)
 	inputTape := model.Tape{
 		ID:       id,
 		Title:    "The Shining",
@@ -120,9 +121,9 @@ func TestCreate_InvalidTape(t *testing.T) {
 func TestList(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id1 := returnInt32(5)
-	id2 := returnInt32(7)
-	id3 := returnInt32(100)
+	id1 := int32(5)
+	id2 := int32(7)
+	id3 := int32(100)
 	expectedTapes := []model.Tape{
 		{
 			ID:       id1,
@@ -163,7 +164,7 @@ func TestList(t *testing.T) {
 func TestFindByID_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(76)
+	id := int32(76)
 	expected := model.Tape{
 		ID: id, Title: "Alien", Director: "Ridley Scott", Genre: "Horror", Quantity: 1, Price: 5999.99,
 	}
@@ -182,7 +183,7 @@ func TestFindByID_Success(t *testing.T) {
 func TestFindByID_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(8)
+	id := int32(8)
 	mockRepo.On("FindByID", id).Return(nil, false)
 
 	svc := service.NewTapeService(mockRepo)
@@ -198,7 +199,7 @@ func TestFindByID_NotFound(t *testing.T) {
 func TestUpdate_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(44)
+	id := int32(44)
 	genre := "Difficult to label"
 	partialForRepoCall := database.UpdateTapeParams{
 		ID:    id,
@@ -230,7 +231,7 @@ func TestUpdate_Success(t *testing.T) {
 func TestUpdate_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(2001)
+	id := int32(2001)
 	partialForRepoCall := database.UpdateTapeParams{
 		ID:    id,
 		Title: sql.NullString{String: "Superman", Valid: true},
@@ -255,7 +256,7 @@ func TestUpdate_NotFound(t *testing.T) {
 func TestDelete_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	id := returnInt32(43)
+	id := int32(43)
 	mockRepo.On("Delete", id).Return(true)
 
 	svc := service.NewTapeService(mockRepo)
@@ -268,7 +269,7 @@ func TestDelete_Success(t *testing.T) {
 
 func TestDelete_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
-	id := returnInt32(20)
+	id := int32(20)
 	mockRepo.On("Delete", id).Return(false)
 
 	svc := service.NewTapeService(mockRepo)
