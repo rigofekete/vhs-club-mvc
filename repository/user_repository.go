@@ -42,6 +42,7 @@ func (r *userRepository) Save(user model.User) *model.User {
 	}
 	createdUser := &model.User{
 		ID:        dbUser.ID,
+		PublicID:  dbUser.PublicID.UUID,
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 		Name:      dbUser.Name,
@@ -56,12 +57,14 @@ func (r *userRepository) FindAll() []model.User {
 	dbUsers, err := r.DB.GetUsers(context.Background())
 	if err != nil {
 		// TODO: Should we return the err together with the object pointer?
+		// TODO: CHECK Idiomatic way to handle central errors with GIN GONIC
 		return nil
 	}
 	users := make([]model.User, 0)
 	for _, user := range dbUsers {
 		u := model.User{
 			ID:        user.ID,
+			PublicID:  user.PublicID.UUID,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 			Name:      user.Name,

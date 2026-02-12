@@ -6,14 +6,13 @@ import (
 	"log"
 	"sync"
 
-	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
 
 type RentalRepository interface {
-	Save(tapeID, userID uuid.UUID) *model.Rental
+	Save(tapeID, userID int32) *model.Rental
 }
 
 type rentalRepository struct {
@@ -27,7 +26,7 @@ func NewRentalRepository() RentalRepository {
 	}
 }
 
-func (r *rentalRepository) Save(tapeID, userID uuid.UUID) *model.Rental {
+func (r *rentalRepository) Save(tapeID, userID int32) *model.Rental {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -51,6 +50,7 @@ func (r *rentalRepository) Save(tapeID, userID uuid.UUID) *model.Rental {
 	}
 	savedRental := &model.Rental{
 		ID:         dbRental.ID,
+		PublicID:   dbRental.PublicID.UUID,
 		CreatedAt:  dbRental.CreatedAt,
 		UserID:     dbRental.UserID,
 		TapeID:     dbRental.TapeID,
