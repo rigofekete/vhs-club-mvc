@@ -1,11 +1,8 @@
 -- name: CreateRental :one
-INSERT INTO rentals (id, created_at, user_id, tape_id, rented_at, returned_at)
+INSERT INTO rentals (user_id, tape_id, returned_at)
 VALUES(
-  gen_random_uuid(),
-  NOW(),
   $1,
   $2,
-  NOW(),
   $3
 )
 RETURNING *;
