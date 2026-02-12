@@ -8,23 +8,18 @@ package database
 import (
 	"context"
 	"database/sql"
-
-	"github.com/google/uuid"
 )
 
 const createTape = `-- name: CreateTape :one
-INSERT INTO tapes (id, created_at, updated_at, title, director, genre, quantity, price)
+INSERT INTO tapes (title, director, genre, quantity, price)
 VALUES (
-  gen_random_uuid(),
-  NOW(),
-  NOW(),
   $1,
   $2,
   $3,
   $4,
   $5
 )
-RETURNING id, created_at, updated_at, title, director, genre, quantity, price
+RETURNING id, public_id, created_at, updated_at, title, director, genre, quantity, price
 `
 
 type CreateTapeParams struct {
@@ -46,6 +41,7 @@ func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, e
 	var i Tape
 	err := row.Scan(
 		&i.ID,
+		&i.PublicID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Title,
@@ -71,21 +67,22 @@ DELETE FROM tapes
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTape(ctx context.Context, id uuid.UUID) error {
+func (q *Queries) DeleteTape(ctx context.Context, id int32) error {
 	_, err := q.db.ExecContext(ctx, deleteTape, id)
 	return err
 }
 
 const getTape = `-- name: GetTape :one
-SELECT id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
 WHERE id = $1
 `
 
-func (q *Queries) GetTape(ctx context.Context, id uuid.UUID) (Tape, error) {
+func (q *Queries) GetTape(ctx context.Context, id int32) (Tape, error) {
 	row := q.db.QueryRowContext(ctx, getTape, id)
 	var i Tape
 	err := row.Scan(
 		&i.ID,
+		&i.PublicID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Title,
@@ -98,7 +95,7 @@ func (q *Queries) GetTape(ctx context.Context, id uuid.UUID) (Tape, error) {
 }
 
 const getTapes = `-- name: GetTapes :many
-SELECT id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
 ORDER BY created_at ASC
 `
 
@@ -113,6 +110,7 @@ func (q *Queries) GetTapes(ctx context.Context) ([]Tape, error) {
 		var i Tape
 		if err := rows.Scan(
 			&i.ID,
+			&i.PublicID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Title,
@@ -144,11 +142,11 @@ SET
   quantity =    COALESCE($5, quantity),
   price =       COALESCE($6, price)
 WHERE id = $1
-RETURNING id, created_at, updated_at, title, director, genre, quantity, price
+RETURNING id, public_id, created_at, updated_at, title, director, genre, quantity, price
 `
 
 type UpdateTapeParams struct {
-	ID       uuid.UUID
+	ID       int32
 	Title    sql.NullString
 	Director sql.NullString
 	Genre    sql.NullString
@@ -168,6 +166,7 @@ func (q *Queries) UpdateTape(ctx context.Context, arg UpdateTapeParams) (Tape, e
 	var i Tape
 	err := row.Scan(
 		&i.ID,
+		&i.PublicID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Title,

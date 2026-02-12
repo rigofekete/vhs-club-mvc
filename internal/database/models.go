@@ -12,16 +12,18 @@ import (
 )
 
 type Rental struct {
-	ID         uuid.UUID
+	ID         int32
+	PublicID   uuid.NullUUID
 	CreatedAt  time.Time
-	UserID     uuid.UUID
-	TapeID     uuid.UUID
+	UserID     int32
+	TapeID     int32
 	RentedAt   time.Time
 	ReturnedAt sql.NullTime
 }
 
 type Tape struct {
-	ID        uuid.UUID
+	ID        int32
+	PublicID  uuid.NullUUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Title     string
@@ -32,7 +34,8 @@ type Tape struct {
 }
 
 type User struct {
-	ID        uuid.UUID
+	ID        int32
+	PublicID  uuid.NullUUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Name      string

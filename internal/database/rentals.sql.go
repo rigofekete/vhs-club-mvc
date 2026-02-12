@@ -8,26 +8,21 @@ package database
 import (
 	"context"
 	"database/sql"
-
-	"github.com/google/uuid"
 )
 
 const createRental = `-- name: CreateRental :one
-INSERT INTO rentals (id, created_at, user_id, tape_id, rented_at, returned_at)
+INSERT INTO rentals (user_id, tape_id, returned_at)
 VALUES(
-  gen_random_uuid(),
-  NOW(),
   $1,
   $2,
-  NOW(),
   $3
 )
-RETURNING id, created_at, user_id, tape_id, rented_at, returned_at
+RETURNING id, public_id, created_at, user_id, tape_id, rented_at, returned_at
 `
 
 type CreateRentalParams struct {
-	UserID     uuid.UUID
-	TapeID     uuid.UUID
+	UserID     int32
+	TapeID     int32
 	ReturnedAt sql.NullTime
 }
 
@@ -36,6 +31,7 @@ func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Ren
 	var i Rental
 	err := row.Scan(
 		&i.ID,
+		&i.PublicID,
 		&i.CreatedAt,
 		&i.UserID,
 		&i.TapeID,
@@ -46,12 +42,12 @@ func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Ren
 }
 
 const getActiveRentalByID = `-- name: GetActiveRentalByID :many
-SELECT id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
+SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
 WHERE user_id = $1 AND returned_at IS NULL
 `
 
 // NULL is not a value so only IS keyword works
-func (q *Queries) GetActiveRentalByID(ctx context.Context, userID uuid.UUID) ([]Rental, error) {
+func (q *Queries) GetActiveRentalByID(ctx context.Context, userID int32) ([]Rental, error) {
 	rows, err := q.db.QueryContext(ctx, getActiveRentalByID, userID)
 	if err != nil {
 		return nil, err
@@ -62,6 +58,7 @@ func (q *Queries) GetActiveRentalByID(ctx context.Context, userID uuid.UUID) ([]
 		var i Rental
 		if err := rows.Scan(
 			&i.ID,
+			&i.PublicID,
 			&i.CreatedAt,
 			&i.UserID,
 			&i.TapeID,
@@ -82,11 +79,11 @@ func (q *Queries) GetActiveRentalByID(ctx context.Context, userID uuid.UUID) ([]
 }
 
 const getActiveRentalbyTape = `-- name: GetActiveRentalbyTape :many
-SELECT id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
+SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
 WHERE tape_id = $1 AND returned_at IS NULL
 `
 
-func (q *Queries) GetActiveRentalbyTape(ctx context.Context, tapeID uuid.UUID) ([]Rental, error) {
+func (q *Queries) GetActiveRentalbyTape(ctx context.Context, tapeID int32) ([]Rental, error) {
 	rows, err := q.db.QueryContext(ctx, getActiveRentalbyTape, tapeID)
 	if err != nil {
 		return nil, err
@@ -97,6 +94,7 @@ func (q *Queries) GetActiveRentalbyTape(ctx context.Context, tapeID uuid.UUID) (
 		var i Rental
 		if err := rows.Scan(
 			&i.ID,
+			&i.PublicID,
 			&i.CreatedAt,
 			&i.UserID,
 			&i.TapeID,
@@ -123,7 +121,7 @@ WHERE id = $1
 `
 
 type ReturnTapeParams struct {
-	ID         uuid.UUID
+	ID         int32
 	ReturnedAt sql.NullTime
 }
 

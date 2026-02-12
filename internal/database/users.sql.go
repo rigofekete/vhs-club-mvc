@@ -10,15 +10,12 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(id, created_at, updated_at, name, email)
+INSERT INTO users(name, email)
 VALUES (
-  gen_random_uuid(),
-  NOW(),
-  NOW(),
   $1,
   $2
 )
-RETURNING id, created_at, updated_at, name, email
+RETURNING id, public_id, created_at, updated_at, name, email
 `
 
 type CreateUserParams struct {
@@ -31,6 +28,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	var i User
 	err := row.Scan(
 		&i.ID,
+		&i.PublicID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Name,
@@ -49,7 +47,7 @@ func (q *Queries) DeleteAllUsers(ctx context.Context) error {
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, created_at, updated_at, name, email FROM users
+SELECT id, public_id, created_at, updated_at, name, email FROM users
 ORDER BY created_at ASC
 `
 
@@ -64,6 +62,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 		var i User
 		if err := rows.Scan(
 			&i.ID,
+			&i.PublicID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 			&i.Name,
