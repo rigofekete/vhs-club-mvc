@@ -2,8 +2,8 @@ package service
 
 import (
 	"log"
+	"strconv"
 
-	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
@@ -23,16 +23,16 @@ func NewRentalService(r repository.RentalRepository) RentalService {
 }
 
 func (s *rentalService) Create(tapeIDStr, userIDStr string) *model.Rental {
-	tapeID, err := uuid.Parse(tapeIDStr)
+	tapeID, err := strconv.Atoi(tapeIDStr)
 	if err != nil {
 		log.Printf("error parsing tape id string to uuid: %v", err)
 		return nil
 	}
-	userID, err := uuid.Parse(userIDStr)
+	userID, err := strconv.Atoi(userIDStr)
 	if err != nil {
 		log.Printf("error parsing tape id string to uuid: %v", err)
 		return nil
 	}
 
-	return s.repo.Save(tapeID, userID)
+	return s.repo.Save(int32(tapeID), int32(userID))
 }
