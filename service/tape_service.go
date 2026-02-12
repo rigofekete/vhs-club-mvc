@@ -3,8 +3,8 @@ package service
 import (
 	"database/sql"
 	"log"
+	"strconv"
 
-	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
@@ -30,69 +30,69 @@ func NewTapeService(r repository.TapeRepository) TapeService {
 }
 
 // Helper for the Update method
-func validateUpdatedTape(id uuid.UUID, updated model.UpdatedTape) *database.UpdateTapeParams {
-	dbUpdatedParams := database.UpdateTapeParams{
+func validateUpdatedTape(id int32, updatedTape model.UpdatedTape) *database.UpdateTapeParams {
+	dbUpdatedTapeParams := database.UpdateTapeParams{
 		ID: id,
 	}
 
 	changes := false
 
-	if updated.Title != nil {
-		if *updated.Title == "" {
+	if updatedTape.Title != nil {
+		if *updatedTape.Title == "" {
 			return nil
 		}
-		dbUpdatedParams.Title = sql.NullString{String: *updated.Title, Valid: true}
+		dbUpdatedTapeParams.Title = sql.NullString{String: *updatedTape.Title, Valid: true}
 		changes = true
 	} else {
-		dbUpdatedParams.Title = sql.NullString{Valid: false}
+		dbUpdatedTapeParams.Title = sql.NullString{Valid: false}
 	}
 
-	if updated.Director != nil {
-		if *updated.Director == "" {
+	if updatedTape.Director != nil {
+		if *updatedTape.Director == "" {
 			return nil
 		}
-		dbUpdatedParams.Director = sql.NullString{String: *updated.Director, Valid: true}
+		dbUpdatedTapeParams.Director = sql.NullString{String: *updatedTape.Director, Valid: true}
 		changes = true
 	} else {
-		dbUpdatedParams.Director = sql.NullString{Valid: false}
+		dbUpdatedTapeParams.Director = sql.NullString{Valid: false}
 	}
 
-	if updated.Genre != nil {
-		if *updated.Genre == "" {
+	if updatedTape.Genre != nil {
+		if *updatedTape.Genre == "" {
 			return nil
 		}
-		dbUpdatedParams.Genre = sql.NullString{String: *updated.Genre, Valid: true}
+		dbUpdatedTapeParams.Genre = sql.NullString{String: *updatedTape.Genre, Valid: true}
 		changes = true
 	} else {
-		dbUpdatedParams.Genre = sql.NullString{Valid: false}
+		dbUpdatedTapeParams.Genre = sql.NullString{Valid: false}
 	}
 
-	if updated.Quantity != nil {
+	if updatedTape.Quantity != nil {
 		// TODO: Decide if I should allow 0 quantity in Update function or not
-		// if *updated.Quantity == 0 {
+		// if *updatedTape.Quantity == 0 {
 		// 	return nil
 		// }
-		dbUpdatedParams.Quantity = sql.NullInt32{Int32: *updated.Quantity, Valid: true}
+		dbUpdatedTapeParams.Quantity = sql.NullInt32{Int32: *updatedTape.Quantity, Valid: true}
 		changes = true
 	} else {
-		dbUpdatedParams.Quantity = sql.NullInt32{Valid: false}
+		dbUpdatedTapeParams.Quantity = sql.NullInt32{Valid: false}
 	}
 
-	if updated.Price != nil {
-		if *updated.Price == 0 {
+	if updatedTape.Price != nil {
+		if *updatedTape.Price == 0 {
 			return nil
 		}
-		dbUpdatedParams.Price = sql.NullFloat64{Float64: *updated.Price, Valid: true}
+		dbUpdatedTapeParams.Price = sql.NullFloat64{Float64: *updatedTape.Price, Valid: true}
 		changes = true
 	} else {
-		dbUpdatedParams.Price = sql.NullFloat64{Valid: false}
+		dbUpdatedTapeParams.Price = sql.NullFloat64{Valid: false}
 	}
 
 	if !changes {
 		return nil
 	}
 
-	return &dbUpdatedParams
+	return &dbUpdatedTapeParams
 }
 
 // Helper for Create
@@ -117,22 +117,23 @@ func (s *tapeService) List() []model.Tape {
 }
 
 func (s *tapeService) GetTapeByID(id string) (*model.Tape, bool) {
-	tapeID, err := uuid.Parse(id)
+	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
 		log.Printf("error parsing id string to uuid: %v", err)
 		return nil, false
 	}
-	return s.repo.FindByID(tapeID)
+	return s.repo.FindByID(int32(tapeID64))
 }
 
-func (s *tapeService) Update(id string, updated model.UpdatedTape) (*model.Tape, bool) {
-	tapeID, err := uuid.Parse(id)
+func (s *tapeService) Update(id string, updatedTape model.UpdatedTape) (*model.Tape, bool) {
+	tapeID64, err := strconv.Atoi(id)
+	tapeID := int32(tapeID64)
 	if err != nil {
 		log.Printf("error parsing id string to uuid: %v", err)
 		return nil, false
 	}
 
-	dbUpdatedParams := validateUpdatedTape(tapeID, updated)
+	dbUpdatedParams := validateUpdatedTape(tapeID, updatedTape)
 	if dbUpdatedParams == nil {
 		log.Print("invalid updated tape")
 		return nil, false
@@ -142,12 +143,12 @@ func (s *tapeService) Update(id string, updated model.UpdatedTape) (*model.Tape,
 }
 
 func (s *tapeService) Delete(id string) bool {
-	tapeID, err := uuid.Parse(id)
+	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
 		log.Printf("error parsing id string to uuid: %v", err)
 		return false
 	}
-	return s.repo.Delete(tapeID)
+	return s.repo.Delete(int32(tapeID64))
 }
 
 func (s *tapeService) DeleteAll() bool {
