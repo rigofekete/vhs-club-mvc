@@ -8,10 +8,11 @@ import (
 )
 
 type Rental struct {
-	ID         uuid.UUID    `json:"id"`
+	ID         int32        `json:"id"`
+	PublicID   uuid.UUID    `json:"public_id"`
 	CreatedAt  time.Time    `json:"created_at"`
-	UserID     uuid.UUID    `json:"user_id"`
-	TapeID     uuid.UUID    `json:"tape_id"`
+	UserID     int32        `json:"user_id"`
+	TapeID     int32        `json:"tape_id"`
 	RentedAt   time.Time    `json:"rented_at"`
 	ReturnedAt sql.NullTime `json:"returned_at"`
 }
