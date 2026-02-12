@@ -1,11 +1,12 @@
 -- +goose Up
 CREATE TABLE rentals(
-  id UUID PRIMARY KEY,
-  created_at TIMESTAMP NOT NULL,
-  user_id UUID NOT NULL,
-  tape_id UUID NOT NULL,
-  rented_at TIMESTAMP NOT NULL,
-  returned_at TIMESTAMP,
+  id            INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  public_id     UUID UNIQUE DEFAULT gen_random_uuid(),
+  created_at    TIMESTAMP  NOT NULL DEFAULT NOW(),
+  user_id       INT NOT NULL,
+  tape_id       INT NOT NULL,
+  rented_at     TIMESTAMP NOT NULL DEFAULT NOW(),
+  returned_at   TIMESTAMP,
   CONSTRAINT fk_rentals_user
   FOREIGN KEY (user_id) REFERENCES users(id),
   CONSTRAINT fk_rentals_tape
