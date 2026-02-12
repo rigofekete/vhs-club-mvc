@@ -1,9 +1,6 @@
 -- name: CreateTape :one
-INSERT INTO tapes (id, created_at, updated_at, title, director, genre, quantity, price)
+INSERT INTO tapes (title, director, genre, quantity, price)
 VALUES (
-  gen_random_uuid(),
-  NOW(),
-  NOW(),
   $1,
   $2,
   $3,
