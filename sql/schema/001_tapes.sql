@@ -1,8 +1,9 @@
 -- +goose Up
 CREATE TABLE tapes(
-  id UUID     PRIMARY KEY,
-  created_at  TIMESTAMP NOT NULL,
-  updated_at  TIMESTAMP NOT NULL,
+  id          INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
+  public_id   UUID UNIQUE DEFAULT gen_random_uuid(),
+  created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
   title       TEXT NOT NULL UNIQUE,
   director    TEXT NOT NULL,
   genre       TEXT NOT NULL,
