@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -23,7 +22,7 @@ func (m *mockUserRespository) Save(user model.User) (*model.User, error) {
 	if t := args.Get(0); t != nil {
 		return t.(*model.User), nil
 	}
-	return nil, errors.New("error occured")
+	return nil, args.Error(1)
 }
 
 func (m *mockUserRespository) FindAll() ([]model.User, error) {
@@ -31,7 +30,7 @@ func (m *mockUserRespository) FindAll() ([]model.User, error) {
 	if users := args.Get(0); users != nil {
 		return users.([]model.User), nil
 	}
-	return nil, errors.New("error occured")
+	return nil, args.Error(1)
 }
 
 func (m *mockUserRespository) DeleteAllUsers() error {
