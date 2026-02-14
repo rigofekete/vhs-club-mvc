@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -11,12 +10,12 @@ import (
 )
 
 type TapeRepository interface {
-	Save(tape model.Tape) *model.Tape
-	FindAll() []model.Tape
-	FindByID(id int32) (*model.Tape, bool)
-	Update(id int32, updated database.UpdateTapeParams) (*model.Tape, bool)
-	Delete(id int32) bool
-	DeleteAllTapes() bool
+	Save(tape model.Tape) (*model.Tape, error)
+	FindAll() ([]model.Tape, error)
+	FindByID(id int32) (*model.Tape, error)
+	Update(id int32, updated database.UpdateTapeParams) (*model.Tape, error)
+	Delete(id int32) error
+	DeleteAllTapes() error
 }
 
 type tapeRepository struct {
@@ -30,7 +29,7 @@ func NewTapeRepository() TapeRepository {
 	}
 }
 
-func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
+func (r *tapeRepository) Save(tape model.Tape) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	tapeParams := database.CreateTapeParams{
@@ -42,9 +41,9 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 	}
 
 	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
+	// TODO: returning raw sql errors down the chain?
 	if err != nil {
-		// TODO: Should we return the err together with the object pointer?
-		return nil
+		return nil, err
 	}
 
 	savedTape := &model.Tape{
@@ -58,16 +57,15 @@ func (r *tapeRepository) Save(tape model.Tape) *model.Tape {
 		Quantity:  dbTape.Quantity,
 		Price:     dbTape.Price,
 	}
-	return savedTape
+	return savedTape, nil
 }
 
-func (r *tapeRepository) FindAll() []model.Tape {
+func (r *tapeRepository) FindAll() ([]model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	dbTapes, err := r.DB.GetTapes(context.Background())
 	if err != nil {
-		// TODO: Should we return the err together with the object pointer?
-		return nil
+		return nil, err
 	}
 	tapes := make([]model.Tape, 0)
 	for _, tape := range dbTapes {
@@ -84,17 +82,16 @@ func (r *tapeRepository) FindAll() []model.Tape {
 		}
 		tapes = append(tapes, t)
 	}
-	return tapes
+	return tapes, nil
 }
 
-func (r *tapeRepository) FindByID(id int32) (*model.Tape, bool) {
+func (r *tapeRepository) FindByID(id int32) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	dbTape, err := r.DB.GetTape(context.Background(), id)
 	if err != nil {
-		log.Printf("error from DB.GetTape request: %v", err)
-		return nil, false
+		return nil, err
 	}
 
 	tape := &model.Tape{
@@ -109,17 +106,16 @@ func (r *tapeRepository) FindByID(id int32) (*model.Tape, bool) {
 		Price:     dbTape.Price,
 	}
 
-	return tape, true
+	return tape, nil
 }
 
-func (r *tapeRepository) Update(id int32, updatedTape database.UpdateTapeParams) (*model.Tape, bool) {
+func (r *tapeRepository) Update(id int32, updatedTape database.UpdateTapeParams) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	dbTape, err := r.DB.UpdateTape(context.Background(), updatedTape)
 	if err != nil {
-		log.Printf("error updating tape in the db: %v", err)
-		return nil, false
+		return nil, err
 	}
 
 	tape := &model.Tape{
@@ -134,29 +130,27 @@ func (r *tapeRepository) Update(id int32, updatedTape database.UpdateTapeParams)
 		Price:     dbTape.Price,
 	}
 
-	return tape, true
+	return tape, err
 }
 
-func (r *tapeRepository) Delete(id int32) bool {
+func (r *tapeRepository) Delete(id int32) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
-		log.Printf("error deleting tape from the db: %v", err)
-		return false
+		return err
 	}
-	return true
+	return nil
 }
 
-func (r *tapeRepository) DeleteAllTapes() bool {
+func (r *tapeRepository) DeleteAllTapes() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	err := r.DB.DeleteAllTapes(context.Background())
 	if err != nil {
-		log.Printf("error deleting all tapes from the db: %v", err)
-		return false
+		return err
 	}
-	return true
+	return nil
 }
