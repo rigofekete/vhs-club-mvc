@@ -11,9 +11,9 @@ import (
 )
 
 type UserRepository interface {
-	Save(user model.User) *model.User
-	FindAll() []model.User
-	DeleteAllUsers() bool
+	Save(user model.User) (*model.User, error)
+	FindAll() ([]model.User, error)
+	DeleteAllUsers() error
 }
 
 type userRepository struct {
@@ -27,7 +27,7 @@ func NewUserRepository() UserRepository {
 	}
 }
 
-func (r *userRepository) Save(user model.User) *model.User {
+func (r *userRepository) Save(user model.User) (*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	userParams := database.CreateUserParams{
@@ -37,8 +37,8 @@ func (r *userRepository) Save(user model.User) *model.User {
 
 	dbUser, err := r.DB.CreateUser(context.Background(), userParams)
 	if err != nil {
-		// TODO: Should we return the err together with the object pointer?
-		return nil
+		// TODO: Return the raw sql error?
+		return nil, err
 	}
 	createdUser := &model.User{
 		ID:        dbUser.ID,
@@ -48,17 +48,15 @@ func (r *userRepository) Save(user model.User) *model.User {
 		Name:      dbUser.Name,
 		Email:     dbUser.Email,
 	}
-	return createdUser
+	return createdUser, nil
 }
 
-func (r *userRepository) FindAll() []model.User {
+func (r *userRepository) FindAll() ([]model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	dbUsers, err := r.DB.GetUsers(context.Background())
 	if err != nil {
-		// TODO: Should we return the err together with the object pointer?
-		// TODO: CHECK Idiomatic way to handle central errors with GIN GONIC
-		return nil
+		return nil, err
 	}
 	users := make([]model.User, 0)
 	for _, user := range dbUsers {
@@ -72,17 +70,17 @@ func (r *userRepository) FindAll() []model.User {
 		}
 		users = append(users, u)
 	}
-	return users
+	return users, nil
 }
 
-func (r *userRepository) DeleteAllUsers() bool {
+func (r *userRepository) DeleteAllUsers() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	err := r.DB.DeleteAllUsers(context.Background())
 	if err != nil {
 		log.Printf("error deleting all users from the db: %v", err)
-		return false
+		return err
 	}
-	return true
+	return err
 }
