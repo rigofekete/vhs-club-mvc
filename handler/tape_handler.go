@@ -30,11 +30,12 @@ func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
 func (h *TapeHandler) CreateTape(c *gin.Context) {
 	var newTape model.Tape
 	if err := c.ShouldBindJSON(&newTape); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	createdTape := h.tapeService.Create(newTape)
+	createdTape, err := h.tapeService.Create(newTape)
 	if createdTape == nil {
+		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tape"})
 		return
 	}
