@@ -1,14 +1,16 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
 
 type UserService interface {
-	Create(model.User) *model.User
-	List() []model.User
-	DeleteAll() bool
+	Create(model.User) (*model.User, error)
+	List() ([]model.User, error)
+	DeleteAll() error
 }
 
 type userService struct {
@@ -25,17 +27,17 @@ func NewUserService(r repository.UserRepository) UserService {
 	}
 }
 
-func (s *userService) Create(user model.User) *model.User {
+func (s *userService) Create(user model.User) (*model.User, error) {
 	if !validUserFields(user) {
-		return nil
+		return nil, errors.New("invalid user fields")
 	}
 	return s.repo.Save(user)
 }
 
-func (s *userService) List() []model.User {
+func (s *userService) List() ([]model.User, error) {
 	return s.repo.FindAll()
 }
 
-func (s *userService) DeleteAll() bool {
+func (s *userService) DeleteAll() error {
 	return s.repo.DeleteAllUsers()
 }
