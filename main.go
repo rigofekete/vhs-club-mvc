@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/handler"
+	"github.com/rigofekete/vhs-club-mvc/internal/middleware"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
@@ -13,6 +14,7 @@ import (
 func main() {
 	config.Load()
 	router := gin.Default()
+	router.Use(middleware.ErrorHandler())
 
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
