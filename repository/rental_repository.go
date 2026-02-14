@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"log"
+	"errors"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -12,7 +12,7 @@ import (
 )
 
 type RentalRepository interface {
-	Save(tapeID, userID int32) *model.Rental
+	Save(tapeID, userID int32) (*model.Rental, error)
 }
 
 type rentalRepository struct {
@@ -26,15 +26,14 @@ func NewRentalRepository() RentalRepository {
 	}
 }
 
-func (r *rentalRepository) Save(tapeID, userID int32) *model.Rental {
+func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	tape, err := r.DB.GetTape(context.Background(), tapeID)
 	if err != nil {
-		// TODO: decide how to handle such errors back to the controller layer
-		log.Printf("error: requested tape does not exist in the database: %v", err)
-		return nil
+		// TODO: should we return the raw error coming from sql?
+		return nil, errors.New("requested tape does not exist in the database")
 	}
 
 	rentalParams := database.CreateRentalParams{
@@ -45,8 +44,7 @@ func (r *rentalRepository) Save(tapeID, userID int32) *model.Rental {
 
 	dbRental, err := r.DB.CreateRental(context.Background(), rentalParams)
 	if err != nil {
-		// TODO: Should we return the err together with the object pointer?
-		return nil
+		return nil, err
 	}
 	savedRental := &model.Rental{
 		ID:         dbRental.ID,
@@ -57,5 +55,5 @@ func (r *rentalRepository) Save(tapeID, userID int32) *model.Rental {
 		RentedAt:   dbRental.RentedAt,
 		ReturnedAt: dbRental.ReturnedAt,
 	}
-	return savedRental
+	return savedRental, nil
 }
