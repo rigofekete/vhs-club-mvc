@@ -27,12 +27,12 @@ func (h *RentalHandler) CreateRental(c *gin.Context) {
 	tapeID := c.Param("id")
 	var params parameters
 	if err := c.ShouldBindJSON(&params); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	createdRental := h.rentalService.Create(tapeID, params.UserID)
-	if createdRental == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid rental"})
+	createdRental, err := h.rentalService.RentTape(tapeID, params.UserID)
+	if err != nil {
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusCreated, createdRental)
