@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -17,25 +18,25 @@ func NewUserMockRepository() *mockUserRespository {
 	return &mockUserRespository{}
 }
 
-func (m *mockUserRespository) Save(user model.User) *model.User {
+func (m *mockUserRespository) Save(user model.User) (*model.User, error) {
 	args := m.Called(user)
 	if t := args.Get(0); t != nil {
-		return t.(*model.User)
+		return t.(*model.User), nil
 	}
-	return nil
+	return nil, errors.New("error occured")
 }
 
-func (m *mockUserRespository) FindAll() []model.User {
+func (m *mockUserRespository) FindAll() ([]model.User, error) {
 	args := m.Called()
 	if users := args.Get(0); users != nil {
-		return users.([]model.User)
+		return users.([]model.User), nil
 	}
-	return nil
+	return nil, errors.New("error occured")
 }
 
-func (m *mockUserRespository) DeleteAllUsers() bool {
+func (m *mockUserRespository) DeleteAllUsers() error {
 	args := m.Called()
-	return args.Bool(0)
+	return args.Error(0)
 }
 
 func Test_User_Create_Success(t *testing.T) {
@@ -53,11 +54,12 @@ func Test_User_Create_Success(t *testing.T) {
 		Email: "grumpy.genius@cool.com",
 	}
 
-	mockRepo.On("Save", inputUser).Return(createdUser)
+	mockRepo.On("Save", inputUser).Return(createdUser, nil)
 
 	svc := service.NewUserService(mockRepo)
-	user := svc.Create(inputUser)
+	user, err := svc.Create(inputUser)
 
+	assert.Nil(t, err)
 	assert.Equal(t, createdUser, user)
 
 	mockRepo.AssertExpectations(t)
@@ -75,9 +77,10 @@ func Test_Create_InvalidUser(t *testing.T) {
 	// mockRepo.Mock.On("Save", inputUser).Return(nil)
 
 	svc := service.NewUserService(mockRepo)
-	user := svc.Create(inputUser)
+	user, err := svc.Create(inputUser)
 
 	assert.Nil(t, user)
+	assert.Error(t, err)
 
 	mockRepo.AssertExpectations(t)
 }
@@ -85,12 +88,12 @@ func Test_Create_InvalidUser(t *testing.T) {
 func TestDeleteAllUsers(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	mockRepo.On("DeleteAllUsers").Return(true)
+	mockRepo.On("DeleteAllUsers").Return(nil)
 
 	svc := service.NewUserService(mockRepo)
-	deleted := svc.DeleteAll()
+	err := svc.DeleteAll()
 
-	assert.True(t, deleted)
+	assert.Nil(t, err)
 
 	mockRepo.AssertExpectations(t)
 }
