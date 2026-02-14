@@ -8,9 +8,9 @@ import (
 )
 
 type UserService interface {
-	Create(model.User) (*model.User, error)
-	List() ([]model.User, error)
-	DeleteAll() error
+	CreateUser(model.User) (*model.User, error)
+	ListUsers() ([]model.User, error)
+	DeleteAllUsers() error
 }
 
 type userService struct {
@@ -27,17 +27,17 @@ func NewUserService(r repository.UserRepository) UserService {
 	}
 }
 
-func (s *userService) Create(user model.User) (*model.User, error) {
+func (s *userService) CreateUser(user model.User) (*model.User, error) {
 	if !validUserFields(user) {
 		return nil, errors.New("invalid user fields")
 	}
 	return s.repo.Save(user)
 }
 
-func (s *userService) List() ([]model.User, error) {
+func (s *userService) ListUsers() ([]model.User, error) {
 	return s.repo.FindAll()
 }
 
-func (s *userService) DeleteAll() error {
-	return s.repo.DeleteAllUsers()
+func (s *userService) DeleteAllUsers() error {
+	return s.repo.DeleteAll()
 }
