@@ -31,7 +31,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 
 	// TODO use DTO package to return DTO obj instead
-	createdUser, err := h.userService.Create(newUser)
+	createdUser, err := h.userService.CreateUser(newUser)
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -40,7 +40,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
-	users, err := h.userService.List()
+	users, err := h.userService.ListUsers()
 	if err != nil {
 		_ = c.Error(err)
 	}
@@ -48,7 +48,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 }
 
 func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
-	err := h.userService.DeleteAll()
+	err := h.userService.DeleteAllUsers()
 	if err != nil {
 		_ = c.Error(err)
 	}
