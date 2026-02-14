@@ -15,7 +15,7 @@ type TapeRepository interface {
 	FindByID(id int32) (*model.Tape, error)
 	Update(id int32, updated database.UpdateTapeParams) (*model.Tape, error)
 	Delete(id int32) error
-	DeleteAllTapes() error
+	DeleteAll() error
 }
 
 type tapeRepository struct {
@@ -144,7 +144,7 @@ func (r *tapeRepository) Delete(id int32) error {
 	return nil
 }
 
-func (r *tapeRepository) DeleteAllTapes() error {
+func (r *tapeRepository) DeleteAll() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
