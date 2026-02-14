@@ -11,12 +11,12 @@ import (
 )
 
 type TapeService interface {
-	Create(model.Tape) (*model.Tape, error)
-	List() ([]model.Tape, error)
+	CreateTape(model.Tape) (*model.Tape, error)
+	ListTapes() ([]model.Tape, error)
 	GetTapeByID(id string) (*model.Tape, error)
-	Update(id string, updated model.UpdatedTape) (*model.Tape, error)
-	Delete(id string) error
-	DeleteAll() error
+	UpdateTape(id string, updated model.UpdatedTape) (*model.Tape, error)
+	DeleteTape(id string) error
+	DeleteAllTapes() error
 }
 
 type tapeService struct {
@@ -104,7 +104,7 @@ func validTape(tape model.Tape) bool {
 // TapeService Methods
 //////////////////////
 
-func (s *tapeService) Create(tape model.Tape) (*model.Tape, error) {
+func (s *tapeService) CreateTape(tape model.Tape) (*model.Tape, error) {
 	if !validTape(tape) {
 		return nil, errors.New("invalid tape fields")
 	}
@@ -112,7 +112,7 @@ func (s *tapeService) Create(tape model.Tape) (*model.Tape, error) {
 	return s.repo.Save(tape)
 }
 
-func (s *tapeService) List() ([]model.Tape, error) {
+func (s *tapeService) ListTapes() ([]model.Tape, error) {
 	return s.repo.FindAll()
 }
 
@@ -124,7 +124,7 @@ func (s *tapeService) GetTapeByID(id string) (*model.Tape, error) {
 	return s.repo.FindByID(int32(tapeID64))
 }
 
-func (s *tapeService) Update(id string, updatedTape model.UpdatedTape) (*model.Tape, error) {
+func (s *tapeService) UpdateTape(id string, updatedTape model.UpdatedTape) (*model.Tape, error) {
 	tapeID64, err := strconv.Atoi(id)
 	tapeID32 := int32(tapeID64)
 	if err != nil {
@@ -139,7 +139,7 @@ func (s *tapeService) Update(id string, updatedTape model.UpdatedTape) (*model.T
 	return s.repo.Update(tapeID32, *dbUpdatedParams)
 }
 
-func (s *tapeService) Delete(id string) error {
+func (s *tapeService) DeleteTape(id string) error {
 	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
 		return err
@@ -147,6 +147,6 @@ func (s *tapeService) Delete(id string) error {
 	return s.repo.Delete(int32(tapeID64))
 }
 
-func (s *tapeService) DeleteAll() error {
-	return s.repo.DeleteAllTapes()
+func (s *tapeService) DeleteAllTapes() error {
+	return s.repo.DeleteAll()
 }
