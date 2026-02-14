@@ -2,7 +2,7 @@ package service
 
 import (
 	"database/sql"
-	"log"
+	"errors"
 	"strconv"
 
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
@@ -11,12 +11,12 @@ import (
 )
 
 type TapeService interface {
-	Create(model.Tape) *model.Tape
-	List() []model.Tape
-	GetTapeByID(id string) (*model.Tape, bool)
-	Update(id string, updated model.UpdatedTape) (*model.Tape, bool)
-	Delete(id string) bool
-	DeleteAll() bool
+	Create(model.Tape) (*model.Tape, error)
+	List() ([]model.Tape, error)
+	GetTapeByID(id string) (*model.Tape, error)
+	Update(id string, updated model.UpdatedTape) (*model.Tape, error)
+	Delete(id string) error
+	DeleteAll() error
 }
 
 type tapeService struct {
@@ -104,53 +104,49 @@ func validTape(tape model.Tape) bool {
 // TapeService Methods
 //////////////////////
 
-func (s *tapeService) Create(tape model.Tape) *model.Tape {
+func (s *tapeService) Create(tape model.Tape) (*model.Tape, error) {
 	if !validTape(tape) {
-		return nil
+		return nil, errors.New("invalid tape fields")
 	}
 
 	return s.repo.Save(tape)
 }
 
-func (s *tapeService) List() []model.Tape {
+func (s *tapeService) List() ([]model.Tape, error) {
 	return s.repo.FindAll()
 }
 
-func (s *tapeService) GetTapeByID(id string) (*model.Tape, bool) {
+func (s *tapeService) GetTapeByID(id string) (*model.Tape, error) {
 	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
-		log.Printf("error parsing id string to uuid: %v", err)
-		return nil, false
+		return nil, err
 	}
 	return s.repo.FindByID(int32(tapeID64))
 }
 
-func (s *tapeService) Update(id string, updatedTape model.UpdatedTape) (*model.Tape, bool) {
+func (s *tapeService) Update(id string, updatedTape model.UpdatedTape) (*model.Tape, error) {
 	tapeID64, err := strconv.Atoi(id)
 	tapeID32 := int32(tapeID64)
 	if err != nil {
-		log.Printf("error parsing id string to uuid: %v", err)
-		return nil, false
+		return nil, err
 	}
 
 	dbUpdatedParams := validateUpdatedTape(tapeID32, updatedTape)
 	if dbUpdatedParams == nil {
-		log.Print("invalid updated tape")
-		return nil, false
+		return nil, errors.New("invalid updated tape fields")
 	}
 
 	return s.repo.Update(tapeID32, *dbUpdatedParams)
 }
 
-func (s *tapeService) Delete(id string) bool {
+func (s *tapeService) Delete(id string) error {
 	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
-		log.Printf("error parsing id string to uuid: %v", err)
-		return false
+		return err
 	}
 	return s.repo.Delete(int32(tapeID64))
 }
 
-func (s *tapeService) DeleteAll() bool {
+func (s *tapeService) DeleteAll() error {
 	return s.repo.DeleteAllTapes()
 }
