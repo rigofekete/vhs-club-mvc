@@ -30,7 +30,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	// TODO use DTO package to return DTO obj instead
+	// TODO: use DTO package to return DTO obj instead
 	createdUser, err := h.userService.CreateUser(newUser)
 	if err != nil {
 		_ = c.Error(err)
