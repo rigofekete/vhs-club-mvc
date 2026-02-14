@@ -4,9 +4,44 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
+
+type CreateUserRequest struct {
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+func (r *CreateUserRequest) ToModel() model.User {
+	return model.User{
+		Name:  r.Name,
+		Email: r.Email,
+	}
+}
+
+type UserResponse struct {
+	PublicID uuid.UUID `json:"public_id"`
+	Name     string    `json:"name"`
+	Email    string    `json:"email"`
+}
+
+func NewUserResponse(user model.User) UserResponse {
+	return UserResponse{
+		PublicID: user.PublicID,
+		Name:     user.Name,
+		Email:    user.Email,
+	}
+}
+
+func NewUserResponseList(user []model.User) []UserResponse {
+	userList := make([]UserResponse, len(user))
+	for i, user := range user {
+		userList[i] = NewUserResponse(user)
+	}
+	return userList
+}
 
 type UserHandler struct {
 	userService service.UserService
@@ -24,19 +59,19 @@ func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
-	var newUser model.User
+	var newUser CreateUserRequest
 	if err := c.ShouldBindJSON(&newUser); err != nil {
 		_ = c.Error(err)
 		return
 	}
 
-	// TODO: use DTO package to return DTO obj instead
-	createdUser, err := h.userService.CreateUser(newUser)
+	createdUser, err := h.userService.CreateUser(newUser.ToModel())
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusCreated, createdUser)
+
+	c.JSON(http.StatusCreated, NewUserResponse(*createdUser))
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
@@ -44,7 +79,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 	if err != nil {
 		_ = c.Error(err)
 	}
-	c.JSON(http.StatusOK, users)
+	c.JSON(http.StatusOK, NewUserResponseList(users))
 }
 
 func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
