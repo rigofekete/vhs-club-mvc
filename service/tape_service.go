@@ -2,9 +2,9 @@ package service
 
 import (
 	"database/sql"
-	"errors"
 	"strconv"
 
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
@@ -106,7 +106,7 @@ func validTape(tape model.Tape) bool {
 
 func (s *tapeService) CreateTape(tape model.Tape) (*model.Tape, error) {
 	if !validTape(tape) {
-		return nil, errors.New("invalid tape fields")
+		return nil, apperror.ErrTapeValidation
 	}
 
 	return s.repo.Save(tape)
@@ -133,7 +133,7 @@ func (s *tapeService) UpdateTape(id string, updatedTape model.UpdatedTape) (*mod
 
 	dbUpdatedParams := validateUpdatedTape(tapeID32, updatedTape)
 	if dbUpdatedParams == nil {
-		return nil, errors.New("invalid updated tape fields")
+		return nil, apperror.ErrTapeValidation
 	}
 
 	return s.repo.Update(tapeID32, *dbUpdatedParams)

@@ -1,8 +1,7 @@
 package service
 
 import (
-	"errors"
-
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
@@ -29,7 +28,7 @@ func NewUserService(r repository.UserRepository) UserService {
 
 func (s *userService) CreateUser(user model.User) (*model.User, error) {
 	if !validUserFields(user) {
-		return nil, errors.New("invalid user fields")
+		return nil, apperror.ErrUserValidation
 	}
 	return s.repo.Save(user)
 }
