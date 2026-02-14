@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
@@ -91,7 +92,7 @@ func (r *tapeRepository) FindByID(id int32) (*model.Tape, error) {
 
 	dbTape, err := r.DB.GetTape(context.Background(), id)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrTapeNotFound
 	}
 
 	tape := &model.Tape{
@@ -139,7 +140,7 @@ func (r *tapeRepository) Delete(id int32) error {
 
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
-		return err
+		return apperror.ErrTapeNotFound
 	}
 	return nil
 }
