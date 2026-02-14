@@ -33,7 +33,7 @@ func (h *TapeHandler) CreateTape(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	createdTape, err := h.tapeService.Create(newTape)
+	createdTape, err := h.tapeService.CreateTape(newTape)
 	if createdTape == nil {
 		_ = c.Error(err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tape"})
@@ -43,15 +43,18 @@ func (h *TapeHandler) CreateTape(c *gin.Context) {
 }
 
 func (h *TapeHandler) GetTapes(c *gin.Context) {
-	tapes := h.tapeService.List()
+	tapes, err := h.tapeService.ListTapes()
+	if err != nil {
+		_ = c.Error(err)
+	}
 	c.JSON(http.StatusOK, tapes)
 }
 
 func (h *TapeHandler) GetTapeByID(c *gin.Context) {
 	id := c.Param("id")
-	tape, found := h.tapeService.GetTapeByID(id)
-	if !found {
-		c.JSON(http.StatusNotFound, gin.H{"error": "tape not found"})
+	tape, err := h.tapeService.GetTapeByID(id)
+	if err != nil {
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, tape)
@@ -61,12 +64,13 @@ func (h *TapeHandler) UpdateTape(c *gin.Context) {
 	id := c.Param("id")
 	var update model.UpdatedTape
 	if err := c.ShouldBindJSON(&update); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
-	tape, updated := h.tapeService.Update(id, update)
-	if !updated {
-		c.JSON(http.StatusNotFound, gin.H{"error": "error updating tape"})
+	// TODO: Same names for methods in different layers. Check good practice.
+	tape, err := h.tapeService.UpdateTape(id, update)
+	if err != nil {
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusOK, tape)
@@ -74,14 +78,17 @@ func (h *TapeHandler) UpdateTape(c *gin.Context) {
 
 func (h *TapeHandler) DeleteTape(c *gin.Context) {
 	id := c.Param("id")
-	if deletedTape := h.tapeService.Delete(id); !deletedTape {
-		c.JSON(http.StatusNotFound, gin.H{"error": "tape not found"})
+	if err := h.tapeService.DeleteTape(id); err != nil {
+		_ = c.Error(err)
 		return
 	}
 	c.Status(http.StatusNoContent)
 }
 
 func (h *TapeHandler) DeleteAllTapes(c *gin.Context) {
-	_ = h.tapeService.DeleteAll()
+	if err := h.tapeService.DeleteAllTapes(); err != nil {
+		_ = c.Error(err)
+		return
+	}
 	c.Status(http.StatusNoContent)
 }
