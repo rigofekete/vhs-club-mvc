@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -30,6 +29,7 @@ func NewUserRepository() UserRepository {
 func (r *userRepository) Save(user model.User) (*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+
 	userParams := database.CreateUserParams{
 		Name:  user.Name,
 		Email: user.Email,
@@ -37,7 +37,6 @@ func (r *userRepository) Save(user model.User) (*model.User, error) {
 
 	dbUser, err := r.DB.CreateUser(context.Background(), userParams)
 	if err != nil {
-		// TODO: Return the raw sql error?
 		return nil, err
 	}
 	createdUser := &model.User{
@@ -79,7 +78,6 @@ func (r *userRepository) DeleteAll() error {
 
 	err := r.DB.DeleteAllUsers(context.Background())
 	if err != nil {
-		log.Printf("error deleting all users from the db: %v", err)
 		return err
 	}
 	return err
