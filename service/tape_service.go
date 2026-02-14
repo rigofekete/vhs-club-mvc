@@ -127,19 +127,19 @@ func (s *tapeService) GetTapeByID(id string) (*model.Tape, bool) {
 
 func (s *tapeService) Update(id string, updatedTape model.UpdatedTape) (*model.Tape, bool) {
 	tapeID64, err := strconv.Atoi(id)
-	tapeID := int32(tapeID64)
+	tapeID32 := int32(tapeID64)
 	if err != nil {
 		log.Printf("error parsing id string to uuid: %v", err)
 		return nil, false
 	}
 
-	dbUpdatedParams := validateUpdatedTape(tapeID, updatedTape)
+	dbUpdatedParams := validateUpdatedTape(tapeID32, updatedTape)
 	if dbUpdatedParams == nil {
 		log.Print("invalid updated tape")
 		return nil, false
 	}
 
-	return s.repo.Update(tapeID, *dbUpdatedParams)
+	return s.repo.Update(tapeID32, *dbUpdatedParams)
 }
 
 func (s *tapeService) Delete(id string) bool {
