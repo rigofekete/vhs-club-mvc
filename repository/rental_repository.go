@@ -3,10 +3,10 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
@@ -32,8 +32,7 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 
 	tape, err := r.DB.GetTape(context.Background(), tapeID)
 	if err != nil {
-		// TODO: should we return the raw error coming from sql?
-		return nil, errors.New("requested tape does not exist in the database")
+		return nil, apperror.ErrTapeNotFound
 	}
 
 	rentalParams := database.CreateRentalParams{
