@@ -27,7 +27,7 @@ type UserResponse struct {
 	Email    string    `json:"email"`
 }
 
-func NewUserResponse(user model.User) UserResponse {
+func SetUserResponse(user model.User) UserResponse {
 	return UserResponse{
 		PublicID: user.PublicID,
 		Name:     user.Name,
@@ -35,10 +35,10 @@ func NewUserResponse(user model.User) UserResponse {
 	}
 }
 
-func NewUserResponseList(user []model.User) []UserResponse {
+func UserListResponse(user []model.User) []UserResponse {
 	userList := make([]UserResponse, len(user))
 	for i, user := range user {
-		userList[i] = NewUserResponse(user)
+		userList[i] = SetUserResponse(user)
 	}
 	return userList
 }
@@ -71,7 +71,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, NewUserResponse(*createdUser))
+	c.JSON(http.StatusCreated, SetUserResponse(*createdUser))
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
@@ -79,7 +79,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 	if err != nil {
 		_ = c.Error(err)
 	}
-	c.JSON(http.StatusOK, NewUserResponseList(users))
+	c.JSON(http.StatusOK, UserListResponse(users))
 }
 
 func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
