@@ -26,26 +26,31 @@ func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var newUser model.User
 	if err := c.ShouldBindJSON(&newUser); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		_ = c.Error(err)
 		return
 	}
 
 	// TODO use DTO package to return DTO obj instead
-	createdUser := h.userService.Create(newUser)
-	// TODO: rename this created var, it is too ambiguous
-	if createdUser == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "user cannot be created"})
+	createdUser, err := h.userService.Create(newUser)
+	if err != nil {
+		_ = c.Error(err)
 		return
 	}
 	c.JSON(http.StatusCreated, createdUser)
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
-	users := h.userService.List()
+	users, err := h.userService.List()
+	if err != nil {
+		_ = c.Error(err)
+	}
 	c.JSON(http.StatusOK, users)
 }
 
 func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
-	h.userService.DeleteAll()
+	err := h.userService.DeleteAll()
+	if err != nil {
+		_ = c.Error(err)
+	}
 	c.Status(http.StatusNoContent)
 }
