@@ -20,7 +20,7 @@ func NewUserMockRepository() *mockUserRespository {
 func (m *mockUserRespository) Save(user model.User) (*model.User, error) {
 	args := m.Called(user)
 	if t := args.Get(0); t != nil {
-		return t.(*model.User), nil
+		return t.(*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
@@ -28,17 +28,17 @@ func (m *mockUserRespository) Save(user model.User) (*model.User, error) {
 func (m *mockUserRespository) FindAll() ([]model.User, error) {
 	args := m.Called()
 	if users := args.Get(0); users != nil {
-		return users.([]model.User), nil
+		return users.([]model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) DeleteAllUsers() error {
+func (m *mockUserRespository) DeleteAll() error {
 	args := m.Called()
 	return args.Error(0)
 }
 
-func Test_User_Create_Success(t *testing.T) {
+func Test_CreateUser_Success(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
 	id := int32(14)
@@ -56,7 +56,7 @@ func Test_User_Create_Success(t *testing.T) {
 	mockRepo.On("Save", inputUser).Return(createdUser, nil)
 
 	svc := service.NewUserService(mockRepo)
-	user, err := svc.Create(inputUser)
+	user, err := svc.CreateUser(inputUser)
 
 	assert.Nil(t, err)
 	assert.Equal(t, createdUser, user)
@@ -64,7 +64,7 @@ func Test_User_Create_Success(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func Test_Create_InvalidUser(t *testing.T) {
+func Test_CreateUser_InvalidUser(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
 	inputUser := model.User{
@@ -72,13 +72,14 @@ func Test_Create_InvalidUser(t *testing.T) {
 		Email: "invisible@ghost.com",
 	}
 
-	// NOTE: Never called since empty strings can't be valid in the Create function.
+	// NOTE: Never called since empty strings can't be valid in the NewUser function.
 	// mockRepo.Mock.On("Save", inputUser).Return(nil)
 
 	svc := service.NewUserService(mockRepo)
-	user, err := svc.Create(inputUser)
+	user, err := svc.CreateUser(inputUser)
 
 	assert.Nil(t, user)
+	assert.Equal(t, "invalid user fields", err.Error())
 	assert.Error(t, err)
 
 	mockRepo.AssertExpectations(t)
@@ -87,10 +88,10 @@ func Test_Create_InvalidUser(t *testing.T) {
 func TestDeleteAllUsers(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	mockRepo.On("DeleteAllUsers").Return(nil)
+	mockRepo.On("DeleteAll").Return(nil)
 
 	svc := service.NewUserService(mockRepo)
-	err := svc.DeleteAll()
+	err := svc.DeleteAllUsers()
 
 	assert.Nil(t, err)
 

@@ -2,6 +2,7 @@ package service_test
 
 import (
 	"database/sql"
+	"errors"
 	"strconv"
 	"testing"
 
@@ -20,53 +21,52 @@ func NewTapeMockRepository() *mockTapeRespository {
 	return &mockTapeRespository{}
 }
 
-func (m *mockTapeRespository) Save(tape model.Tape) *model.Tape {
+func (m *mockTapeRespository) Save(tape model.Tape) (*model.Tape, error) {
 	args := m.Called(tape)
 	if t := args.Get(0); t != nil {
-		return t.(*model.Tape)
+		return t.(*model.Tape), args.Error(1)
 	}
-	return nil
+	return nil, errors.New("invalid mock tape fields")
 }
 
-func (m *mockTapeRespository) FindAll() []model.Tape {
+func (m *mockTapeRespository) FindAll() ([]model.Tape, error) {
 	args := m.Called()
 	if tapes := args.Get(0); tapes != nil {
-		return tapes.([]model.Tape)
+		return tapes.([]model.Tape), args.Error(1)
 	}
-	return nil
+	return nil, args.Error(1)
 }
 
-func (m *mockTapeRespository) FindByID(id int32) (*model.Tape, bool) {
+func (m *mockTapeRespository) FindByID(id int32) (*model.Tape, error) {
 	args := m.Called(id)
 	if tape := args.Get(0); tape != nil {
-		return tape.(*model.Tape), args.Bool(1)
+		return tape.(*model.Tape), args.Error(1)
 	}
-	return nil, args.Bool(1)
+	return nil, args.Error(1)
 }
 
-func (m *mockTapeRespository) Update(id int32, updatedTape database.UpdateTapeParams) (*model.Tape, bool) {
+func (m *mockTapeRespository) Update(id int32, updatedTape database.UpdateTapeParams) (*model.Tape, error) {
 	updatedTape.ID = id
 	args := m.Called(id, updatedTape)
 	if tape := args.Get(0); tape != nil {
-		return tape.(*model.Tape), args.Bool(1)
+		return tape.(*model.Tape), args.Error(1)
 	}
-	return nil, false
+	return nil, args.Error(1)
 }
 
-func (m *mockTapeRespository) Delete(id int32) bool {
+func (m *mockTapeRespository) Delete(id int32) error {
 	args := m.Called(id)
-	return args.Bool(0)
+	return args.Error(0)
 }
 
-func (m *mockTapeRespository) DeleteAllTapes() bool {
+func (m *mockTapeRespository) DeleteAll() error {
 	args := m.Called()
-	return args.Bool(0)
+	return args.Error(0)
 }
 
-func TestCreate_Success(t *testing.T) {
+func TestCreateTape_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	// id := int32(5)
 	id := int32(5)
 	inputTape := model.Tape{
 		ID:       id,
@@ -85,17 +85,18 @@ func TestCreate_Success(t *testing.T) {
 		Price:    5999.99,
 	}
 
-	mockRepo.On("Save", inputTape).Return(createdTape)
+	mockRepo.On("Save", inputTape).Return(createdTape, nil)
 
 	svc := service.NewTapeService(mockRepo)
-	tape := svc.Create(inputTape)
+	tape, err := svc.CreateTape(inputTape)
 
 	assert.Equal(t, createdTape, tape)
+	assert.Nil(t, err)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestCreate_InvalidTape(t *testing.T) {
+func TestCreateTape_InvalidTape(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id := int32(22)
@@ -108,17 +109,17 @@ func TestCreate_InvalidTape(t *testing.T) {
 		Price:    5999.99,
 	}
 
-	// mockRepo.Mock.On("Save", inputTape).Return(nil)
-
 	svc := service.NewTapeService(mockRepo)
-	tape := svc.Create(inputTape)
+	tape, err := svc.CreateTape(inputTape)
 
 	assert.Nil(t, tape)
+	assert.Error(t, err)
+	assert.Equal(t, "invalid tape fields", err.Error())
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestList(t *testing.T) {
+func TestListTapes(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id1 := int32(5)
@@ -151,52 +152,54 @@ func TestList(t *testing.T) {
 		},
 	}
 
-	mockRepo.On("FindAll").Return(expectedTapes)
+	mockRepo.On("FindAll").Return(expectedTapes, nil)
 
 	svc := service.NewTapeService(mockRepo)
-	tapes := svc.List()
+	tapes, err := svc.ListTapes()
 
 	assert.Equal(t, expectedTapes, tapes)
+	assert.Nil(t, err)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestFindByID_Success(t *testing.T) {
+func TestGetTapeByID_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id := int32(76)
 	expected := model.Tape{
 		ID: id, Title: "Alien", Director: "Ridley Scott", Genre: "Horror", Quantity: 1, Price: 5999.99,
 	}
-	mockRepo.On("FindByID", id).Return(&expected, true)
+	mockRepo.On("FindByID", id).Return(&expected, nil)
 
 	svc := service.NewTapeService(mockRepo)
 
-	tape, found := svc.GetTapeByID(strconv.Itoa(int(id)))
+	tape, err := svc.GetTapeByID(strconv.Itoa(int(id)))
 
-	assert.True(t, found)
+	assert.Nil(t, err)
 	assert.Equal(t, &expected, tape)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestFindByID_NotFound(t *testing.T) {
+func TestGetTapeByID_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id := int32(8)
-	mockRepo.On("FindByID", id).Return(nil, false)
+	mockRepo.On("FindByID", id).Return(nil, errors.New("mock tape not found"))
 
 	svc := service.NewTapeService(mockRepo)
 
-	tape, found := svc.GetTapeByID(strconv.Itoa(int(id)))
+	tape, err := svc.GetTapeByID(strconv.Itoa(int(id)))
 
-	assert.False(t, found)
+	assert.Error(t, err)
+	assert.Equal(t, "mock tape not found", err.Error())
 	assert.Nil(t, tape)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestUpdate_Success(t *testing.T) {
+func TestUpdateTape_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id := int32(44)
@@ -214,21 +217,21 @@ func TestUpdate_Success(t *testing.T) {
 		Price:    5999.99,
 	}
 
-	mockRepo.On("Update", id, partialForRepoCall).Return(&updatedTape, true)
+	mockRepo.On("Update", id, partialForRepoCall).Return(&updatedTape, nil)
 
 	svc := service.NewTapeService(mockRepo)
 	partialForSvc := model.UpdatedTape{
 		Genre: &genre,
 	}
-	partialUpdatedTape, found := svc.Update(strconv.Itoa(int(id)), partialForSvc)
+	partialUpdatedTape, err := svc.UpdateTape(strconv.Itoa(int(id)), partialForSvc)
 
-	assert.True(t, found)
+	assert.Nil(t, err)
 	assert.Equal(t, &updatedTape, partialUpdatedTape)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestUpdate_NotFound(t *testing.T) {
+func TestUpdateTape_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id := int32(2001)
@@ -237,7 +240,7 @@ func TestUpdate_NotFound(t *testing.T) {
 		Title: sql.NullString{String: "Superman", Valid: true},
 	}
 
-	mockRepo.On("Update", id, partialForRepoCall).Return(nil, false)
+	mockRepo.On("Update", id, partialForRepoCall).Return(nil, errors.New("mock tape not found"))
 
 	svc := service.NewTapeService(mockRepo)
 
@@ -245,37 +248,38 @@ func TestUpdate_NotFound(t *testing.T) {
 	partialForSvcCall := model.UpdatedTape{
 		Title: &title,
 	}
-	updatedTape, found := svc.Update(strconv.Itoa(int(id)), partialForSvcCall)
+	updatedTape, err := svc.UpdateTape(strconv.Itoa(int(id)), partialForSvcCall)
 
-	assert.False(t, found)
+	assert.Error(t, err)
 	assert.Nil(t, updatedTape)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestDelete_Success(t *testing.T) {
+func TestDeleteTape_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id := int32(43)
-	mockRepo.On("Delete", id).Return(true)
+	mockRepo.On("Delete", id).Return(nil)
 
 	svc := service.NewTapeService(mockRepo)
-	deletedTape := svc.Delete(strconv.Itoa(int(id)))
+	err := svc.DeleteTape(strconv.Itoa(int(id)))
 
-	assert.True(t, deletedTape)
+	assert.Nil(t, err)
 
 	mockRepo.AssertExpectations(t)
 }
 
-func TestDelete_NotFound(t *testing.T) {
+func TestDeleteTape_NotFound(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 	id := int32(20)
-	mockRepo.On("Delete", id).Return(false)
+	mockRepo.On("Delete", id).Return(errors.New("mock tape not found"))
 
 	svc := service.NewTapeService(mockRepo)
-	deletedTape := svc.Delete(strconv.Itoa(int(id)))
+	err := svc.DeleteTape(strconv.Itoa(int(id)))
 
-	assert.False(t, deletedTape)
+	assert.Error(t, err)
+	assert.Equal(t, "mock tape not found", err.Error())
 
 	mockRepo.AssertExpectations(t)
 }
@@ -283,12 +287,12 @@ func TestDelete_NotFound(t *testing.T) {
 func TestDeleteAllTapes(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
-	mockRepo.On("DeleteAllTapes").Return(true)
+	mockRepo.On("DeleteAll").Return(nil)
 
 	svc := service.NewTapeService(mockRepo)
-	deletedTape := svc.DeleteAll()
+	err := svc.DeleteAllTapes()
 
-	assert.True(t, deletedTape)
+	assert.Nil(t, err)
 
 	mockRepo.AssertExpectations(t)
 }
