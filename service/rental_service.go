@@ -1,7 +1,6 @@
 package service
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -9,7 +8,7 @@ import (
 )
 
 type RentalService interface {
-	Create(string, string) *model.Rental
+	RentTape(string, string) (*model.Rental, error)
 }
 
 type rentalService struct {
@@ -22,17 +21,15 @@ func NewRentalService(r repository.RentalRepository) RentalService {
 	}
 }
 
-func (s *rentalService) Create(tapeIDStr, userIDStr string) *model.Rental {
-	tapeID, err := strconv.Atoi(tapeIDStr)
+func (s *rentalService) RentTape(tapeIDStr, userIDStr string) (*model.Rental, error) {
+	tapeID64, err := strconv.Atoi(tapeIDStr)
 	if err != nil {
-		log.Printf("error parsing tape id string to uuid: %v", err)
-		return nil
+		return nil, err
 	}
-	userID, err := strconv.Atoi(userIDStr)
+	userID64, err := strconv.Atoi(userIDStr)
 	if err != nil {
-		log.Printf("error parsing tape id string to uuid: %v", err)
-		return nil
+		return nil, err
 	}
 
-	return s.repo.Save(int32(tapeID), int32(userID))
+	return s.repo.Save(int32(tapeID64), int32(userID64))
 }
