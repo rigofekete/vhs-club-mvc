@@ -13,7 +13,7 @@ import (
 type UserRepository interface {
 	Save(user model.User) (*model.User, error)
 	FindAll() ([]model.User, error)
-	DeleteAllUsers() error
+	DeleteAll() error
 }
 
 type userRepository struct {
@@ -73,7 +73,7 @@ func (r *userRepository) FindAll() ([]model.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) DeleteAllUsers() error {
+func (r *userRepository) DeleteAll() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
