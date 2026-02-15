@@ -4,8 +4,8 @@ CREATE TABLE users(
   public_id   UUID UNIQUE DEFAULT gen_random_uuid(),
   created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-  name  TEXT  NOT NULL UNIQUE,
-  email TEXT  NOT NULL UNIQUE
+  username    TEXT  NOT NULL UNIQUE,
+  email       TEXT  NOT NULL UNIQUE
 );
 
 -- +goose Down
