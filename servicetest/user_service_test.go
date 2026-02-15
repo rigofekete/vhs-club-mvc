@@ -1,7 +1,6 @@
 package servicetest
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -44,14 +43,14 @@ func Test_CreateUser_Success(t *testing.T) {
 
 	id := int32(14)
 	inputUser := &model.User{
-		Name:  "Miles Davis",
-		Email: "grumpy.genius@cool.com",
+		Username: "MilesDavis",
+		Email:    "grumpy.genius@cool.com",
 	}
 
 	createdUser := &model.User{
-		ID:    id,
-		Name:  "Miles Davis",
-		Email: "grumpy.genius@cool.com",
+		ID:       id,
+		Username: "MilesDavis",
+		Email:    "grumpy.genius@cool.com",
 	}
 
 	mockRepo.On("Save", inputUser).Return(createdUser, nil)
@@ -65,27 +64,27 @@ func Test_CreateUser_Success(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
-func Test_CreateUser_InvalidUser(t *testing.T) {
-	mockRepo := NewUserMockRepository()
-
-	inputUser := &model.User{
-		Name:  "",
-		Email: "invisible@ghost.com",
-	}
-
-	// NOTE: Never called since empty strings can't be valid in the NewUser function.
-	// NOTE: 2 / Validation of input will not be done in the service layer any more, but in the handler with go validator pkg
-	mockRepo.Mock.On("Save", inputUser).Return(nil, errors.New("invalid user fields"))
-
-	svc := service.NewUserService(mockRepo)
-	user, err := svc.CreateUser(inputUser)
-
-	assert.Nil(t, user)
-	assert.Equal(t, "invalid user fields", err.Error())
-	assert.Error(t, err)
-
-	mockRepo.AssertExpectations(t)
-}
+// TODO: Invalid user test needs to comply with the scope of the service layer validation. User exists in the DB, etc.
+// TODO: Needs to be refactored
+// func Test_CreateUser_InvalidUser(t *testing.T) {
+// 	mockRepo := NewUserMockRepository()
+//
+// 	inputUser := &model.User{
+// 		Username: "",
+// 		Email:    "invisible@ghost.com",
+// 	}
+//
+// 	mockRepo.Mock.On("Save", inputUser).Return(nil, errors.New("invalid user fields"))
+//
+// 	svc := service.NewUserService(mockRepo)
+// 	user, err := svc.CreateUser(inputUser)
+//
+// 	assert.Nil(t, user)
+// 	assert.Equal(t, "invalid user fields", err.Error())
+// 	assert.Error(t, err)
+//
+// 	mockRepo.AssertExpectations(t)
+// }
 
 func TestDeleteAllUsers(t *testing.T) {
 	mockRepo := NewUserMockRepository()
