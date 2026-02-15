@@ -1,6 +1,7 @@
 package servicetest
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -17,7 +18,7 @@ func NewUserMockRepository() *mockUserRespository {
 	return &mockUserRespository{}
 }
 
-func (m *mockUserRespository) Save(user model.User) (*model.User, error) {
+func (m *mockUserRespository) Save(user *model.User) (*model.User, error) {
 	args := m.Called(user)
 	if t := args.Get(0); t != nil {
 		return t.(*model.User), args.Error(1)
@@ -25,10 +26,10 @@ func (m *mockUserRespository) Save(user model.User) (*model.User, error) {
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) FindAll() ([]model.User, error) {
+func (m *mockUserRespository) FindAll() ([]*model.User, error) {
 	args := m.Called()
 	if users := args.Get(0); users != nil {
-		return users.([]model.User), args.Error(1)
+		return users.([]*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
@@ -42,7 +43,7 @@ func Test_CreateUser_Success(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
 	id := int32(14)
-	inputUser := model.User{
+	inputUser := &model.User{
 		Name:  "Miles Davis",
 		Email: "grumpy.genius@cool.com",
 	}
@@ -67,13 +68,14 @@ func Test_CreateUser_Success(t *testing.T) {
 func Test_CreateUser_InvalidUser(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	inputUser := model.User{
+	inputUser := &model.User{
 		Name:  "",
 		Email: "invisible@ghost.com",
 	}
 
 	// NOTE: Never called since empty strings can't be valid in the NewUser function.
-	// mockRepo.Mock.On("Save", inputUser).Return(nil)
+	// NOTE: 2 / Validation of input will not be done in the service layer any more, but in the handler with go validator pkg
+	mockRepo.Mock.On("Save", inputUser).Return(nil, errors.New("invalid user fields"))
 
 	svc := service.NewUserService(mockRepo)
 	user, err := svc.CreateUser(inputUser)
