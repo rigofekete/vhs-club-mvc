@@ -14,8 +14,8 @@ type CreateUserRequest struct {
 	Email string `json:"email"`
 }
 
-func (r *CreateUserRequest) ToModel() model.User {
-	return model.User{
+func (r *CreateUserRequest) ToModel() *model.User {
+	return &model.User{
 		Name:  r.Name,
 		Email: r.Email,
 	}
@@ -27,18 +27,18 @@ type UserResponse struct {
 	Email    string    `json:"email"`
 }
 
-func SetUserResponse(user model.User) UserResponse {
-	return UserResponse{
+func UserSingleResponse(user *model.User) *UserResponse {
+	return &UserResponse{
 		PublicID: user.PublicID,
 		Name:     user.Name,
 		Email:    user.Email,
 	}
 }
 
-func UserListResponse(user []model.User) []UserResponse {
-	userList := make([]UserResponse, len(user))
+func UserListResponse(user []*model.User) []*UserResponse {
+	userList := make([]*UserResponse, len(user))
 	for i, user := range user {
-		userList[i] = SetUserResponse(user)
+		userList[i] = UserSingleResponse(user)
 	}
 	return userList
 }
@@ -71,7 +71,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, SetUserResponse(*createdUser))
+	c.JSON(http.StatusCreated, UserSingleResponse(createdUser))
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
