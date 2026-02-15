@@ -4,51 +4,18 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/rigofekete/vhs-club-mvc/model"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
-
-type CreateUserRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
-func (r *CreateUserRequest) ToModel() *model.User {
-	return &model.User{
-		Name:  r.Name,
-		Email: r.Email,
-	}
-}
-
-type UserResponse struct {
-	PublicID uuid.UUID `json:"public_id"`
-	Name     string    `json:"name"`
-	Email    string    `json:"email"`
-}
-
-func UserSingleResponse(user *model.User) *UserResponse {
-	return &UserResponse{
-		PublicID: user.PublicID,
-		Name:     user.Name,
-		Email:    user.Email,
-	}
-}
-
-func UserListResponse(user []*model.User) []*UserResponse {
-	userList := make([]*UserResponse, len(user))
-	for i, user := range user {
-		userList[i] = UserSingleResponse(user)
-	}
-	return userList
-}
 
 type UserHandler struct {
 	userService service.UserService
 }
 
 func NewUserHandler(s service.UserService) *UserHandler {
-	return &UserHandler{userService: s}
+	return &UserHandler{
+		userService: s,
+	}
 }
 
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
@@ -61,7 +28,7 @@ func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var newUser CreateUserRequest
 	if err := c.ShouldBindJSON(&newUser); err != nil {
-		_ = c.Error(err)
+		_ = c.Error(apperror.WrapValidationError(err))
 		return
 	}
 
