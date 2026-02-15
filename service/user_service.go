@@ -1,14 +1,16 @@
 package service
 
 import (
+	"context"
+
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
 
 type UserService interface {
-	CreateUser(*model.User) (*model.User, error)
-	ListUsers() ([]*model.User, error)
-	DeleteAllUsers() error
+	CreateUser(context.Context, *model.User) (*model.User, error)
+	ListUsers(context.Context) ([]*model.User, error)
+	DeleteAllUsers(context.Context) error
 }
 
 type userService struct {
@@ -21,14 +23,14 @@ func NewUserService(r repository.UserRepository) UserService {
 	}
 }
 
-func (s *userService) CreateUser(user *model.User) (*model.User, error) {
-	return s.repo.Save(user)
+func (s *userService) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+	return s.repo.Save(ctx, user)
 }
 
-func (s *userService) ListUsers() ([]*model.User, error) {
-	return s.repo.FindAll()
+func (s *userService) ListUsers(ctx context.Context) ([]*model.User, error) {
+	return s.repo.FindAll(ctx)
 }
 
-func (s *userService) DeleteAllUsers() error {
-	return s.repo.DeleteAll()
+func (s *userService) DeleteAllUsers(ctx context.Context) error {
+	return s.repo.DeleteAll(ctx)
 }

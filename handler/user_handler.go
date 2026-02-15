@@ -32,7 +32,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	createdUser, err := h.userService.CreateUser(newUser.ToModel())
+	createdUser, err := h.userService.CreateUser(c.Request.Context(), newUser.ToModel())
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -42,7 +42,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 }
 
 func (h *UserHandler) GetUsers(c *gin.Context) {
-	users, err := h.userService.ListUsers()
+	users, err := h.userService.ListUsers(c.Request.Context())
 	if err != nil {
 		_ = c.Error(err)
 	}
@@ -50,7 +50,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 }
 
 func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
-	err := h.userService.DeleteAllUsers()
+	err := h.userService.DeleteAllUsers(c.Request.Context())
 	if err != nil {
 		_ = c.Error(err)
 	}

@@ -1,6 +1,7 @@
 package servicetest
 
 import (
+	"context"
 	"testing"
 
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -17,24 +18,24 @@ func NewUserMockRepository() *mockUserRespository {
 	return &mockUserRespository{}
 }
 
-func (m *mockUserRespository) Save(user *model.User) (*model.User, error) {
-	args := m.Called(user)
+func (m *mockUserRespository) Save(ctx context.Context, user *model.User) (*model.User, error) {
+	args := m.Called(ctx, user)
 	if t := args.Get(0); t != nil {
 		return t.(*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) FindAll() ([]*model.User, error) {
-	args := m.Called()
+func (m *mockUserRespository) FindAll(ctx context.Context) ([]*model.User, error) {
+	args := m.Called(ctx)
 	if users := args.Get(0); users != nil {
 		return users.([]*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) DeleteAll() error {
-	args := m.Called()
+func (m *mockUserRespository) DeleteAll(ctx context.Context) error {
+	args := m.Called(ctx)
 	return args.Error(0)
 }
 
@@ -53,10 +54,12 @@ func Test_CreateUser_Success(t *testing.T) {
 		Email:    "grumpy.genius@cool.com",
 	}
 
-	mockRepo.On("Save", inputUser).Return(createdUser, nil)
+	ctx := context.Background()
+
+	mockRepo.On("Save", ctx, inputUser).Return(createdUser, nil)
 
 	svc := service.NewUserService(mockRepo)
-	user, err := svc.CreateUser(inputUser)
+	user, err := svc.CreateUser(ctx, inputUser)
 
 	assert.Nil(t, err)
 	assert.Equal(t, createdUser, user)
@@ -89,10 +92,11 @@ func Test_CreateUser_Success(t *testing.T) {
 func TestDeleteAllUsers(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	mockRepo.On("DeleteAll").Return(nil)
+	ctx := context.Background()
+	mockRepo.On("DeleteAll", ctx).Return(nil)
 
 	svc := service.NewUserService(mockRepo)
-	err := svc.DeleteAllUsers()
+	err := svc.DeleteAllUsers(ctx)
 
 	assert.Nil(t, err)
 

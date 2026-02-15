@@ -10,9 +10,9 @@ import (
 )
 
 type UserRepository interface {
-	Save(user *model.User) (*model.User, error)
-	FindAll() ([]*model.User, error)
-	DeleteAll() error
+	Save(context.Context, *model.User) (*model.User, error)
+	FindAll(context.Context) ([]*model.User, error)
+	DeleteAll(context.Context) error
 }
 
 type userRepository struct {
@@ -26,7 +26,7 @@ func NewUserRepository() UserRepository {
 	}
 }
 
-func (r *userRepository) Save(user *model.User) (*model.User, error) {
+func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -35,7 +35,7 @@ func (r *userRepository) Save(user *model.User) (*model.User, error) {
 		Email:    user.Email,
 	}
 
-	dbUser, err := r.DB.CreateUser(context.Background(), userParams)
+	dbUser, err := r.DB.CreateUser(ctx, userParams)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +50,10 @@ func (r *userRepository) Save(user *model.User) (*model.User, error) {
 	return createdUser, nil
 }
 
-func (r *userRepository) FindAll() ([]*model.User, error) {
+func (r *userRepository) FindAll(ctx context.Context) ([]*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	dbUsers, err := r.DB.GetUsers(context.Background())
+	dbUsers, err := r.DB.GetUsers(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -72,11 +72,11 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 	return users, nil
 }
 
-func (r *userRepository) DeleteAll() error {
+func (r *userRepository) DeleteAll(ctx context.Context) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	err := r.DB.DeleteAllUsers(context.Background())
+	err := r.DB.DeleteAllUsers(ctx)
 	if err != nil {
 		return err
 	}
