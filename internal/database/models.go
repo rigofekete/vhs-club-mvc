@@ -38,6 +38,6 @@ type User struct {
 	PublicID  uuid.NullUUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Name      string
+	Username  string
 	Email     string
 }

@@ -10,28 +10,28 @@ import (
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users(name, email)
+INSERT INTO users(username, email)
 VALUES (
   $1,
   $2
 )
-RETURNING id, public_id, created_at, updated_at, name, email
+RETURNING id, public_id, created_at, updated_at, username, email
 `
 
 type CreateUserParams struct {
-	Name  string
-	Email string
+	Username string
+	Email    string
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, arg.Name, arg.Email)
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Email)
 	var i User
 	err := row.Scan(
 		&i.ID,
 		&i.PublicID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.Name,
+		&i.Username,
 		&i.Email,
 	)
 	return i, err
@@ -47,7 +47,7 @@ func (q *Queries) DeleteAllUsers(ctx context.Context) error {
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, public_id, created_at, updated_at, name, email FROM users
+SELECT id, public_id, created_at, updated_at, username, email FROM users
 ORDER BY created_at ASC
 `
 
@@ -65,7 +65,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			&i.PublicID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.Name,
+			&i.Username,
 			&i.Email,
 		); err != nil {
 			return nil, err
