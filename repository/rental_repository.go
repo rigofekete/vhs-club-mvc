@@ -30,6 +30,7 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	// TODO: Do this tape check in the service layer.....
 	tape, err := r.DB.GetTape(context.Background(), tapeID)
 	if err != nil {
 		return nil, apperror.ErrTapeNotFound
