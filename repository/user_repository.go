@@ -31,8 +31,8 @@ func (r *userRepository) Save(user *model.User) (*model.User, error) {
 	defer r.mu.Unlock()
 
 	userParams := database.CreateUserParams{
-		Name:  user.Name,
-		Email: user.Email,
+		Username: user.Username,
+		Email:    user.Email,
 	}
 
 	dbUser, err := r.DB.CreateUser(context.Background(), userParams)
@@ -44,7 +44,7 @@ func (r *userRepository) Save(user *model.User) (*model.User, error) {
 		PublicID:  dbUser.PublicID.UUID,
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
-		Name:      dbUser.Name,
+		Username:  dbUser.Username,
 		Email:     dbUser.Email,
 	}
 	return createdUser, nil
@@ -64,7 +64,7 @@ func (r *userRepository) FindAll() ([]*model.User, error) {
 			PublicID:  user.PublicID.UUID,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
-			Name:      user.Name,
+			Username:  user.Username,
 			Email:     user.Email,
 		}
 		users = append(users, u)
