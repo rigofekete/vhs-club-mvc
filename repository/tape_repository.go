@@ -33,6 +33,7 @@ func NewTapeRepository() TapeRepository {
 func (r *tapeRepository) Save(tape model.Tape) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	// TODO: Consider doing a function to convert data to and from DAO (similar to the DTO in handler layer)
 	tapeParams := database.CreateTapeParams{
 		Title:    tape.Title,
 		Director: tape.Director,
@@ -42,7 +43,6 @@ func (r *tapeRepository) Save(tape model.Tape) (*model.Tape, error) {
 	}
 
 	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
-	// TODO: returning raw sql errors down the chain?
 	if err != nil {
 		return nil, err
 	}
@@ -140,6 +140,7 @@ func (r *tapeRepository) Delete(id int32) error {
 
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
+		// TODO: Check if tape is in the DB in the service layer
 		return apperror.ErrTapeNotFound
 	}
 	return nil
