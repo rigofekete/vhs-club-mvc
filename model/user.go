@@ -11,6 +11,6 @@ type User struct {
 	PublicID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	Name      string
+	Username  string
 	Email     string
 }
