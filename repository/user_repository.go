@@ -10,8 +10,8 @@ import (
 )
 
 type UserRepository interface {
-	Save(user model.User) (*model.User, error)
-	FindAll() ([]model.User, error)
+	Save(user *model.User) (*model.User, error)
+	FindAll() ([]*model.User, error)
 	DeleteAll() error
 }
 
@@ -26,7 +26,7 @@ func NewUserRepository() UserRepository {
 	}
 }
 
-func (r *userRepository) Save(user model.User) (*model.User, error) {
+func (r *userRepository) Save(user *model.User) (*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -50,16 +50,16 @@ func (r *userRepository) Save(user model.User) (*model.User, error) {
 	return createdUser, nil
 }
 
-func (r *userRepository) FindAll() ([]model.User, error) {
+func (r *userRepository) FindAll() ([]*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	dbUsers, err := r.DB.GetUsers(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	users := make([]model.User, 0)
+	users := make([]*model.User, 0)
 	for _, user := range dbUsers {
-		u := model.User{
+		u := &model.User{
 			ID:        user.ID,
 			PublicID:  user.PublicID.UUID,
 			CreatedAt: user.CreatedAt,
