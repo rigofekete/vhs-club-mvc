@@ -18,6 +18,7 @@ type TapeRepository interface {
 	Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error)
 	Delete(ctx context.Context, id int32) error
 	DeleteAll(ctx context.Context) error
+	Exists(ctx context.Context, id int32) (bool, error)
 }
 
 type tapeRepository struct {
@@ -166,6 +167,19 @@ func (r *tapeRepository) DeleteAll(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+// Helpers
+
+func (r *tapeRepository) Exists(ctx context.Context, id int32) (bool, error) {
+	_, err := r.DB.GetTape(ctx, id)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func toNullString(s *string) sql.NullString {
