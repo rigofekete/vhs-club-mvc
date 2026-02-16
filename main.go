@@ -35,7 +35,7 @@ func main() {
 	tapeHandler.RegisterRoutes(router)
 
 	rentalRepository := repository.NewRentalRepository()
-	rentalService := service.NewRentalService(rentalRepository)
+	rentalService := service.NewRentalService(rentalRepository, tapeRepository, userRepository)
 	rentalHandler := handler.NewRentalHandler(rentalService)
 	rentalHandler.RegisterRoutes(router)
 
