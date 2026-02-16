@@ -62,6 +62,12 @@ func (m *mockTapeRespository) DeleteAll(ctx context.Context) error {
 	return args.Error(0)
 }
 
+// TODO: Refactor UpdateTape tests to handle this
+func (m *mockTapeRespository) Exists(ctx context.Context, id int32) (bool, error) {
+	args := m.Called(ctx, id)
+	return args.Bool(0), args.Error(1)
+}
+
 func TestCreateTape_Success(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
@@ -225,6 +231,7 @@ func TestUpdateTape_Success(t *testing.T) {
 
 	ctx := context.Background()
 	mockRepo.On("Update", ctx, partialForRepoCall).Return(&updatedTape, nil)
+	mockRepo.On("Exists", ctx, id).Return(true, nil)
 
 	svc := service.NewTapeService(mockRepo)
 	partialForSvc := &model.UpdateTape{
@@ -243,13 +250,8 @@ func TestUpdateTape_NotFound(t *testing.T) {
 
 	id := int32(2001)
 	title := "Superman"
-	partialForRepoCall := &model.UpdateTape{
-		ID:    id,
-		Title: &title,
-	}
-
 	ctx := context.Background()
-	mockRepo.On("Update", ctx, partialForRepoCall).Return(nil, errors.New("mock tape not found"))
+	mockRepo.On("Exists", ctx, id).Return(false, errors.New("mock tape not found"))
 
 	svc := service.NewTapeService(mockRepo)
 
