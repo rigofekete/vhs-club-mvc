@@ -11,7 +11,7 @@ import (
 
 type TapeService interface {
 	CreateTape(ctx context.Context, tape *model.Tape) (*model.Tape, error)
-	ListTapes(ctx context.Context) ([]*model.Tape, error)
+	GetAllTapes(ctx context.Context) ([]*model.Tape, error)
 	GetTapeByID(ctx context.Context, id string) (*model.Tape, error)
 	UpdateTape(ctx context.Context, id string, updated *model.UpdateTape) (*model.Tape, error)
 	DeleteTape(ctx context.Context, id string) error
@@ -32,8 +32,8 @@ func (s *tapeService) CreateTape(ctx context.Context, tape *model.Tape) (*model.
 	return s.repo.Save(ctx, tape)
 }
 
-func (s *tapeService) ListTapes(ctx context.Context) ([]*model.Tape, error) {
-	return s.repo.FindAll(ctx)
+func (s *tapeService) GetAllTapes(ctx context.Context) ([]*model.Tape, error) {
+	return s.repo.GetAll(ctx)
 }
 
 func (s *tapeService) GetTapeByID(ctx context.Context, id string) (*model.Tape, error) {
@@ -41,7 +41,7 @@ func (s *tapeService) GetTapeByID(ctx context.Context, id string) (*model.Tape, 
 	if err != nil {
 		return nil, err
 	}
-	return s.repo.FindByID(ctx, int32(tapeID64))
+	return s.repo.GetByID(ctx, int32(tapeID64))
 }
 
 func (s *tapeService) UpdateTape(ctx context.Context, id string, updateTape *model.UpdateTape) (*model.Tape, error) {
