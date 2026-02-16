@@ -30,7 +30,7 @@ type ValidationError struct {
 	Fields map[string]string
 }
 
-// ValidationError type implements the Error interface, so we can pass it as an error in the handlers c.ShouldBindJSON error check
+// ValidationError type implements the Error interface, so we can pass it as an error in the handler layer, c.ShouldBindJSON error check
 func (e ValidationError) Error() string {
 	return "input validation failed"
 }
