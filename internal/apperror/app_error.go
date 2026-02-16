@@ -24,6 +24,7 @@ var (
 	ErrTapeValidation    = errors.New("invalid tape fields")
 	ErrTapeNotFound      = errors.New("tape not found")
 	ErrTapeUpdateRequest = errors.New("bad update tape request")
+	ErrTapeUnavailable   = errors.New("unavailable tape")
 )
 
 type ValidationError struct {
@@ -89,6 +90,8 @@ func mapErrorToAppError(err error) *AppError {
 		return &AppError{Code: 404, Message: "Tape not found"}
 	case errors.Is(err, ErrTapeUpdateRequest):
 		return &AppError{Code: 404, Message: "Tape update request needs at least 1 non nil value"}
+	case errors.Is(err, ErrTapeUnavailable):
+		return &AppError{Code: 404, Message: "Sorry, all the tapes for this movie are currently rented out"}
 	default:
 		return &AppError{Code: 500, Message: "Internal server error"}
 	}
