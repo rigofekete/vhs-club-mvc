@@ -1,8 +1,8 @@
 -- +goose Up
 CREATE TABLE rentals(
   id            INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-  public_id     UUID UNIQUE DEFAULT gen_random_uuid(),
-  created_at    TIMESTAMP  NOT NULL DEFAULT NOW(),
+  public_id     UUID UNIQUE NOT NULL DEFAULT gen_random_uuid(),
+  created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
   user_id       INT NOT NULL,
   tape_id       INT NOT NULL,
   rented_at     TIMESTAMP NOT NULL DEFAULT NOW(),
