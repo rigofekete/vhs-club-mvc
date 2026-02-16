@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -31,15 +30,14 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 	defer r.mu.Unlock()
 
 	// TODO: Do this tape check in the service layer.....
-	tape, err := r.DB.GetTape(context.Background(), tapeID)
+	tape, err := r.DB.GetTapeByID(context.Background(), tapeID)
 	if err != nil {
 		return nil, apperror.ErrTapeNotFound
 	}
 
 	rentalParams := database.CreateRentalParams{
-		UserID:     userID,
-		TapeID:     tape.ID,
-		ReturnedAt: sql.NullTime{Valid: false},
+		UserID: userID,
+		TapeID: tape.ID,
 	}
 
 	dbRental, err := r.DB.CreateRental(context.Background(), rentalParams)
