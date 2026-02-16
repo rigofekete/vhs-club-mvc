@@ -6,6 +6,14 @@ VALUES (
 )
 RETURNING *;
 
+-- name: GetUserByID :one
+SELECT * FROM users
+WHERE id = $1;
+
+-- name: GetUserByPublicID :one
+SELECT * FROM users
+WHERE public_id = $1;
+
 -- name: GetUsers :many
 SELECT * FROM users
 ORDER BY created_at ASC;
