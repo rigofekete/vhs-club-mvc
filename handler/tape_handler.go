@@ -78,7 +78,7 @@ func (h *TapeHandler) UpdateTape(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, TapeUpdateResponse(tape))
+	c.JSON(http.StatusPartialContent, TapeUpdateResponse(tape))
 }
 
 func (h *TapeHandler) DeleteTape(c *gin.Context) {
