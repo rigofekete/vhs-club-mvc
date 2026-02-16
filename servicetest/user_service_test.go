@@ -2,8 +2,10 @@ package servicetest
 
 import (
 	"context"
+	"strconv"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
 	"github.com/stretchr/testify/assert"
@@ -26,12 +28,28 @@ func (m *mockUserRespository) Save(ctx context.Context, user *model.User) (*mode
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) FindAll(ctx context.Context) ([]*model.User, error) {
+func (m *mockUserRespository) GetByID(ctx context.Context, id int32) (*model.User, error) {
+	args := m.Called(ctx, id)
+	if users := args.Get(0); users != nil {
+		return users.(*model.User), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
+func (m *mockUserRespository) GetAll(ctx context.Context) ([]*model.User, error) {
 	args := m.Called(ctx)
 	if users := args.Get(0); users != nil {
 		return users.([]*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
+}
+
+func (m *mockUserRespository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
+	args := m.Called(ctx, id)
+	if tape := args.Get(0); tape != nil {
+		return tape.(int32), args.Error(1)
+	}
+	return 0, args.Error(1)
 }
 
 func (m *mockUserRespository) DeleteAll(ctx context.Context) error {
@@ -88,6 +106,30 @@ func Test_CreateUser_Success(t *testing.T) {
 //
 // 	mockRepo.AssertExpectations(t)
 // }
+
+func TestGetUserByID_Success(t *testing.T) {
+	mockRepo := NewUserMockRepository()
+
+	id := int32(14)
+
+	returnedUser := &model.User{
+		ID:       id,
+		Username: "MilesDavis",
+		Email:    "grumpy.genius@cool.com",
+	}
+
+	ctx := context.Background()
+
+	mockRepo.On("GetByID", ctx, id).Return(returnedUser, nil)
+
+	svc := service.NewUserService(mockRepo)
+	user, err := svc.GetUserByID(ctx, strconv.Itoa(int(id)))
+
+	assert.Nil(t, err)
+	assert.Equal(t, returnedUser, user)
+
+	mockRepo.AssertExpectations(t)
+}
 
 func TestDeleteAllUsers(t *testing.T) {
 	mockRepo := NewUserMockRepository()
