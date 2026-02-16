@@ -2,17 +2,22 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
 
 type UserRepository interface {
-	Save(context.Context, *model.User) (*model.User, error)
-	FindAll(context.Context) ([]*model.User, error)
-	DeleteAll(context.Context) error
+	Save(ctx context.Context, user *model.User) (*model.User, error)
+	GetByID(ctx context.Context, id int32) (*model.User, error)
+	GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error)
+	GetAll(ctx context.Context) ([]*model.User, error)
+	DeleteAll(ctx context.Context) error
 }
 
 type userRepository struct {
@@ -41,7 +46,7 @@ func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.Use
 	}
 	createdUser := &model.User{
 		ID:        dbUser.ID,
-		PublicID:  dbUser.PublicID.UUID,
+		PublicID:  dbUser.PublicID,
 		CreatedAt: dbUser.CreatedAt,
 		UpdatedAt: dbUser.UpdatedAt,
 		Username:  dbUser.Username,
@@ -50,7 +55,31 @@ func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.Use
 	return createdUser, nil
 }
 
-func (r *userRepository) FindAll(ctx context.Context) ([]*model.User, error) {
+func (r *userRepository) GetByID(ctx context.Context, id int32) (*model.User, error) {
+	dbUser, err := r.DB.GetUserByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", apperror.ErrUserNotFound, err)
+	}
+	user := &model.User{
+		ID:        dbUser.ID,
+		PublicID:  dbUser.PublicID,
+		CreatedAt: dbUser.CreatedAt,
+		UpdatedAt: dbUser.UpdatedAt,
+		Username:  dbUser.Username,
+		Email:     dbUser.Email,
+	}
+	return user, nil
+}
+
+func (r *userRepository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
+	dbUserID, err := r.DB.GetUserIDFromPublicID(ctx, id)
+	if err != nil {
+		return 0, err
+	}
+	return dbUserID, nil
+}
+
+func (r *userRepository) GetAll(ctx context.Context) ([]*model.User, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	dbUsers, err := r.DB.GetUsers(ctx)
@@ -61,7 +90,7 @@ func (r *userRepository) FindAll(ctx context.Context) ([]*model.User, error) {
 	for _, user := range dbUsers {
 		u := &model.User{
 			ID:        user.ID,
-			PublicID:  user.PublicID.UUID,
+			PublicID:  user.PublicID,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
 			Username:  user.Username,
