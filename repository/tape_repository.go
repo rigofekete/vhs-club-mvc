@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
@@ -13,12 +14,13 @@ import (
 
 type TapeRepository interface {
 	Save(ctx context.Context, tape *model.Tape) (*model.Tape, error)
-	FindAll(ctx context.Context) ([]*model.Tape, error)
-	FindByID(ctx context.Context, id int32) (*model.Tape, error)
+	GetAll(ctx context.Context) ([]*model.Tape, error)
+	GetByID(ctx context.Context, id int32) (*model.Tape, error)
+	GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error)
+	Exists(ctx context.Context, id int32) (bool, error)
 	Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error)
 	Delete(ctx context.Context, id int32) error
 	DeleteAll(ctx context.Context) error
-	Exists(ctx context.Context, id int32) (bool, error)
 }
 
 type tapeRepository struct {
@@ -52,7 +54,7 @@ func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tap
 
 	savedTape := &model.Tape{
 		ID:        dbTape.ID,
-		PublicID:  dbTape.PublicID.UUID,
+		PublicID:  dbTape.PublicID,
 		CreatedAt: dbTape.CreatedAt,
 		UpdatedAt: dbTape.UpdatedAt,
 		Title:     dbTape.Title,
@@ -64,7 +66,7 @@ func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tap
 	return savedTape, nil
 }
 
-func (r *tapeRepository) FindAll(ctx context.Context) ([]*model.Tape, error) {
+func (r *tapeRepository) GetAll(ctx context.Context) ([]*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	dbTapes, err := r.DB.GetTapes(context.Background())
@@ -75,7 +77,7 @@ func (r *tapeRepository) FindAll(ctx context.Context) ([]*model.Tape, error) {
 	for _, tape := range dbTapes {
 		t := &model.Tape{
 			ID:        tape.ID,
-			PublicID:  tape.PublicID.UUID,
+			PublicID:  tape.PublicID,
 			CreatedAt: tape.CreatedAt,
 			UpdatedAt: tape.UpdatedAt,
 			Title:     tape.Title,
@@ -89,18 +91,18 @@ func (r *tapeRepository) FindAll(ctx context.Context) ([]*model.Tape, error) {
 	return tapes, nil
 }
 
-func (r *tapeRepository) FindByID(ctx context.Context, id int32) (*model.Tape, error) {
+func (r *tapeRepository) GetByID(ctx context.Context, id int32) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	dbTape, err := r.DB.GetTape(context.Background(), id)
+	dbTape, err := r.DB.GetTapeByID(context.Background(), id)
 	if err != nil {
 		return nil, apperror.ErrTapeNotFound
 	}
 
 	tape := &model.Tape{
 		ID:        dbTape.ID,
-		PublicID:  dbTape.PublicID.UUID,
+		PublicID:  dbTape.PublicID,
 		CreatedAt: dbTape.CreatedAt,
 		UpdatedAt: dbTape.UpdatedAt,
 		Title:     dbTape.Title,
@@ -111,6 +113,25 @@ func (r *tapeRepository) FindByID(ctx context.Context, id int32) (*model.Tape, e
 	}
 
 	return tape, nil
+}
+
+func (r *tapeRepository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
+	tapeID, err := r.DB.GetTapeIDFromPublicID(ctx, id)
+	if err != nil {
+		return 0, err
+	}
+	return tapeID, nil
+}
+
+func (r *tapeRepository) Exists(ctx context.Context, id int32) (bool, error) {
+	_, err := r.DB.GetTapeByID(ctx, id)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error) {
@@ -133,7 +154,7 @@ func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTap
 
 	tape := &model.Tape{
 		ID:        dbTape.ID,
-		PublicID:  dbTape.PublicID.UUID,
+		PublicID:  dbTape.PublicID,
 		CreatedAt: dbTape.CreatedAt,
 		UpdatedAt: dbTape.UpdatedAt,
 		Title:     dbTape.Title,
@@ -170,17 +191,6 @@ func (r *tapeRepository) DeleteAll(ctx context.Context) error {
 }
 
 // Helpers
-
-func (r *tapeRepository) Exists(ctx context.Context, id int32) (bool, error) {
-	_, err := r.DB.GetTape(ctx, id)
-	if err == sql.ErrNoRows {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
 
 func toNullString(s *string) sql.NullString {
 	if s == nil {
