@@ -13,9 +13,13 @@ RETURNING *;
 SELECT * FROM tapes
 ORDER BY created_at ASC;
 
--- name: GetTape :one
+-- name: GetTapeByID :one
 SELECT * FROM tapes
 WHERE id = $1;
+
+-- name: GetTapeByPublicID :one
+SELECT * FROM tapes
+WHERE public_id = $1;
 
 -- name: UpdateTape :one
 UPDATE tapes
