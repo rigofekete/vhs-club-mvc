@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -11,15 +12,16 @@ import (
 )
 
 type TapeRepository interface {
-	Save(tape model.Tape) (*model.Tape, error)
-	FindAll() ([]model.Tape, error)
-	FindByID(id int32) (*model.Tape, error)
-	Update(id int32, updated database.UpdateTapeParams) (*model.Tape, error)
-	Delete(id int32) error
-	DeleteAll() error
+	Save(ctx context.Context, tape *model.Tape) (*model.Tape, error)
+	FindAll(ctx context.Context) ([]*model.Tape, error)
+	FindByID(ctx context.Context, id int32) (*model.Tape, error)
+	Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error)
+	Delete(ctx context.Context, id int32) error
+	DeleteAll(ctx context.Context) error
 }
 
 type tapeRepository struct {
+	// TODO: mutex is probably not needed
 	mu sync.Mutex
 	DB *database.Queries
 }
@@ -30,7 +32,7 @@ func NewTapeRepository() TapeRepository {
 	}
 }
 
-func (r *tapeRepository) Save(tape model.Tape) (*model.Tape, error) {
+func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	// TODO: Consider doing a function to convert data to and from DAO (similar to the DTO in handler layer)
@@ -61,16 +63,16 @@ func (r *tapeRepository) Save(tape model.Tape) (*model.Tape, error) {
 	return savedTape, nil
 }
 
-func (r *tapeRepository) FindAll() ([]model.Tape, error) {
+func (r *tapeRepository) FindAll(ctx context.Context) ([]*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	dbTapes, err := r.DB.GetTapes(context.Background())
 	if err != nil {
 		return nil, err
 	}
-	tapes := make([]model.Tape, 0)
+	tapes := make([]*model.Tape, 0)
 	for _, tape := range dbTapes {
-		t := model.Tape{
+		t := &model.Tape{
 			ID:        tape.ID,
 			PublicID:  tape.PublicID.UUID,
 			CreatedAt: tape.CreatedAt,
@@ -86,7 +88,7 @@ func (r *tapeRepository) FindAll() ([]model.Tape, error) {
 	return tapes, nil
 }
 
-func (r *tapeRepository) FindByID(id int32) (*model.Tape, error) {
+func (r *tapeRepository) FindByID(ctx context.Context, id int32) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -110,11 +112,20 @@ func (r *tapeRepository) FindByID(id int32) (*model.Tape, error) {
 	return tape, nil
 }
 
-func (r *tapeRepository) Update(id int32, updatedTape database.UpdateTapeParams) (*model.Tape, error) {
+func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	dbTape, err := r.DB.UpdateTape(context.Background(), updatedTape)
+	dbUpdateParams := database.UpdateTapeParams{
+		ID:       updateTape.ID,
+		Title:    toNullString(updateTape.Title),
+		Director: toNullString(updateTape.Director),
+		Genre:    toNullString(updateTape.Genre),
+		Quantity: toNullInt32(updateTape.Quantity),
+		Price:    toNullFloat64(updateTape.Price),
+	}
+
+	dbTape, err := r.DB.UpdateTape(context.Background(), dbUpdateParams)
 	if err != nil {
 		return nil, err
 	}
@@ -131,10 +142,10 @@ func (r *tapeRepository) Update(id int32, updatedTape database.UpdateTapeParams)
 		Price:     dbTape.Price,
 	}
 
-	return tape, err
+	return tape, nil
 }
 
-func (r *tapeRepository) Delete(id int32) error {
+func (r *tapeRepository) Delete(ctx context.Context, id int32) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -146,7 +157,7 @@ func (r *tapeRepository) Delete(id int32) error {
 	return nil
 }
 
-func (r *tapeRepository) DeleteAll() error {
+func (r *tapeRepository) DeleteAll(ctx context.Context) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -155,4 +166,25 @@ func (r *tapeRepository) DeleteAll() error {
 		return err
 	}
 	return nil
+}
+
+func toNullString(s *string) sql.NullString {
+	if s == nil {
+		return sql.NullString{Valid: false}
+	}
+	return sql.NullString{String: *s, Valid: true}
+}
+
+func toNullInt32(i *int32) sql.NullInt32 {
+	if i == nil {
+		return sql.NullInt32{Valid: false}
+	}
+	return sql.NullInt32{Int32: *i, Valid: true}
+}
+
+func toNullFloat64(f *float64) sql.NullFloat64 {
+	if f == nil {
+		return sql.NullFloat64{Valid: false}
+	}
+	return sql.NullFloat64{Float64: *f, Valid: true}
 }
