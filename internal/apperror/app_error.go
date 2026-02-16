@@ -21,8 +21,9 @@ var (
 	ErrUserNotFound   = errors.New("user not found")
 	ErrUserValidation = errors.New("invalid user fields")
 	// Tape
-	ErrTapeValidation = errors.New("invalid tape fields")
-	ErrTapeNotFound   = errors.New("tape not found")
+	ErrTapeValidation    = errors.New("invalid tape fields")
+	ErrTapeNotFound      = errors.New("tape not found")
+	ErrTapeUpdateRequest = errors.New("bad update tape request")
 )
 
 type ValidationError struct {
@@ -51,7 +52,7 @@ func WrapValidationError(err error) error {
 		case "email":
 			fields[field] = "Must be a valid email address"
 		case "alphanum":
-			fields[field] = "Must be formed of only letters and numbers"
+			fields[field] = "Must be formed of only letters and/or numbers"
 		case "min":
 			fields[field] = "Must be at least " + fieldError.Param() + " characters"
 		case "max":
@@ -86,6 +87,8 @@ func mapErrorToAppError(err error) *AppError {
 		return &AppError{Code: 422, Message: "Invalid tape fields"}
 	case errors.Is(err, ErrTapeNotFound):
 		return &AppError{Code: 404, Message: "Tape not found"}
+	case errors.Is(err, ErrTapeUpdateRequest):
+		return &AppError{Code: 404, Message: "Tape update request needs at least 1 non nil value"}
 	default:
 		return &AppError{Code: 500, Message: "Internal server error"}
 	}
