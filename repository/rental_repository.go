@@ -12,6 +12,8 @@ import (
 
 type RentalRepository interface {
 	Save(tapeID, userID int32) (*model.Rental, error)
+	GetAll(ctx context.Context) ([]*model.Rental, error)
+	GetActiveRentCount(ctx context.Context, tapeID int32) (int64, error)
 }
 
 type rentalRepository struct {
@@ -46,7 +48,7 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 	}
 	savedRental := &model.Rental{
 		ID:         dbRental.ID,
-		PublicID:   dbRental.PublicID.UUID,
+		PublicID:   dbRental.PublicID,
 		CreatedAt:  dbRental.CreatedAt,
 		UserID:     dbRental.UserID,
 		TapeID:     dbRental.TapeID,
@@ -54,4 +56,36 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 		ReturnedAt: dbRental.ReturnedAt,
 	}
 	return savedRental, nil
+}
+
+func (r *rentalRepository) GetAll(ctx context.Context) ([]*model.Rental, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	dbRentals, err := r.DB.GetAllActiveRentals(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	rentals := make([]*model.Rental, 0)
+	for _, rental := range dbRentals {
+		r := &model.Rental{
+			ID:        rental.ID,
+			PublicID:  rental.PublicID,
+			CreatedAt: rental.CreatedAt,
+			UserID:    rental.UserID,
+			TapeID:    rental.TapeID,
+			RentedAt:  rental.RentedAt,
+		}
+		rentals = append(rentals, r)
+	}
+	return rentals, err
+}
+
+func (r *rentalRepository) GetActiveRentCount(ctx context.Context, tapeID int32) (int64, error) {
+	count, err := r.DB.GetActiveRentalCountByTape(ctx, tapeID)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
