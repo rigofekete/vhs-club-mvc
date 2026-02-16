@@ -13,7 +13,7 @@ import (
 
 type Rental struct {
 	ID         int32
-	PublicID   uuid.NullUUID
+	PublicID   uuid.UUID
 	CreatedAt  time.Time
 	UserID     int32
 	TapeID     int32

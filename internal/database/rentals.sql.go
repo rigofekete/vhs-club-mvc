@@ -39,14 +39,14 @@ func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Ren
 	return i, err
 }
 
-const getActiveRentalByID = `-- name: GetActiveRentalByID :many
+const getActiveRentalByUserID = `-- name: GetActiveRentalByUserID :many
 SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
 WHERE user_id = $1 AND returned_at IS NULL
 `
 
 // NULL is not a value so only IS keyword works
-func (q *Queries) GetActiveRentalByID(ctx context.Context, userID int32) ([]Rental, error) {
-	rows, err := q.db.QueryContext(ctx, getActiveRentalByID, userID)
+func (q *Queries) GetActiveRentalByUserID(ctx context.Context, userID int32) ([]Rental, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveRentalByUserID, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +76,18 @@ func (q *Queries) GetActiveRentalByID(ctx context.Context, userID int32) ([]Rent
 	return items, nil
 }
 
+const getActiveRentalCountByTape = `-- name: GetActiveRentalCountByTape :one
+SELECT COUNT(*) FROM rentals
+WHERE tape_id = $1 AND returned_at IS NULL
+`
+
+func (q *Queries) GetActiveRentalCountByTape(ctx context.Context, tapeID int32) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getActiveRentalCountByTape, tapeID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getActiveRentalbyTape = `-- name: GetActiveRentalbyTape :many
 SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
 WHERE tape_id = $1 AND returned_at IS NULL
@@ -83,6 +95,43 @@ WHERE tape_id = $1 AND returned_at IS NULL
 
 func (q *Queries) GetActiveRentalbyTape(ctx context.Context, tapeID int32) ([]Rental, error) {
 	rows, err := q.db.QueryContext(ctx, getActiveRentalbyTape, tapeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Rental
+	for rows.Next() {
+		var i Rental
+		if err := rows.Scan(
+			&i.ID,
+			&i.PublicID,
+			&i.CreatedAt,
+			&i.UserID,
+			&i.TapeID,
+			&i.RentedAt,
+			&i.ReturnedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllActiveRentals = `-- name: GetAllActiveRentals :many
+SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
+WHERE returned_at IS NULL
+ORDER BY created_at ASC
+`
+
+func (q *Queries) GetAllActiveRentals(ctx context.Context) ([]Rental, error) {
+	rows, err := q.db.QueryContext(ctx, getAllActiveRentals)
 	if err != nil {
 		return nil, err
 	}
