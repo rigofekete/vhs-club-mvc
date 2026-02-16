@@ -17,9 +17,9 @@ func UserSingleResponse(user *model.User) *UserResponse {
 	}
 }
 
-func UserListResponse(user []*model.User) []*UserResponse {
-	userList := make([]*UserResponse, len(user))
-	for i, user := range user {
+func UserListResponse(users []*model.User) []*UserResponse {
+	userList := make([]*UserResponse, len(users))
+	for i, user := range users {
 		userList[i] = UserSingleResponse(user)
 	}
 	return userList
