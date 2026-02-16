@@ -1,9 +1,8 @@
 -- name: CreateRental :one
-INSERT INTO rentals (user_id, tape_id, returned_at)
+INSERT INTO rentals (user_id, tape_id)
 VALUES(
   $1,
-  $2,
-  $3
+  $2
 )
 RETURNING *;
 
