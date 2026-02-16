@@ -1,35 +1,51 @@
 package service
 
 import (
-	"strconv"
+	"context"
+	"fmt"
 
+	"github.com/google/uuid"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
 
 type RentalService interface {
-	RentTape(string, string) (*model.Rental, error)
+	RentTape(ctx context.Context, tapeID string, userID string) (*model.Rental, error)
 }
 
 type rentalService struct {
-	repo repository.RentalRepository
+	tapeRepo   repository.TapeRepository
+	userRepo   repository.UserRepository
+	rentalRepo repository.RentalRepository
 }
 
-func NewRentalService(r repository.RentalRepository) RentalService {
+func NewRentalService(r repository.RentalRepository, t repository.TapeRepository, u repository.UserRepository) RentalService {
 	return &rentalService{
-		repo: r,
+		rentalRepo: r,
+		tapeRepo:   t,
+		userRepo:   u,
 	}
 }
 
-func (s *rentalService) RentTape(tapeIDStr, userIDStr string) (*model.Rental, error) {
-	tapeID64, err := strconv.Atoi(tapeIDStr)
+func (s *rentalService) RentTape(ctx context.Context, tapePublicID, userPublicID string) (*model.Rental, error) {
+	tapeUUID, err := uuid.Parse(tapePublicID)
 	if err != nil {
 		return nil, err
 	}
-	userID64, err := strconv.Atoi(userIDStr)
+	userUUID, err := uuid.Parse(userPublicID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.Save(int32(tapeID64), int32(userID64))
+	tapeID, err := s.tapeRepo.GetIDFromPublicID(ctx, tapeUUID)
+	if err != nil {
+		return nil, fmt.Errorf("could not find tape from given public id: %w: %v", apperror.ErrTapeNotFound, err)
+	}
+	userID, err := s.userRepo.GetIDFromPublicID(ctx, userUUID)
+	if err != nil {
+		return nil, fmt.Errorf("could not find user from given public id: %w: %v", apperror.ErrUserNotFound, err)
+	}
+
+	return s.rentalRepo.Save(tapeID, userID)
 }
