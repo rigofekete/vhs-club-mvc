@@ -18,6 +18,7 @@ func NewRentalHandler(s service.RentalService) *RentalHandler {
 
 func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/rentals/:id", h.CreateRental)
+	r.GET("/rentals", h.GetAllRentals)
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {
@@ -34,4 +35,13 @@ func (h *RentalHandler) CreateRental(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, createdRental)
+}
+
+func (h *RentalHandler) GetAllRentals(c *gin.Context) {
+	rentals, err := h.rentalService.GetAllRentals(c.Request.Context())
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, RentalListResponse(rentals))
 }
