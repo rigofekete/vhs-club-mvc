@@ -8,6 +8,8 @@ package database
 import (
 	"context"
 	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 const createTape = `-- name: CreateTape :one
@@ -72,13 +74,35 @@ func (q *Queries) DeleteTape(ctx context.Context, id int32) error {
 	return err
 }
 
-const getTape = `-- name: GetTape :one
+const getTapeByID = `-- name: GetTapeByID :one
 SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
 WHERE id = $1
 `
 
-func (q *Queries) GetTape(ctx context.Context, id int32) (Tape, error) {
-	row := q.db.QueryRowContext(ctx, getTape, id)
+func (q *Queries) GetTapeByID(ctx context.Context, id int32) (Tape, error) {
+	row := q.db.QueryRowContext(ctx, getTapeByID, id)
+	var i Tape
+	err := row.Scan(
+		&i.ID,
+		&i.PublicID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Title,
+		&i.Director,
+		&i.Genre,
+		&i.Quantity,
+		&i.Price,
+	)
+	return i, err
+}
+
+const getTapeByPublicID = `-- name: GetTapeByPublicID :one
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
+WHERE public_id = $1
+`
+
+func (q *Queries) GetTapeByPublicID(ctx context.Context, publicID uuid.UUID) (Tape, error) {
+	row := q.db.QueryRowContext(ctx, getTapeByPublicID, publicID)
 	var i Tape
 	err := row.Scan(
 		&i.ID,

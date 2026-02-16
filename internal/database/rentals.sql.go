@@ -11,23 +11,21 @@ import (
 )
 
 const createRental = `-- name: CreateRental :one
-INSERT INTO rentals (user_id, tape_id, returned_at)
+INSERT INTO rentals (user_id, tape_id)
 VALUES(
   $1,
-  $2,
-  $3
+  $2
 )
 RETURNING id, public_id, created_at, user_id, tape_id, rented_at, returned_at
 `
 
 type CreateRentalParams struct {
-	UserID     int32
-	TapeID     int32
-	ReturnedAt sql.NullTime
+	UserID int32
+	TapeID int32
 }
 
 func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Rental, error) {
-	row := q.db.QueryRowContext(ctx, createRental, arg.UserID, arg.TapeID, arg.ReturnedAt)
+	row := q.db.QueryRowContext(ctx, createRental, arg.UserID, arg.TapeID)
 	var i Rental
 	err := row.Scan(
 		&i.ID,

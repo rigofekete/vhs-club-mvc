@@ -23,7 +23,7 @@ type Rental struct {
 
 type Tape struct {
 	ID        int32
-	PublicID  uuid.NullUUID
+	PublicID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Title     string
@@ -35,7 +35,7 @@ type Tape struct {
 
 type User struct {
 	ID        int32
-	PublicID  uuid.NullUUID
+	PublicID  uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	Username  string
