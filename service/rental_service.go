@@ -12,6 +12,7 @@ import (
 
 type RentalService interface {
 	RentTape(ctx context.Context, tapeID string, userID string) (*model.Rental, error)
+	GetAllRentals(ctx context.Context) ([]*model.Rental, error)
 }
 
 type rentalService struct {
@@ -38,14 +39,34 @@ func (s *rentalService) RentTape(ctx context.Context, tapePublicID, userPublicID
 		return nil, err
 	}
 
+	// TODO: We probably don't need this GetIDFromPublicID but GetTape/UserByPublicID instead, since we need to check more fields
 	tapeID, err := s.tapeRepo.GetIDFromPublicID(ctx, tapeUUID)
 	if err != nil {
 		return nil, fmt.Errorf("could not find tape from given public id: %w: %v", apperror.ErrTapeNotFound, err)
 	}
+
 	userID, err := s.userRepo.GetIDFromPublicID(ctx, userUUID)
 	if err != nil {
 		return nil, fmt.Errorf("could not find user from given public id: %w: %v", apperror.ErrUserNotFound, err)
 	}
 
+	tape, err := s.tapeRepo.GetByID(ctx, tapeID)
+	if err != nil {
+		return nil, err
+	}
+
+	count, err := s.rentalRepo.GetActiveRentCount(ctx, tapeID)
+	if err != nil {
+		return nil, err
+	}
+
+	if int32(count) >= tape.Quantity {
+		return nil, apperror.ErrTapeUnavailable
+	}
+
 	return s.rentalRepo.Save(tapeID, userID)
+}
+
+func (s *rentalService) GetAllRentals(ctx context.Context) ([]*model.Rental, error) {
+	return s.rentalRepo.GetAll(ctx)
 }
