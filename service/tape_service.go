@@ -1,22 +1,20 @@
 package service
 
 import (
-	"database/sql"
+	"context"
 	"strconv"
 
-	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
-	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
 
 type TapeService interface {
-	CreateTape(model.Tape) (*model.Tape, error)
-	ListTapes() ([]model.Tape, error)
-	GetTapeByID(id string) (*model.Tape, error)
-	UpdateTape(id string, updated model.UpdatedTape) (*model.Tape, error)
-	DeleteTape(id string) error
-	DeleteAllTapes() error
+	CreateTape(ctx context.Context, tape *model.Tape) (*model.Tape, error)
+	ListTapes(ctx context.Context) ([]*model.Tape, error)
+	GetTapeByID(ctx context.Context, id string) (*model.Tape, error)
+	UpdateTape(ctx context.Context, id string, updated *model.UpdateTape) (*model.Tape, error)
+	DeleteTape(ctx context.Context, id string) error
+	DeleteAllTapes(ctx context.Context) error
 }
 
 type tapeService struct {
@@ -29,124 +27,42 @@ func NewTapeService(r repository.TapeRepository) TapeService {
 	}
 }
 
-// Helper for the Update method
-func validateUpdatedTape(id int32, updatedTape model.UpdatedTape) *database.UpdateTapeParams {
-	dbUpdatedTapeParams := database.UpdateTapeParams{
-		ID: id,
-	}
-
-	changes := false
-
-	if updatedTape.Title != nil {
-		if *updatedTape.Title == "" {
-			return nil
-		}
-		dbUpdatedTapeParams.Title = sql.NullString{String: *updatedTape.Title, Valid: true}
-		changes = true
-	} else {
-		dbUpdatedTapeParams.Title = sql.NullString{Valid: false}
-	}
-
-	if updatedTape.Director != nil {
-		if *updatedTape.Director == "" {
-			return nil
-		}
-		dbUpdatedTapeParams.Director = sql.NullString{String: *updatedTape.Director, Valid: true}
-		changes = true
-	} else {
-		dbUpdatedTapeParams.Director = sql.NullString{Valid: false}
-	}
-
-	if updatedTape.Genre != nil {
-		if *updatedTape.Genre == "" {
-			return nil
-		}
-		dbUpdatedTapeParams.Genre = sql.NullString{String: *updatedTape.Genre, Valid: true}
-		changes = true
-	} else {
-		dbUpdatedTapeParams.Genre = sql.NullString{Valid: false}
-	}
-
-	if updatedTape.Quantity != nil {
-		// TODO: Decide if I should allow 0 quantity in Update function or not
-		// if *updatedTape.Quantity == 0 {
-		// 	return nil
-		// }
-		dbUpdatedTapeParams.Quantity = sql.NullInt32{Int32: *updatedTape.Quantity, Valid: true}
-		changes = true
-	} else {
-		dbUpdatedTapeParams.Quantity = sql.NullInt32{Valid: false}
-	}
-
-	if updatedTape.Price != nil {
-		if *updatedTape.Price == 0 {
-			return nil
-		}
-		dbUpdatedTapeParams.Price = sql.NullFloat64{Float64: *updatedTape.Price, Valid: true}
-		changes = true
-	} else {
-		dbUpdatedTapeParams.Price = sql.NullFloat64{Valid: false}
-	}
-
-	if !changes {
-		return nil
-	}
-
-	return &dbUpdatedTapeParams
+func (s *tapeService) CreateTape(ctx context.Context, tape *model.Tape) (*model.Tape, error) {
+	return s.repo.Save(ctx, tape)
 }
 
-// Helper for Create
-func validTape(tape model.Tape) bool {
-	return tape.Title != "" && tape.Director != "" &&
-		tape.Genre != "" && tape.Quantity != 0 && tape.Price != 0
+func (s *tapeService) ListTapes(ctx context.Context) ([]*model.Tape, error) {
+	return s.repo.FindAll(ctx)
 }
 
-// TapeService Methods
-//////////////////////
-
-func (s *tapeService) CreateTape(tape model.Tape) (*model.Tape, error) {
-	if !validTape(tape) {
-		return nil, apperror.ErrTapeValidation
-	}
-
-	return s.repo.Save(tape)
-}
-
-func (s *tapeService) ListTapes() ([]model.Tape, error) {
-	return s.repo.FindAll()
-}
-
-func (s *tapeService) GetTapeByID(id string) (*model.Tape, error) {
+func (s *tapeService) GetTapeByID(ctx context.Context, id string) (*model.Tape, error) {
 	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
 		return nil, err
 	}
-	return s.repo.FindByID(int32(tapeID64))
+	return s.repo.FindByID(ctx, int32(tapeID64))
 }
 
-func (s *tapeService) UpdateTape(id string, updatedTape model.UpdatedTape) (*model.Tape, error) {
+func (s *tapeService) UpdateTape(ctx context.Context, id string, updateTape *model.UpdateTape) (*model.Tape, error) {
 	tapeID64, err := strconv.Atoi(id)
-	tapeID32 := int32(tapeID64)
 	if err != nil {
 		return nil, err
 	}
 
-	dbUpdatedParams := validateUpdatedTape(tapeID32, updatedTape)
-	if dbUpdatedParams == nil {
-		return nil, apperror.ErrTapeValidation
-	}
+	updateTape.ID = int32(tapeID64)
 
-	return s.repo.Update(tapeID32, *dbUpdatedParams)
+	return s.repo.Update(ctx, updateTape)
 }
 
-func (s *tapeService) DeleteTape(id string) error {
+// TODO: Which id to pass to delete tape?
+func (s *tapeService) DeleteTape(ctx context.Context, id string) error {
 	tapeID64, err := strconv.Atoi(id)
 	if err != nil {
 		return err
 	}
-	return s.repo.Delete(int32(tapeID64))
+	return s.repo.Delete(ctx, int32(tapeID64))
 }
 
-func (s *tapeService) DeleteAllTapes() error {
-	return s.repo.DeleteAll()
+func (s *tapeService) DeleteAllTapes(ctx context.Context) error {
+	return s.repo.DeleteAll(ctx)
 }
