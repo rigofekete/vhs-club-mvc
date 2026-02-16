@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
@@ -50,6 +51,15 @@ func (s *tapeService) UpdateTape(ctx context.Context, id string, updateTape *mod
 	}
 
 	updateTape.ID = int32(tapeID64)
+
+	// TODO: Good practice to do this here?
+	exists, err := s.repo.Exists(ctx, updateTape.ID)
+	if err != nil {
+		return nil, err
+	}
+	if !exists {
+		return nil, apperror.ErrTapeNotFound
+	}
 
 	return s.repo.Update(ctx, updateTape)
 }
