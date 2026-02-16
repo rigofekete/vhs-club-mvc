@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -20,17 +21,14 @@ func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {
-	type parameters struct {
-		UserID string `json:"user_id"`
-	}
+	var req CreateRentalRequest
 
 	tapeID := c.Param("id")
-	var params parameters
-	if err := c.ShouldBindJSON(&params); err != nil {
-		_ = c.Error(err)
+	if err := c.ShouldBindJSON(&req); err != nil {
+		_ = c.Error(apperror.WrapValidationError(err))
 		return
 	}
-	createdRental, err := h.rentalService.RentTape(tapeID, params.UserID)
+	createdRental, err := h.rentalService.RentTape(c.Request.Context(), tapeID, req.UserPublicID)
 	if err != nil {
 		_ = c.Error(err)
 		return
