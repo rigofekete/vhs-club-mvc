@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/rigofekete/vhs-club-mvc/model"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -28,31 +28,30 @@ func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
 }
 
 func (h *TapeHandler) CreateTape(c *gin.Context) {
-	var newTape model.Tape
+	var newTape CreateTapeRequest
 	if err := c.ShouldBindJSON(&newTape); err != nil {
-		_ = c.Error(err)
+		_ = c.Error(apperror.WrapValidationError(err))
 		return
 	}
-	createdTape, err := h.tapeService.CreateTape(newTape)
+	createdTape, err := h.tapeService.CreateTape(c.Request.Context(), newTape.ToModel())
 	if createdTape == nil {
 		_ = c.Error(err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid tape"})
 		return
 	}
-	c.JSON(http.StatusCreated, createdTape)
+	c.JSON(http.StatusCreated, TapeSingleResponse(createdTape))
 }
 
 func (h *TapeHandler) GetTapes(c *gin.Context) {
-	tapes, err := h.tapeService.ListTapes()
+	tapes, err := h.tapeService.ListTapes(c.Request.Context())
 	if err != nil {
 		_ = c.Error(err)
 	}
-	c.JSON(http.StatusOK, tapes)
+	c.JSON(http.StatusOK, TapeListResponse(tapes))
 }
 
 func (h *TapeHandler) GetTapeByID(c *gin.Context) {
 	id := c.Param("id")
-	tape, err := h.tapeService.GetTapeByID(id)
+	tape, err := h.tapeService.GetTapeByID(c.Request.Context(), id)
 	if err != nil {
 		_ = c.Error(err)
 		return
@@ -62,23 +61,29 @@ func (h *TapeHandler) GetTapeByID(c *gin.Context) {
 
 func (h *TapeHandler) UpdateTape(c *gin.Context) {
 	id := c.Param("id")
-	var update model.UpdatedTape
-	if err := c.ShouldBindJSON(&update); err != nil {
-		_ = c.Error(err)
+	var req UpdateTapeRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		_ = c.Error(apperror.WrapValidationError(err))
 		return
 	}
+
+	if !updateValid(&req) {
+		_ = c.Error(apperror.ErrTapeUpdateRequest)
+		return
+	}
+
 	// TODO: Same names for methods in different layers. Check good practice.
-	tape, err := h.tapeService.UpdateTape(id, update)
+	tape, err := h.tapeService.UpdateTape(c.Request.Context(), id, req.ToModel())
 	if err != nil {
 		_ = c.Error(err)
 		return
 	}
-	c.JSON(http.StatusOK, tape)
+	c.JSON(http.StatusOK, TapeUpdateResponse(tape))
 }
 
 func (h *TapeHandler) DeleteTape(c *gin.Context) {
 	id := c.Param("id")
-	if err := h.tapeService.DeleteTape(id); err != nil {
+	if err := h.tapeService.DeleteTape(c.Request.Context(), id); err != nil {
 		_ = c.Error(err)
 		return
 	}
@@ -86,9 +91,18 @@ func (h *TapeHandler) DeleteTape(c *gin.Context) {
 }
 
 func (h *TapeHandler) DeleteAllTapes(c *gin.Context) {
-	if err := h.tapeService.DeleteAllTapes(); err != nil {
+	if err := h.tapeService.DeleteAllTapes(c.Request.Context()); err != nil {
 		_ = c.Error(err)
 		return
 	}
 	c.Status(http.StatusNoContent)
+}
+
+// Helper for UpdateTape
+func updateValid(req *UpdateTapeRequest) bool {
+	return (req.Title != nil ||
+		req.Director != nil ||
+		req.Genre != nil ||
+		req.Quantity != nil ||
+		req.Price != nil)
 }
