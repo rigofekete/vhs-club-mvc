@@ -20,7 +20,7 @@ func NewTapeHandler(s service.TapeService) *TapeHandler {
 
 func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/tapes", h.CreateTape)
-	r.GET("/tapes", h.GetTapes)
+	r.GET("/tapes", h.GetAllTapes)
 	r.GET("/tapes/:id", h.GetTapeByID)
 	r.PATCH("/tapes/:id", h.UpdateTape)
 	r.DELETE("/tapes/:id", h.DeleteTape)
@@ -41,8 +41,8 @@ func (h *TapeHandler) CreateTape(c *gin.Context) {
 	c.JSON(http.StatusCreated, TapeSingleResponse(createdTape))
 }
 
-func (h *TapeHandler) GetTapes(c *gin.Context) {
-	tapes, err := h.tapeService.ListTapes(c.Request.Context())
+func (h *TapeHandler) GetAllTapes(c *gin.Context) {
+	tapes, err := h.tapeService.GetAllTapes(c.Request.Context())
 	if err != nil {
 		_ = c.Error(err)
 	}
