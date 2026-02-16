@@ -16,9 +16,9 @@ type ReturnRentalRequest struct {
 }
 
 type RentalResponse struct {
-	PublicID     uuid.UUID `json:"public_id"`
-	TapePublicID uuid.UUID `jsong:"tape_id"`
-	UserPublicID uuid.UUID `json:"user_id"`
-	CreatedAt    time.Time `json:"created_at"`
-	RentedAt     time.Time `json:"rented_at"`
+	PublicID  uuid.UUID `json:"public_id"`
+	TapeID    int32     `jsong:"tape_id"`
+	UserID    int32     `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+	RentedAt  time.Time `json:"rented_at"`
 }
