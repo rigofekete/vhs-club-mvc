@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
 	"github.com/stretchr/testify/assert"
@@ -28,7 +29,7 @@ func (m *mockTapeRespository) Save(ctx context.Context, tape *model.Tape) (*mode
 	return nil, errors.New("invalid mock tape fields")
 }
 
-func (m *mockTapeRespository) FindAll(ctx context.Context) ([]*model.Tape, error) {
+func (m *mockTapeRespository) GetAll(ctx context.Context) ([]*model.Tape, error) {
 	args := m.Called(ctx)
 	if tapes := args.Get(0); tapes != nil {
 		return tapes.([]*model.Tape), args.Error(1)
@@ -36,12 +37,25 @@ func (m *mockTapeRespository) FindAll(ctx context.Context) ([]*model.Tape, error
 	return nil, args.Error(1)
 }
 
-func (m *mockTapeRespository) FindByID(ctx context.Context, id int32) (*model.Tape, error) {
+func (m *mockTapeRespository) GetByID(ctx context.Context, id int32) (*model.Tape, error) {
 	args := m.Called(ctx, id)
 	if tape := args.Get(0); tape != nil {
 		return tape.(*model.Tape), args.Error(1)
 	}
 	return nil, args.Error(1)
+}
+
+func (m *mockTapeRespository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
+	args := m.Called(ctx, id)
+	if tape := args.Get(0); tape != nil {
+		return tape.(int32), args.Error(1)
+	}
+	return 0, args.Error(1)
+}
+
+func (m *mockTapeRespository) Exists(ctx context.Context, id int32) (bool, error) {
+	args := m.Called(ctx, id)
+	return args.Bool(0), args.Error(1)
 }
 
 func (m *mockTapeRespository) Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error) {
@@ -60,12 +74,6 @@ func (m *mockTapeRespository) Delete(ctx context.Context, id int32) error {
 func (m *mockTapeRespository) DeleteAll(ctx context.Context) error {
 	args := m.Called(ctx)
 	return args.Error(0)
-}
-
-// TODO: Refactor UpdateTape tests to handle this
-func (m *mockTapeRespository) Exists(ctx context.Context, id int32) (bool, error) {
-	args := m.Called(ctx, id)
-	return args.Bool(0), args.Error(1)
 }
 
 func TestCreateTape_Success(t *testing.T) {
@@ -127,7 +135,7 @@ func TestCreateTape_Success(t *testing.T) {
 // 	mockRepo.AssertExpectations(t)
 // }
 
-func TestListTapes(t *testing.T) {
+func TestGetAllTapes(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
 	id1 := int32(5)
@@ -162,10 +170,10 @@ func TestListTapes(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockRepo.On("FindAll", ctx).Return(expectedTapes, nil)
+	mockRepo.On("GetAll", ctx).Return(expectedTapes, nil)
 
 	svc := service.NewTapeService(mockRepo)
-	tapes, err := svc.ListTapes(ctx)
+	tapes, err := svc.GetAllTapes(ctx)
 
 	assert.Equal(t, expectedTapes, tapes)
 	assert.Nil(t, err)
@@ -181,7 +189,7 @@ func TestGetTapeByID_Success(t *testing.T) {
 	expected := model.Tape{
 		ID: id, Title: "Alien", Director: "Ridley Scott", Genre: "Horror", Quantity: 1, Price: 5999.99,
 	}
-	mockRepo.On("FindByID", ctx, id).Return(&expected, nil)
+	mockRepo.On("GetByID", ctx, id).Return(&expected, nil)
 
 	svc := service.NewTapeService(mockRepo)
 
@@ -198,7 +206,7 @@ func TestGetTapeByID_NotFound(t *testing.T) {
 
 	ctx := context.Background()
 	id := int32(8)
-	mockRepo.On("FindByID", ctx, id).Return(nil, errors.New("mock tape not found"))
+	mockRepo.On("GetByID", ctx, id).Return(nil, errors.New("mock tape not found"))
 
 	svc := service.NewTapeService(mockRepo)
 
