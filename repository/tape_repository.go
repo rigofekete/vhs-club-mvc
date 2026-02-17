@@ -16,7 +16,7 @@ type TapeRepository interface {
 	Save(ctx context.Context, tape *model.Tape) (*model.Tape, error)
 	GetAll(ctx context.Context) ([]*model.Tape, error)
 	GetByID(ctx context.Context, id int32) (*model.Tape, error)
-	GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error)
+	GetByPublicID(ctx context.Context, id uuid.UUID) (*model.Tape, error)
 	Exists(ctx context.Context, id int32) (bool, error)
 	Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error)
 	Delete(ctx context.Context, id int32) error
@@ -115,12 +115,23 @@ func (r *tapeRepository) GetByID(ctx context.Context, id int32) (*model.Tape, er
 	return tape, nil
 }
 
-func (r *tapeRepository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
-	tapeID, err := r.DB.GetTapeIDFromPublicID(ctx, id)
+func (r *tapeRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.Tape, error) {
+	dbTape, err := r.DB.GetTapeFromPublicID(ctx, id)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return tapeID, nil
+	tape := &model.Tape{
+		ID:        dbTape.ID,
+		PublicID:  dbTape.PublicID,
+		CreatedAt: dbTape.CreatedAt,
+		UpdatedAt: dbTape.UpdatedAt,
+		Title:     dbTape.Title,
+		Director:  dbTape.Director,
+		Genre:     dbTape.Genre,
+		Quantity:  dbTape.Quantity,
+		Price:     dbTape.Price,
+	}
+	return tape, nil
 }
 
 func (r *tapeRepository) Exists(ctx context.Context, id int32) (bool, error) {
@@ -171,10 +182,10 @@ func (r *tapeRepository) Delete(ctx context.Context, id int32) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
+	// TODO: Check if tape is in the DB in the service layer
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
-		// TODO: Check if tape is in the DB in the service layer
-		return apperror.ErrTapeNotFound
+		return err
 	}
 	return nil
 }
