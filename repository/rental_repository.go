@@ -14,6 +14,7 @@ type RentalRepository interface {
 	GetAllActive(ctx context.Context) ([]*model.Rental, error)
 	GetActiveRentCountByTape(ctx context.Context, tapeID int32) (int64, error)
 	GetActiveRentCountByUser(ctx context.Context, userID int32) (int64, error)
+	DeleteAllRentals(ctx context.Context) error
 }
 
 type rentalRepository struct {
@@ -47,6 +48,8 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 		CreatedAt:  dbRental.CreatedAt,
 		UserID:     dbRental.UserID,
 		TapeID:     dbRental.TapeID,
+		TapeTitle:  dbRental.Title,
+		Username:   dbRental.Username,
 		RentedAt:   dbRental.RentedAt,
 		ReturnedAt: dbRental.ReturnedAt,
 	}
@@ -80,6 +83,8 @@ func (r *rentalRepository) GetAllActive(ctx context.Context) ([]*model.Rental, e
 }
 
 func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID int32) (int64, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	count, err := r.DB.GetActiveRentalCountByTape(ctx, tapeID)
 	if err != nil {
 		return 0, err
@@ -88,9 +93,21 @@ func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID 
 }
 
 func (r *rentalRepository) GetActiveRentCountByUser(ctx context.Context, userID int32) (int64, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 	count, err := r.DB.GetActiveRentalCountByUser(ctx, userID)
 	if err != nil {
 		return 0, err
 	}
 	return count, nil
+}
+
+func (r *rentalRepository) DeleteAllRentals(ctx context.Context) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	if err := r.DB.DeleteAllRentals(ctx); err != nil {
+		return err
+	}
+	return nil
 }
