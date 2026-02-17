@@ -24,7 +24,9 @@ var (
 	ErrTapeValidation    = errors.New("invalid tape fields")
 	ErrTapeNotFound      = errors.New("tape not found")
 	ErrTapeUpdateRequest = errors.New("bad update tape request")
+	// Rentals
 	ErrTapeUnavailable   = errors.New("unavailable tape")
+	ErrMaxRentalsPerUser = errors.New("cannot rent more tapes")
 )
 
 type ValidationError struct {
@@ -92,6 +94,8 @@ func mapErrorToAppError(err error) *AppError {
 		return &AppError{Code: 404, Message: "Tape update request needs at least 1 non nil value"}
 	case errors.Is(err, ErrTapeUnavailable):
 		return &AppError{Code: 404, Message: "Sorry, all the tapes for this movie are currently rented out"}
+	case errors.Is(err, ErrMaxRentalsPerUser):
+		return &AppError{Code: 400, Message: "Unfortunately, you cannot rent any more movies at the moment. Please return one of your current rented tapes"}
 	default:
 		return &AppError{Code: 500, Message: "Internal server error"}
 	}
