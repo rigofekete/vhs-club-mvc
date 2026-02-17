@@ -5,15 +5,15 @@ import (
 	"sync"
 
 	"github.com/rigofekete/vhs-club-mvc/config"
-	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
 
 type RentalRepository interface {
 	Save(tapeID, userID int32) (*model.Rental, error)
-	GetAll(ctx context.Context) ([]*model.Rental, error)
-	GetActiveRentCount(ctx context.Context, tapeID int32) (int64, error)
+	GetAllActive(ctx context.Context) ([]*model.Rental, error)
+	GetActiveRentCountByTape(ctx context.Context, tapeID int32) (int64, error)
+	GetActiveRentCountByUser(ctx context.Context, userID int32) (int64, error)
 }
 
 type rentalRepository struct {
@@ -31,21 +31,16 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// TODO: Do this tape check in the service layer.....
-	tape, err := r.DB.GetTapeByID(context.Background(), tapeID)
-	if err != nil {
-		return nil, apperror.ErrTapeNotFound
-	}
-
 	rentalParams := database.CreateRentalParams{
 		UserID: userID,
-		TapeID: tape.ID,
+		TapeID: tapeID,
 	}
 
 	dbRental, err := r.DB.CreateRental(context.Background(), rentalParams)
 	if err != nil {
 		return nil, err
 	}
+
 	savedRental := &model.Rental{
 		ID:         dbRental.ID,
 		PublicID:   dbRental.PublicID,
@@ -58,7 +53,7 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 	return savedRental, nil
 }
 
-func (r *rentalRepository) GetAll(ctx context.Context) ([]*model.Rental, error) {
+func (r *rentalRepository) GetAllActive(ctx context.Context) ([]*model.Rental, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -75,6 +70,8 @@ func (r *rentalRepository) GetAll(ctx context.Context) ([]*model.Rental, error) 
 			CreatedAt: rental.CreatedAt,
 			UserID:    rental.UserID,
 			TapeID:    rental.TapeID,
+			TapeTitle: rental.Title,
+			Username:  rental.Username,
 			RentedAt:  rental.RentedAt,
 		}
 		rentals = append(rentals, r)
@@ -82,8 +79,16 @@ func (r *rentalRepository) GetAll(ctx context.Context) ([]*model.Rental, error) 
 	return rentals, err
 }
 
-func (r *rentalRepository) GetActiveRentCount(ctx context.Context, tapeID int32) (int64, error) {
+func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID int32) (int64, error) {
 	count, err := r.DB.GetActiveRentalCountByTape(ctx, tapeID)
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func (r *rentalRepository) GetActiveRentCountByUser(ctx context.Context, userID int32) (int64, error) {
+	count, err := r.DB.GetActiveRentalCountByUser(ctx, userID)
 	if err != nil {
 		return 0, err
 	}
