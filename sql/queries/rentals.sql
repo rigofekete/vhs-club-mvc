@@ -11,9 +11,13 @@ UPDATE rentals
 SET returned_at = $2
 WHERE id = $1;
 
--- name: GetActiveRentalByUserID :many
+-- name: GetActiveRentalByUser :many
 SELECT * FROM rentals
 -- NULL is not a value so only IS keyword works
+WHERE user_id = $1 AND returned_at IS NULL;
+
+-- name: GetActiveRentalCountByUser :one
+SELECT COUNT(*) FROM rentals
 WHERE user_id = $1 AND returned_at IS NULL;
 
 -- name: GetActiveRentalbyTape :many
@@ -25,6 +29,12 @@ SELECT COUNT(*) FROM rentals
 WHERE tape_id = $1 AND returned_at IS NULL;
 
 -- name: GetAllActiveRentals :many
-SELECT * FROM rentals
+SELECT
+  rentals.*,
+  tapes.title,
+  users.username
+FROM rentals
+JOIN tapes ON rentals.tape_id = tapes.id
+JOIN users ON rentals.user_id = users.id
 WHERE returned_at IS NULL
-ORDER BY created_at ASC;
+ORDER BY rentals.created_at ASC;
