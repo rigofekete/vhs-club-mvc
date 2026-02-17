@@ -14,12 +14,18 @@ import (
 )
 
 const createRental = `-- name: CreateRental :one
-INSERT INTO rentals (user_id, tape_id)
-VALUES(
-  $1,
-  $2
+WITH new_rental AS (
+  INSERT INTO rentals (user_id, tape_id)
+  VALUES ($1, $2)
+  RETURNING id, public_id, created_at, user_id, tape_id, rented_at, returned_at
 )
-RETURNING id, public_id, created_at, user_id, tape_id, rented_at, returned_at
+SELECT
+  new_rental.id, new_rental.public_id, new_rental.created_at, new_rental.user_id, new_rental.tape_id, new_rental.rented_at, new_rental.returned_at,
+  tapes.title,
+  users.username
+FROM new_rental
+JOIN tapes ON new_rental.tape_id = tapes.id
+JOIN users ON new_rental.user_id = users.id
 `
 
 type CreateRentalParams struct {
@@ -27,9 +33,21 @@ type CreateRentalParams struct {
 	TapeID int32
 }
 
-func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Rental, error) {
+type CreateRentalRow struct {
+	ID         int32
+	PublicID   uuid.UUID
+	CreatedAt  time.Time
+	UserID     int32
+	TapeID     int32
+	RentedAt   time.Time
+	ReturnedAt sql.NullTime
+	Title      string
+	Username   string
+}
+
+func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (CreateRentalRow, error) {
 	row := q.db.QueryRowContext(ctx, createRental, arg.UserID, arg.TapeID)
-	var i Rental
+	var i CreateRentalRow
 	err := row.Scan(
 		&i.ID,
 		&i.PublicID,
@@ -38,8 +56,19 @@ func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Ren
 		&i.TapeID,
 		&i.RentedAt,
 		&i.ReturnedAt,
+		&i.Title,
+		&i.Username,
 	)
 	return i, err
+}
+
+const deleteAllRentals = `-- name: DeleteAllRentals :exec
+DELETE FROM rentals
+`
+
+func (q *Queries) DeleteAllRentals(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteAllRentals)
+	return err
 }
 
 const getActiveRentalByUser = `-- name: GetActiveRentalByUser :many
