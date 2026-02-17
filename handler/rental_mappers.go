@@ -2,13 +2,6 @@ package handler
 
 import "github.com/rigofekete/vhs-club-mvc/model"
 
-// func (r *CreateRentalRequest) ToModel() *model.Rental {
-// 	return &model.Rental{
-// 		UserID: r.UserPublicID,
-// 	}
-// }
-//
-
 func RentalSingleResponse(rental *model.Rental) *RentalResponse {
 	return &RentalResponse{
 		PublicID:  rental.PublicID,
@@ -16,6 +9,8 @@ func RentalSingleResponse(rental *model.Rental) *RentalResponse {
 		RentedAt:  rental.RentedAt,
 		UserID:    rental.UserID,
 		TapeID:    rental.TapeID,
+		TapeTitle: rental.TapeTitle,
+		Username:  rental.Username,
 	}
 }
 
