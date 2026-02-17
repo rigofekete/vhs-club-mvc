@@ -13,6 +13,7 @@ import (
 type RentalService interface {
 	RentTape(ctx context.Context, tapeID string, userID string) (*model.Rental, error)
 	GetAllActiveRentals(ctx context.Context) ([]*model.Rental, error)
+	DeleteAllRentals(ctx context.Context) error
 }
 
 type rentalService struct {
@@ -57,7 +58,7 @@ func (s *rentalService) RentTape(ctx context.Context, tapePublicID, userPublicID
 		return nil, err
 	}
 
-	if int32(countByUser) > maxRentalsPerUser {
+	if int32(countByUser) >= maxRentalsPerUser {
 		return nil, apperror.ErrMaxRentalsPerUser
 	}
 
@@ -75,4 +76,8 @@ func (s *rentalService) RentTape(ctx context.Context, tapePublicID, userPublicID
 
 func (s *rentalService) GetAllActiveRentals(ctx context.Context) ([]*model.Rental, error) {
 	return s.rentalRepo.GetAllActive(ctx)
+}
+
+func (s *rentalService) DeleteAllRentals(ctx context.Context) error {
+	return s.rentalRepo.DeleteAllRentals(ctx)
 }
