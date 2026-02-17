@@ -45,12 +45,12 @@ func (m *mockTapeRespository) GetByID(ctx context.Context, id int32) (*model.Tap
 	return nil, args.Error(1)
 }
 
-func (m *mockTapeRespository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
+func (m *mockTapeRespository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.Tape, error) {
 	args := m.Called(ctx, id)
 	if tape := args.Get(0); tape != nil {
-		return tape.(int32), args.Error(1)
+		return tape.(*model.Tape), args.Error(1)
 	}
-	return 0, args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (m *mockTapeRespository) Exists(ctx context.Context, id int32) (bool, error) {

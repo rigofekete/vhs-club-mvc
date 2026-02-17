@@ -44,12 +44,12 @@ func (m *mockUserRespository) GetAll(ctx context.Context) ([]*model.User, error)
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
+func (m *mockUserRespository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	args := m.Called(ctx, id)
 	if tape := args.Get(0); tape != nil {
-		return tape.(int32), args.Error(1)
+		return tape.(*model.User), args.Error(1)
 	}
-	return 0, args.Error(1)
+	return nil, args.Error(1)
 }
 
 func (m *mockUserRespository) DeleteAll(ctx context.Context) error {
