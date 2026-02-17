@@ -15,7 +15,7 @@ import (
 type UserRepository interface {
 	Save(ctx context.Context, user *model.User) (*model.User, error)
 	GetByID(ctx context.Context, id int32) (*model.User, error)
-	GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error)
+	GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error)
 	GetAll(ctx context.Context) ([]*model.User, error)
 	DeleteAll(ctx context.Context) error
 }
@@ -71,12 +71,22 @@ func (r *userRepository) GetByID(ctx context.Context, id int32) (*model.User, er
 	return user, nil
 }
 
-func (r *userRepository) GetIDFromPublicID(ctx context.Context, id uuid.UUID) (int32, error) {
-	dbUserID, err := r.DB.GetUserIDFromPublicID(ctx, id)
+func (r *userRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
+	dbUser, err := r.DB.GetUserFromPublicID(ctx, id)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return dbUserID, nil
+
+	user := &model.User{
+		ID:        dbUser.ID,
+		PublicID:  dbUser.PublicID,
+		CreatedAt: dbUser.CreatedAt,
+		UpdatedAt: dbUser.UpdatedAt,
+		Username:  dbUser.Username,
+		Email:     dbUser.Email,
+	}
+
+	return user, nil
 }
 
 func (r *userRepository) GetAll(ctx context.Context) ([]*model.User, error) {
