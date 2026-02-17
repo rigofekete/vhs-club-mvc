@@ -10,8 +10,8 @@ RETURNING *;
 SELECT * FROM users
 WHERE id = $1;
 
--- name: GetUserIDFromPublicID :one
-SELECT id FROM users
+-- name: GetUserFromPublicID :one
+SELECT * FROM users
 WHERE public_id = $1;
 
 -- name: GetUsers :many
