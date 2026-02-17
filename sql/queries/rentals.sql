@@ -1,4 +1,18 @@
 -- name: CreateRental :one
+WITH new_rental AS (
+  INSERT INTO rentals (user_id, tape_id)
+  VALUES ($1, $2)
+  RETURNING *
+)
+SELECT
+  new_rental.*,
+  tapes.title,
+  users.username
+FROM new_rental
+JOIN tapes ON new_rental.tape_id = tapes.id
+JOIN users ON new_rental.user_id = users.id;
+
+
 INSERT INTO rentals (user_id, tape_id)
 VALUES(
   $1,
@@ -38,3 +52,7 @@ JOIN tapes ON rentals.tape_id = tapes.id
 JOIN users ON rentals.user_id = users.id
 WHERE returned_at IS NULL
 ORDER BY rentals.created_at ASC;
+
+
+-- name: DeleteAllRentals :exec
+DELETE FROM rentals;
