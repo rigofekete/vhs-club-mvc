@@ -17,8 +17,8 @@ ORDER BY created_at ASC;
 SELECT * FROM tapes
 WHERE id = $1;
 
--- name: GetTapeIDFromPublicID :one
-SELECT id FROM tapes
+-- name: GetTapeFromPublicID :one
+SELECT * FROM tapes
 WHERE public_id = $1;
 
 -- name: UpdateTape :one
