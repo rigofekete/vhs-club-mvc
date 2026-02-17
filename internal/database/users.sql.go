@@ -67,16 +67,23 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 	return i, err
 }
 
-const getUserIDFromPublicID = `-- name: GetUserIDFromPublicID :one
-SELECT id FROM users
+const getUserFromPublicID = `-- name: GetUserFromPublicID :one
+SELECT id, public_id, created_at, updated_at, username, email FROM users
 WHERE public_id = $1
 `
 
-func (q *Queries) GetUserIDFromPublicID(ctx context.Context, publicID uuid.UUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, getUserIDFromPublicID, publicID)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) GetUserFromPublicID(ctx context.Context, publicID uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserFromPublicID, publicID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.PublicID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Username,
+		&i.Email,
+	)
+	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many

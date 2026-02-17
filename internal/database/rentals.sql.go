@@ -8,6 +8,9 @@ package database
 import (
 	"context"
 	"database/sql"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 const createRental = `-- name: CreateRental :one
@@ -39,14 +42,14 @@ func (q *Queries) CreateRental(ctx context.Context, arg CreateRentalParams) (Ren
 	return i, err
 }
 
-const getActiveRentalByUserID = `-- name: GetActiveRentalByUserID :many
+const getActiveRentalByUser = `-- name: GetActiveRentalByUser :many
 SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
 WHERE user_id = $1 AND returned_at IS NULL
 `
 
 // NULL is not a value so only IS keyword works
-func (q *Queries) GetActiveRentalByUserID(ctx context.Context, userID int32) ([]Rental, error) {
-	rows, err := q.db.QueryContext(ctx, getActiveRentalByUserID, userID)
+func (q *Queries) GetActiveRentalByUser(ctx context.Context, userID int32) ([]Rental, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveRentalByUser, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -83,6 +86,18 @@ WHERE tape_id = $1 AND returned_at IS NULL
 
 func (q *Queries) GetActiveRentalCountByTape(ctx context.Context, tapeID int32) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getActiveRentalCountByTape, tapeID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getActiveRentalCountByUser = `-- name: GetActiveRentalCountByUser :one
+SELECT COUNT(*) FROM rentals
+WHERE user_id = $1 AND returned_at IS NULL
+`
+
+func (q *Queries) GetActiveRentalCountByUser(ctx context.Context, userID int32) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getActiveRentalCountByUser, userID)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -125,20 +140,38 @@ func (q *Queries) GetActiveRentalbyTape(ctx context.Context, tapeID int32) ([]Re
 }
 
 const getAllActiveRentals = `-- name: GetAllActiveRentals :many
-SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
+SELECT
+  rentals.id, rentals.public_id, rentals.created_at, rentals.user_id, rentals.tape_id, rentals.rented_at, rentals.returned_at,
+  tapes.title,
+  users.username
+FROM rentals
+JOIN tapes ON rentals.tape_id = tapes.id
+JOIN users ON rentals.user_id = users.id
 WHERE returned_at IS NULL
-ORDER BY created_at ASC
+ORDER BY rentals.created_at ASC
 `
 
-func (q *Queries) GetAllActiveRentals(ctx context.Context) ([]Rental, error) {
+type GetAllActiveRentalsRow struct {
+	ID         int32
+	PublicID   uuid.UUID
+	CreatedAt  time.Time
+	UserID     int32
+	TapeID     int32
+	RentedAt   time.Time
+	ReturnedAt sql.NullTime
+	Title      string
+	Username   string
+}
+
+func (q *Queries) GetAllActiveRentals(ctx context.Context) ([]GetAllActiveRentalsRow, error) {
 	rows, err := q.db.QueryContext(ctx, getAllActiveRentals)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Rental
+	var items []GetAllActiveRentalsRow
 	for rows.Next() {
-		var i Rental
+		var i GetAllActiveRentalsRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.PublicID,
@@ -147,6 +180,8 @@ func (q *Queries) GetAllActiveRentals(ctx context.Context) ([]Rental, error) {
 			&i.TapeID,
 			&i.RentedAt,
 			&i.ReturnedAt,
+			&i.Title,
+			&i.Username,
 		); err != nil {
 			return nil, err
 		}

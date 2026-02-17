@@ -96,16 +96,26 @@ func (q *Queries) GetTapeByID(ctx context.Context, id int32) (Tape, error) {
 	return i, err
 }
 
-const getTapeIDFromPublicID = `-- name: GetTapeIDFromPublicID :one
-SELECT id FROM tapes
+const getTapeFromPublicID = `-- name: GetTapeFromPublicID :one
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
 WHERE public_id = $1
 `
 
-func (q *Queries) GetTapeIDFromPublicID(ctx context.Context, publicID uuid.UUID) (int32, error) {
-	row := q.db.QueryRowContext(ctx, getTapeIDFromPublicID, publicID)
-	var id int32
-	err := row.Scan(&id)
-	return id, err
+func (q *Queries) GetTapeFromPublicID(ctx context.Context, publicID uuid.UUID) (Tape, error) {
+	row := q.db.QueryRowContext(ctx, getTapeFromPublicID, publicID)
+	var i Tape
+	err := row.Scan(
+		&i.ID,
+		&i.PublicID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Title,
+		&i.Director,
+		&i.Genre,
+		&i.Quantity,
+		&i.Price,
+	)
+	return i, err
 }
 
 const getTapes = `-- name: GetTapes :many
