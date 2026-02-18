@@ -1,0 +1,153 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 7em;
+  text-align: center;
+  /* background-color: #080d20; */
+}
+
+body {
+  background-color: #080d20
+}
+
+/* .header { */
+/*   /* background-color: #282c34; */
+/*   font-family: 'Courier New', Courier, monospace; */
+/*   /* font-size: 2.2em;  */
+/*   line-height: 1; */
+/*   color: #7A7FD4 */
+/*   margin-bottom: 30px; */
+/* } */
+
+/* .input-wrapper { */
+/*   font-family: 'Courier New', Courier, monospace; */
+/*   padding: 50px; */
+/*   color: #234533; */
+/*   background-color: #234533; */
+/*   margin-top: 20px; */
+/*   margin-bottom: 20px; */
+/* } */
+
+
+.input-wrapper label {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.2em;
+  /* display: block; */
+  margin-right: 20px;
+  margin-top: 40px;
+  padding: 10px;
+  color: #9DB8CB;
+}
+
+.input-wrapper input {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.0em;
+  padding: 10px 14px;
+  /* margin-top: 20px; */
+  border: 2px solid #7A7FD4;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  margin-top: 40px;
+  color: #F8C9AA;
+  background-color: #080d20
+}
+
+.input-wrapper input:hover {
+  /* border-color: #a0a5ff; */
+  transform: scale(1.05);
+  /* background-color: #0d1530; */
+  /* box-shadow: 0 0 8px rgba(122, 127, 212, 0.4); */
+}
+
+.input-wrapper input:focus {
+  outline: none;
+  border-color: #E5B750;
+  /* background-color: #0d1530; */
+  /* box-shadow: 0 0 12px rgba(248, 201, 170, 0.3); */
+}
+
+
+.button {
+  margin-top: 35px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.1em;
+  padding: 10px 20px;
+  background-color: #080d20;
+  color: #F8C9AA;
+  border: 2px solid #7A7FD4;
+  border-radius: 8px;
+  cursor: block;
+  transition: all 0.2s ease;
+}
+
+.button:hover {
+  /* background-color: #7A7FD4; */
+  border-color: #F3A6A6;
+  color: #F8C9AA;
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button:focus {
+  outline: none;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.2em;
+  margin-top: 35px;
+  font-weight: bold;
+}
+
+.welcome-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2.0em;
+  margin-top: 50px;
+  color: #B08AAB;
+  animation: fadeSlideIn 5s ease forwards;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(10px);
+  }
+}
+
+.logo-blink {
+  /* animation: blink 1s step-start 3; */
+  animation: fadeInOut 2s ease-in-out 3;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeInOut {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
