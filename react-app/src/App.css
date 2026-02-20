@@ -12,42 +12,55 @@ body {
 
 /* .header { */
 /*   /* background-color: #282c34; */
-/*   font-family: 'Courier New', Courier, monospace; */
+/*   font-family: 'Courier New'; */
 /*   /* font-size: 2.2em;  */
-/*   line-height: 1; */
 /*   color: #7A7FD4 */
 /*   margin-bottom: 30px; */
 /* } */
 
-/* .input-wrapper { */
-/*   font-family: 'Courier New', Courier, monospace; */
-/*   padding: 50px; */
-/*   color: #234533; */
-/*   background-color: #234533; */
-/*   margin-top: 20px; */
-/*   margin-bottom: 20px; */
-/* } */
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 40px;
+}
+
+.input-wrapper {
+  font-family: 'Courier New';
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0px;
+  gap: 8px;
+  color: #234533;
+  /* background-color: #234533; */
+  margin-top: 10px;
+}
 
 
 .input-wrapper label {
-  font-family: 'Courier New', Courier, monospace;
-  font-size: 1.2em;
+  font-size: inherit;
+  font-size: 1.3em;
   /* display: block; */
-  margin-right: 20px;
-  margin-top: 40px;
-  padding: 10px;
+  /* margin-right: 20px; */
+  /* margin-top: 9px; */
+  padding: 5px;
   color: #9DB8CB;
 }
 
 .input-wrapper input {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: inherit;
   font-size: 1.0em;
+  height: 15px;
   padding: 10px 14px;
   /* margin-top: 20px; */
   border: 2px solid #7A7FD4;
   border-radius: 8px;
   transition: all 0.2s ease;
-  margin-top: 40px;
+  /* margin-top: 40px; */
   color: #F8C9AA;
   background-color: #080d20
 }
@@ -68,7 +81,7 @@ body {
 
 
 .button {
-  margin-top: 35px;
+  margin-top: 30px;
   font-family: 'Courier New', Courier, monospace;
   font-size: 1.1em;
   padding: 10px 20px;
@@ -104,7 +117,7 @@ body {
 }
 
 .welcome-text {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Courier New';
   font-size: 2.0em;
   margin-top: 50px;
   color: #B08AAB;
