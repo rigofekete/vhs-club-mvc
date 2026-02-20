@@ -70,6 +70,7 @@ func (s *tapeService) DeleteTape(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
+	// TODO: Check if tape is in the DB before calling repo Delete
 	return s.repo.Delete(ctx, int32(tapeID64))
 }
 
