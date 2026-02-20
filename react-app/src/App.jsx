@@ -13,7 +13,7 @@ function App() {
 
   const inputFields = [
     { className: "Username", type: "text", label: "Username" },
-    { className: "Email", type: "text", label: "Email:" },
+    { className: "Password", type: "text", label: "Password" },
   ];
 
   const handleChange = (event) => {
