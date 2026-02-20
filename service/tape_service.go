@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
@@ -29,6 +29,18 @@ func NewTapeService(r repository.TapeRepository) TapeService {
 }
 
 func (s *tapeService) CreateTape(ctx context.Context, tape *model.Tape) (*model.Tape, error) {
+	dbTapes, err := s.repo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, dbTape := range dbTapes {
+		// TODO: Make Title and Director composite UNIQUE in sql
+		if dbTape.Title == tape.Title {
+			return nil, apperror.ErrTapeExists
+		}
+	}
+
 	return s.repo.Save(ctx, tape)
 }
 
@@ -37,41 +49,48 @@ func (s *tapeService) GetAllTapes(ctx context.Context) ([]*model.Tape, error) {
 }
 
 func (s *tapeService) GetTapeByID(ctx context.Context, id string) (*model.Tape, error) {
-	tapeID64, err := strconv.Atoi(id)
+	idUUID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
-	return s.repo.GetByID(ctx, int32(tapeID64))
+
+	// TODO: Is it good practice to just get the tape directly with the public ID from the repo?
+	tape, err := s.repo.GetByPublicID(ctx, idUUID)
+	if err != nil {
+		return nil, apperror.ErrTapeNotFound
+	}
+
+	return tape, nil
 }
 
 func (s *tapeService) UpdateTape(ctx context.Context, id string, updateTape *model.UpdateTape) (*model.Tape, error) {
-	tapeID64, err := strconv.Atoi(id)
+	idUUID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
 
-	updateTape.ID = int32(tapeID64)
-
-	// TODO: Good practice to do this here?
-	exists, err := s.repo.Exists(ctx, updateTape.ID)
+	tape, err := s.repo.GetByPublicID(ctx, idUUID)
 	if err != nil {
-		return nil, err
-	}
-	if !exists {
 		return nil, apperror.ErrTapeNotFound
 	}
+
+	updateTape.ID = tape.ID
 
 	return s.repo.Update(ctx, updateTape)
 }
 
-// TODO: Which id to pass to delete tape?
 func (s *tapeService) DeleteTape(ctx context.Context, id string) error {
-	tapeID64, err := strconv.Atoi(id)
+	idUUID, err := uuid.Parse(id)
 	if err != nil {
 		return err
 	}
-	// TODO: Check if tape is in the DB before calling repo Delete
-	return s.repo.Delete(ctx, int32(tapeID64))
+
+	tape, err := s.repo.GetByPublicID(ctx, idUUID)
+	if err != nil {
+		return apperror.ErrTapeNotFound
+	}
+
+	return s.repo.Delete(ctx, tape.ID)
 }
 
 func (s *tapeService) DeleteAllTapes(ctx context.Context) error {
