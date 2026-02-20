@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"strconv"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
@@ -41,13 +41,13 @@ func (s *userService) CreateUser(ctx context.Context, user *model.User) (*model.
 	return s.repo.Save(ctx, user)
 }
 
-// TODO: Admin methods should use ID or Public ID?
-func (s *userService) GetUserByID(ctx context.Context, idStr string) (*model.User, error) {
-	id64, err := strconv.Atoi(idStr)
+func (s *userService) GetUserByID(ctx context.Context, id string) (*model.User, error) {
+	idUUID, err := uuid.Parse(id)
 	if err != nil {
 		return nil, err
 	}
-	return s.repo.GetByID(ctx, int32(id64))
+
+	return s.repo.GetByPublicID(ctx, idUUID)
 }
 
 func (s *userService) GetAllUsers(ctx context.Context) ([]*model.User, error) {
