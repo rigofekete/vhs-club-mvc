@@ -17,7 +17,6 @@ type TapeRepository interface {
 	GetAll(ctx context.Context) ([]*model.Tape, error)
 	GetByID(ctx context.Context, id int32) (*model.Tape, error)
 	GetByPublicID(ctx context.Context, id uuid.UUID) (*model.Tape, error)
-	Exists(ctx context.Context, id int32) (bool, error)
 	Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error)
 	Delete(ctx context.Context, id int32) error
 	DeleteAll(ctx context.Context) error
@@ -132,17 +131,6 @@ func (r *tapeRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*mode
 		Price:     dbTape.Price,
 	}
 	return tape, nil
-}
-
-func (r *tapeRepository) Exists(ctx context.Context, id int32) (bool, error) {
-	_, err := r.DB.GetTapeByID(ctx, id)
-	if err == sql.ErrNoRows {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	return true, nil
 }
 
 func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error) {
