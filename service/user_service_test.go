@@ -98,7 +98,7 @@ func Test_CreateUser_Fail(t *testing.T) {
 	dbUsers := []*model.User{
 		{
 			Username: "MilesDavis",
-			Email:    "doppelganger@ghost.com",
+			Email:    "one_and_only@fusion.com",
 		},
 		{
 			Username: "Coltrane",
@@ -107,7 +107,7 @@ func Test_CreateUser_Fail(t *testing.T) {
 	}
 	ctx := context.Background()
 
-	mockRepo.Mock.On("GetAll", ctx).Return(dbUsers, nil)
+	mockRepo.On("GetAll", ctx).Return(dbUsers, nil)
 
 	svc := service.NewUserService(mockRepo)
 	user, err := svc.CreateUser(ctx, inputUser)
