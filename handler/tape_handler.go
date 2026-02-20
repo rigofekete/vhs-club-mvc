@@ -1,4 +1,3 @@
-// Package handler provides controller logic
 package handler
 
 import (
