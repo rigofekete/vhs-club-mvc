@@ -182,7 +182,6 @@ func (r *tapeRepository) Delete(ctx context.Context, id int32) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// TODO: Check if tape is in the DB in the service layer
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
 		return err
