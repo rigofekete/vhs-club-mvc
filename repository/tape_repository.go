@@ -117,7 +117,7 @@ func (r *tapeRepository) GetByID(ctx context.Context, id int32) (*model.Tape, er
 func (r *tapeRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.Tape, error) {
 	dbTape, err := r.DB.GetTapeFromPublicID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrTapeNotFound
 	}
 	tape := &model.Tape{
 		ID:        dbTape.ID,
