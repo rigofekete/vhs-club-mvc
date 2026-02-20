@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 )
@@ -26,6 +27,17 @@ func NewUserService(r repository.UserRepository) UserService {
 }
 
 func (s *userService) CreateUser(ctx context.Context, user *model.User) (*model.User, error) {
+	dbUsers, err := s.repo.GetAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, dbUser := range dbUsers {
+		if dbUser.Username == user.Username {
+			return nil, apperror.ErrUserExists
+		}
+	}
+
 	return s.repo.Save(ctx, user)
 }
 
