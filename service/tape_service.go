@@ -55,12 +55,7 @@ func (s *tapeService) GetTapeByID(ctx context.Context, id string) (*model.Tape, 
 	}
 
 	// TODO: Is it good practice to just get the tape directly with the public ID from the repo?
-	tape, err := s.repo.GetByPublicID(ctx, idUUID)
-	if err != nil {
-		return nil, apperror.ErrTapeNotFound
-	}
-
-	return tape, nil
+	return s.repo.GetByPublicID(ctx, idUUID)
 }
 
 func (s *tapeService) UpdateTape(ctx context.Context, id string, updateTape *model.UpdateTape) (*model.Tape, error) {
@@ -71,7 +66,7 @@ func (s *tapeService) UpdateTape(ctx context.Context, id string, updateTape *mod
 
 	tape, err := s.repo.GetByPublicID(ctx, idUUID)
 	if err != nil {
-		return nil, apperror.ErrTapeNotFound
+		return nil, err
 	}
 
 	updateTape.ID = tape.ID
@@ -87,7 +82,7 @@ func (s *tapeService) DeleteTape(ctx context.Context, id string) error {
 
 	tape, err := s.repo.GetByPublicID(ctx, idUUID)
 	if err != nil {
-		return apperror.ErrTapeNotFound
+		return err
 	}
 
 	return s.repo.Delete(ctx, tape.ID)
