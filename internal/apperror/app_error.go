@@ -20,6 +20,7 @@ var (
 	// User
 	ErrUserNotFound   = errors.New("user not found")
 	ErrUserValidation = errors.New("invalid user fields")
+	ErrUserExists     = errors.New("user already exists")
 	// Tape
 	ErrTapeValidation    = errors.New("invalid tape fields")
 	ErrTapeNotFound      = errors.New("tape not found")
@@ -84,6 +85,8 @@ func mapErrorToAppError(err error) *AppError {
 		return &AppError{Code: 400, Message: "Bad request"}
 	case errors.Is(err, ErrUserNotFound):
 		return &AppError{Code: 404, Message: "User not found"}
+	case errors.Is(err, ErrUserExists):
+		return &AppError{Code: 409, Message: "User already exists in the DB"}
 	case errors.Is(err, ErrUserValidation):
 		return &AppError{Code: 422, Message: "Invalid user fields"}
 	case errors.Is(err, ErrTapeValidation):
@@ -101,7 +104,7 @@ func mapErrorToAppError(err error) *AppError {
 	}
 }
 
-// TODO: Should this be moved to its own middleware package ?
+// TODO: Should this be moved to  middleware package ?
 // Middleware factory function
 func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
