@@ -10,10 +10,10 @@ import (
 )
 
 type RentalRepository interface {
-	Save(tapeID, userID int32) (*model.Rental, error)
+	Save(ctx context.Context, tapeID, userID int32) (*model.Rental, error)
 	GetAllActive(ctx context.Context) ([]*model.Rental, error)
-	GetActiveRentCountByTape(ctx context.Context, tapeID int32) (int64, error)
-	GetActiveRentCountByUser(ctx context.Context, userID int32) (int64, error)
+	GetActiveRentCountByTape(ctx context.Context, tapeID int32) (*int64, error)
+	GetActiveRentCountByUser(ctx context.Context, userID int32) (*int64, error)
 	DeleteAllRentals(ctx context.Context) error
 }
 
@@ -28,7 +28,7 @@ func NewRentalRepository() RentalRepository {
 	}
 }
 
-func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
+func (r *rentalRepository) Save(ctx context.Context, tapeID, userID int32) (*model.Rental, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
@@ -37,7 +37,7 @@ func (r *rentalRepository) Save(tapeID, userID int32) (*model.Rental, error) {
 		TapeID: tapeID,
 	}
 
-	dbRental, err := r.DB.CreateRental(context.Background(), rentalParams)
+	dbRental, err := r.DB.CreateRental(ctx, rentalParams)
 	if err != nil {
 		return nil, err
 	}
@@ -82,24 +82,24 @@ func (r *rentalRepository) GetAllActive(ctx context.Context) ([]*model.Rental, e
 	return rentals, err
 }
 
-func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID int32) (int64, error) {
+func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID int32) (*int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	count, err := r.DB.GetActiveRentalCountByTape(ctx, tapeID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return count, nil
+	return &count, nil
 }
 
-func (r *rentalRepository) GetActiveRentCountByUser(ctx context.Context, userID int32) (int64, error) {
+func (r *rentalRepository) GetActiveRentCountByUser(ctx context.Context, userID int32) (*int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	count, err := r.DB.GetActiveRentalCountByUser(ctx, userID)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return count, nil
+	return &count, nil
 }
 
 func (r *rentalRepository) DeleteAllRentals(ctx context.Context) error {
