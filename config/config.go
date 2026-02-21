@@ -1,12 +1,12 @@
 package config
 
 import (
-	// driver import for sqlc, only imported for its side effects (DB communication)
 	"database/sql"
 	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	// driver import for sqlc, only imported for its side effects (DB communication)
 	_ "github.com/lib/pq"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 )
