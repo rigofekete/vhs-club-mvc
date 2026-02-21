@@ -10,18 +10,26 @@
 //   return <div className="header" ><h1>VHS CLUB</h1></div>;
 // }
 
-// function Header() {
+function Header(props) {
+  const logged = props.logged;
+  return (
+    <pre className={logged ? "header header-blink" : "header"}>{String.raw`██╗   ██╗  ██╗  ██╗  ███████╗      ██████╗  ██╗      ██╗   ██╗  ██████╗ 
+██║   ██║  ██║  ██║  ██╔════╝     ██╔════╝  ██║      ██║   ██║  ██╔══██╗
+██║   ██║  ███████║  ███████╗     ██║       ██║      ██║   ██║  ██████╔╝
+╚██╗ ██╔╝  ██╔══██║  ╚════██║     ██║       ██║      ██║   ██║  ██╔══██╗
+ ╚████╔╝   ██║  ██║  ███████║     ╚██████╗  ███████╗ ╚██████╔╝  ██████╔╝
+ ╚═══╝    ╚═╝  ╚═╝  ╚══════╝      ╚═════╝  ╚══════╝  ╚═════╝   ╚═════╝`}</pre>
+  );
+}
+
+// function Header(props) {
+//   const logged = props.logged;
 //   return (
-//     <pre className="header">
-//       {String.raw`
-// ▖▖▖▖▄▖  ▄▖▖ ▖▖▄ 
-// ▌▌▙▌▚   ▌ ▌ ▌▌▙▘
-// ▚▘▌▌▄▌  ▙▖▙▖▙▌▙▘
-// `}
-//     </pre>
+//     <h1 className={logged ? "header header-blink" : "header"}>
+//       VHS CLUB
+//     </h1>
 //   );
 // }
-
 
 //Alternative syntax, destructuring the name attribute from the props object:
 // function Header({ name }) {
