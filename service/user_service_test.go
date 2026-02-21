@@ -2,7 +2,6 @@ package service_test
 
 import (
 	"context"
-	"strconv"
 	"testing"
 
 	"github.com/google/uuid"
@@ -23,24 +22,24 @@ func NewUserMockRepository() *mockUserRespository {
 
 func (m *mockUserRespository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	args := m.Called(ctx, user)
-	if t := args.Get(0); t != nil {
-		return t.(*model.User), args.Error(1)
+	if u := args.Get(0); u != nil {
+		return u.(*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
 
 func (m *mockUserRespository) GetByID(ctx context.Context, id int32) (*model.User, error) {
 	args := m.Called(ctx, id)
-	if users := args.Get(0); users != nil {
-		return users.(*model.User), args.Error(1)
+	if user := args.Get(0); user != nil {
+		return user.(*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
 
 func (m *mockUserRespository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	args := m.Called(ctx, id)
-	if tape := args.Get(0); tape != nil {
-		return tape.(*model.User), args.Error(1)
+	if user := args.Get(0); user != nil {
+		return user.(*model.User), args.Error(1)
 	}
 	return nil, args.Error(1)
 }
@@ -122,20 +121,21 @@ func Test_CreateUser_Fail(t *testing.T) {
 func Test_GetUserByID_Success(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	id := int32(14)
+	id32 := int32(14)
+	idUUID := uuid.New()
 
 	returnedUser := &model.User{
-		ID:       id,
+		ID:       id32,
 		Username: "MilesDavis",
 		Email:    "grumpy.genius@cool.com",
 	}
 
 	ctx := context.Background()
 
-	mockRepo.On("GetByID", ctx, id).Return(returnedUser, nil)
+	mockRepo.On("GetByPublicID", ctx, idUUID).Return(returnedUser, nil)
 
 	svc := service.NewUserService(mockRepo)
-	user, err := svc.GetUserByID(ctx, strconv.Itoa(int(id)))
+	user, err := svc.GetUserByID(ctx, idUUID.String())
 
 	assert.Nil(t, err)
 	assert.Equal(t, returnedUser, user)
@@ -146,14 +146,14 @@ func Test_GetUserByID_Success(t *testing.T) {
 func Test_GetUserByID_Fail(t *testing.T) {
 	mockRepo := NewUserMockRepository()
 
-	id := int32(14)
+	idUUID := uuid.New()
 
 	ctx := context.Background()
 
-	mockRepo.On("GetByID", ctx, id).Return(nil, apperror.ErrUserNotFound)
+	mockRepo.On("GetByPublicID", ctx, idUUID).Return(nil, apperror.ErrUserNotFound)
 
 	svc := service.NewUserService(mockRepo)
-	user, err := svc.GetUserByID(ctx, strconv.Itoa(int(id)))
+	user, err := svc.GetUserByID(ctx, idUUID.String())
 
 	assert.Nil(t, user)
 	assert.Error(t, err)
