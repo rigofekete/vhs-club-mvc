@@ -216,3 +216,45 @@ func Test_RentTape_Fail_MaxRentalsPerUser(t *testing.T) {
 
 	mockRentalRepo.AssertExpectations(t)
 }
+
+func Test_GetAllActiveRentals(t *testing.T) {
+	mockRentalRepo := NewRentalMockRepository()
+	mockTapeRepo := NewTapeMockRepository()
+	mockUserRepo := NewUserMockRepository()
+
+	dbRentals := []*model.Rental{
+		{
+			Username: "RonGilbert",
+		},
+		{
+			Username: "JohnCarmack",
+		},
+	}
+
+	ctx := context.Background()
+	mockRentalRepo.On("GetAllActive", ctx).Return(dbRentals, nil)
+
+	svc := service.NewRentalService(mockRentalRepo, mockTapeRepo, mockUserRepo)
+	rentals, err := svc.GetAllActiveRentals(ctx)
+
+	assert.Nil(t, err)
+	assert.Equal(t, dbRentals, rentals)
+
+	mockRentalRepo.AssertExpectations(t)
+}
+
+func Test_DeleteAllRentals(t *testing.T) {
+	mockRentalRepo := NewRentalMockRepository()
+	mockTapeRepo := NewTapeMockRepository()
+	mockUserRepo := NewUserMockRepository()
+
+	ctx := context.Background()
+	mockRentalRepo.On("DeleteAllRentals", ctx).Return(nil)
+
+	svc := service.NewRentalService(mockRentalRepo, mockTapeRepo, mockUserRepo)
+	err := svc.DeleteAllRentals(ctx)
+
+	assert.Nil(t, err)
+
+	mockRentalRepo.AssertExpectations(t)
+}
