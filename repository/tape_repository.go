@@ -14,6 +14,7 @@ import (
 
 type TapeRepository interface {
 	Save(ctx context.Context, tape *model.Tape) (*model.Tape, error)
+	SaveBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error)
 	GetAll(ctx context.Context) ([]*model.Tape, error)
 	GetByID(ctx context.Context, id int32) (*model.Tape, error)
 	GetByPublicID(ctx context.Context, id uuid.UUID) (*model.Tape, error)
@@ -26,11 +27,13 @@ type tapeRepository struct {
 	// TODO: mutex is probably not needed
 	mu sync.Mutex
 	DB *database.Queries
+	db *sql.DB
 }
 
 func NewTapeRepository() TapeRepository {
 	return &tapeRepository{
 		DB: config.AppConfig.DB,
+		db: config.AppConfig.SQLDB,
 	}
 }
 
@@ -63,6 +66,48 @@ func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tap
 		Price:     dbTape.Price,
 	}
 	return savedTape, nil
+}
+
+func (r *tapeRepository) SaveBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	createdTapes := make([]*model.Tape, 0, len(tapes))
+	existingCount := int32(0)
+	for _, tape := range tapes {
+		tapeParams := database.CreateTapeParams{
+			Title:    tape.Title,
+			Director: tape.Director,
+			Genre:    tape.Genre,
+			Quantity: tape.Quantity,
+			Price:    tape.Price,
+		}
+
+		dbTape, err := r.DB.CreateTape(ctx, tapeParams)
+		if err != nil {
+			if isUniqueConstraintError(err) {
+				existingCount++
+				continue
+			} else {
+				return nil, nil, err
+			}
+		}
+
+		createdTape := &model.Tape{
+			ID:        dbTape.ID,
+			PublicID:  dbTape.PublicID,
+			CreatedAt: dbTape.CreatedAt,
+			UpdatedAt: dbTape.UpdatedAt,
+			Title:     dbTape.Title,
+			Director:  dbTape.Director,
+			Genre:     dbTape.Genre,
+			Quantity:  dbTape.Quantity,
+			Price:     dbTape.Price,
+		}
+		createdTapes = append(createdTapes, createdTape)
+	}
+
+	return createdTapes, &existingCount, nil
 }
 
 func (r *tapeRepository) GetAll(ctx context.Context) ([]*model.Tape, error) {
