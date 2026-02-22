@@ -21,6 +21,7 @@ var (
 	ErrUserNotFound   = errors.New("user not found")
 	ErrUserValidation = errors.New("invalid user fields")
 	ErrUserExists     = errors.New("user already exists")
+	ErrUserInvalidPW  = errors.New("invalid password")
 	// Tape
 	ErrTapeValidation    = errors.New("invalid tape fields")
 	ErrTapeExists        = errors.New("tape already exists")
@@ -90,6 +91,8 @@ func mapErrorToAppError(err error) *AppError {
 		return &AppError{Code: 409, Message: "User already exists in the DB"}
 	case errors.Is(err, ErrUserValidation):
 		return &AppError{Code: 422, Message: "Invalid user fields"}
+	case errors.Is(err, ErrUserInvalidPW):
+		return &AppError{Code: 401, Message: "Invalid password"}
 	case errors.Is(err, ErrTapeValidation):
 		return &AppError{Code: 422, Message: "Invalid tape fields"}
 	case errors.Is(err, ErrTapeExists):
