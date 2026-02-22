@@ -9,6 +9,13 @@ func (r *CreateUserRequest) ToModel() *model.User {
 	}
 }
 
+func (r *UserLoginRequest) ToModel() *model.User {
+	return &model.User{
+		Username: r.Username,
+		Password: r.Password,
+	}
+}
+
 func (r *CreateUserBatchRequest) ToModels() []*model.User {
 	users := make([]*model.User, 0, len(r.Users))
 	for _, u := range r.Users {
