@@ -12,15 +12,15 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-type mockUserRespository struct {
+type mockUserRepository struct {
 	mock.Mock
 }
 
-func NewUserMockRepository() *mockUserRespository {
-	return &mockUserRespository{}
+func NewUserMockRepository() *mockUserRepository {
+	return &mockUserRepository{}
 }
 
-func (m *mockUserRespository) Save(ctx context.Context, user *model.User) (*model.User, error) {
+func (m *mockUserRepository) Save(ctx context.Context, user *model.User) (*model.User, error) {
 	args := m.Called(ctx, user)
 	if u := args.Get(0); u != nil {
 		return u.(*model.User), args.Error(1)
@@ -28,15 +28,15 @@ func (m *mockUserRespository) Save(ctx context.Context, user *model.User) (*mode
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, error) {
+func (m *mockUserRepository) SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error) {
 	args := m.Called(ctx, users)
 	if u := args.Get(0); u != nil {
-		return u.([]*model.User), args.Error(1)
+		return u.([]*model.User), args.Get(1).(*int32), args.Error(2)
 	}
-	return nil, args.Error(1)
+	return nil, nil, args.Error(2)
 }
 
-func (m *mockUserRespository) GetByID(ctx context.Context, id int32) (*model.User, error) {
+func (m *mockUserRepository) GetByID(ctx context.Context, id int32) (*model.User, error) {
 	args := m.Called(ctx, id)
 	if user := args.Get(0); user != nil {
 		return user.(*model.User), args.Error(1)
@@ -44,7 +44,7 @@ func (m *mockUserRespository) GetByID(ctx context.Context, id int32) (*model.Use
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
+func (m *mockUserRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	args := m.Called(ctx, id)
 	if user := args.Get(0); user != nil {
 		return user.(*model.User), args.Error(1)
@@ -52,7 +52,7 @@ func (m *mockUserRespository) GetByPublicID(ctx context.Context, id uuid.UUID) (
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) GetAll(ctx context.Context) ([]*model.User, error) {
+func (m *mockUserRepository) GetAll(ctx context.Context) ([]*model.User, error) {
 	args := m.Called(ctx)
 	if users := args.Get(0); users != nil {
 		return users.([]*model.User), args.Error(1)
@@ -60,7 +60,7 @@ func (m *mockUserRespository) GetAll(ctx context.Context) ([]*model.User, error)
 	return nil, args.Error(1)
 }
 
-func (m *mockUserRespository) DeleteAll(ctx context.Context) error {
+func (m *mockUserRepository) DeleteAll(ctx context.Context) error {
 	args := m.Called(ctx)
 	return args.Error(0)
 }
