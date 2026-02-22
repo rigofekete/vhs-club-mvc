@@ -14,6 +14,10 @@ type CreateTapeRequest struct {
 	Price    float64 `json:"price" binding:"required,gt=0"`
 }
 
+type CreateTapeBatchRequest struct {
+	Tapes []CreateTapeRequest `json:"tapes" binding:"required,dive"`
+}
+
 type UpdateTapeRequest struct {
 	Title    *string  `json:"title" binding:"omitempty,min=1,max=100"`
 	Director *string  `json:"director" binding:"omitempty,min=1,max=50"`
@@ -31,4 +35,9 @@ type TapeResponse struct {
 	Genre     string    `json:"genre"`
 	Quantity  int32     `json:"quantity"`
 	Price     float64   `json:"price"`
+}
+
+type TapeBatchResponse struct {
+	Tapes         []TapeResponse `json:"tapes"`
+	AlreadyExists int32          `json:"already_exists"`
 }
