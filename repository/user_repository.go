@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"sync"
 
@@ -14,6 +15,7 @@ import (
 
 type UserRepository interface {
 	Save(ctx context.Context, user *model.User) (*model.User, error)
+	SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error)
 	GetByID(ctx context.Context, id int32) (*model.User, error)
 	GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error)
 	GetAll(ctx context.Context) ([]*model.User, error)
@@ -23,11 +25,13 @@ type UserRepository interface {
 type userRepository struct {
 	mu sync.Mutex
 	DB *database.Queries
+	db *sql.DB
 }
 
 func NewUserRepository() UserRepository {
 	return &userRepository{
 		DB: config.AppConfig.DB,
+		db: config.AppConfig.SQLDB,
 	}
 }
 
@@ -53,6 +57,42 @@ func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.Use
 		Email:     dbUser.Email,
 	}
 	return createdUser, nil
+}
+
+func (r *userRepository) SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	createdUsers := make([]*model.User, 0, len(users))
+	existingCount := int32(0)
+	for _, user := range users {
+		userParams := database.CreateUserParams{
+			Username: user.Username,
+			Email:    user.Email,
+		}
+
+		dbUser, err := r.DB.CreateUser(ctx, userParams)
+		if err != nil {
+			if isUniqueConstraintError(err) {
+				existingCount++
+				continue
+			} else {
+				return nil, nil, err
+			}
+		}
+
+		createdUser := &model.User{
+			ID:        dbUser.ID,
+			PublicID:  dbUser.PublicID,
+			CreatedAt: dbUser.CreatedAt,
+			UpdatedAt: dbUser.UpdatedAt,
+			Username:  dbUser.Username,
+			Email:     dbUser.Email,
+		}
+		createdUsers = append(createdUsers, createdUser)
+	}
+
+	return createdUsers, &existingCount, nil
 }
 
 func (r *userRepository) GetByID(ctx context.Context, id int32) (*model.User, error) {
