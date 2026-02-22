@@ -11,6 +11,7 @@ import (
 
 type TapeService interface {
 	CreateTape(ctx context.Context, tape *model.Tape) (*model.Tape, error)
+	CreateTapeBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error)
 	GetAllTapes(ctx context.Context) ([]*model.Tape, error)
 	GetTapeByID(ctx context.Context, id string) (*model.Tape, error)
 	UpdateTape(ctx context.Context, id string, updated *model.UpdateTape) (*model.Tape, error)
@@ -44,6 +45,11 @@ func (s *tapeService) CreateTape(ctx context.Context, tape *model.Tape) (*model.
 	return s.repo.Save(ctx, tape)
 }
 
+// TODO: Add unit test
+func (s *tapeService) CreateTapeBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error) {
+	return s.repo.SaveBatch(ctx, tapes)
+}
+
 func (s *tapeService) GetAllTapes(ctx context.Context) ([]*model.Tape, error) {
 	return s.repo.GetAll(ctx)
 }
@@ -54,7 +60,6 @@ func (s *tapeService) GetTapeByID(ctx context.Context, id string) (*model.Tape, 
 		return nil, err
 	}
 
-	// TODO: Is it good practice to just get the tape directly with the public ID from the repo?
 	return s.repo.GetByPublicID(ctx, idUUID)
 }
 
