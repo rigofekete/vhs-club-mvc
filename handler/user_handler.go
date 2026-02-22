@@ -19,6 +19,7 @@ func NewUserHandler(s service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
+	r.POST("/users/batch", h.CreateUserBatch)
 	r.POST("/users", h.CreateUser)
 	r.GET("/users/:id", h.GetUserByID)
 	r.GET("/users", h.GetUsers)
@@ -39,6 +40,26 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, UserSingleResponse(createdUser))
+}
+
+func (h *UserHandler) CreateUserBatch(c *gin.Context) {
+	var newUsers CreateUserBatchRequest
+	if err := c.ShouldBindJSON(&newUsers); err != nil {
+		_ = c.Error(apperror.WrapValidationError(err))
+		return
+	}
+
+	createdUsers, existingCount, err := h.userService.CreateUserBatch(c.Request.Context(), newUsers.ToModels())
+	if err != nil {
+		_ = c.Error(err)
+	}
+
+	batchResponse := UserBatchResponse{
+		Users:         UserListResponse(createdUsers),
+		AlreadyExists: *existingCount,
+	}
+
+	c.JSON(http.StatusCreated, batchResponse)
 }
 
 func (h *UserHandler) GetUserByID(c *gin.Context) {
