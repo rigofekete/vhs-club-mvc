@@ -29,6 +29,14 @@ func (m *mockTapeRepository) Save(ctx context.Context, tape *model.Tape) (*model
 	return nil, errors.New("invalid mock tape fields")
 }
 
+func (m *mockTapeRepository) SaveBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error) {
+	args := m.Called(ctx, tapes)
+	if t := args.Get(0); t != nil {
+		return t.([]*model.Tape), args.Get(1).(*int32), args.Error(2)
+	}
+	return nil, nil, args.Error(2)
+}
+
 func (m *mockTapeRepository) GetAll(ctx context.Context) ([]*model.Tape, error) {
 	args := m.Called(ctx)
 	if tapes := args.Get(0); tapes != nil {
