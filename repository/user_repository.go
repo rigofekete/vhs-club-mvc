@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"sync"
 
@@ -18,6 +19,7 @@ type UserRepository interface {
 	SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error)
 	GetByID(ctx context.Context, id int32) (*model.User, error)
 	GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error)
+	GetByUsername(ctx context.Context, username string) (*model.User, error)
 	GetAll(ctx context.Context) ([]*model.User, error)
 	DeleteAll(ctx context.Context) error
 }
@@ -73,8 +75,9 @@ func (r *userRepository) SaveBatch(ctx context.Context, users []*model.User) ([]
 	existingCount := int32(0)
 	for _, user := range users {
 		userParams := database.CreateUserParams{
-			Username: user.Username,
-			Email:    user.Email,
+			Username:       user.Username,
+			Email:          user.Email,
+			HashedPassword: user.HashedPassword,
 		}
 
 		dbUser, err := r.DB.CreateUser(ctx, userParams)
@@ -118,7 +121,7 @@ func (r *userRepository) GetByID(ctx context.Context, id int32) (*model.User, er
 }
 
 func (r *userRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
-	dbUser, err := r.DB.GetUserFromPublicID(ctx, id)
+	dbUser, err := r.DB.GetUserByPublicID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +133,28 @@ func (r *userRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*mode
 		UpdatedAt: dbUser.UpdatedAt,
 		Username:  dbUser.Username,
 		Email:     dbUser.Email,
+	}
+
+	return user, nil
+}
+
+func (r *userRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	dbUser, err := r.DB.GetUserByUsername(ctx, username)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, apperror.ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	user := &model.User{
+		ID:             dbUser.ID,
+		PublicID:       dbUser.PublicID,
+		CreatedAt:      dbUser.CreatedAt,
+		UpdatedAt:      dbUser.UpdatedAt,
+		Username:       dbUser.Username,
+		Email:          dbUser.Email,
+		HashedPassword: dbUser.HashedPassword,
 	}
 
 	return user, nil
