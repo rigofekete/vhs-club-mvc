@@ -13,4 +13,5 @@ type User struct {
 	UpdatedAt time.Time
 	Username  string
 	Email     string
+	Password  string
 }
