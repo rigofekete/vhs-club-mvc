@@ -34,10 +34,11 @@ type Tape struct {
 }
 
 type User struct {
-	ID        int32
-	PublicID  uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Username  string
-	Email     string
+	ID             int32
+	PublicID       uuid.UUID
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Username       string
+	Email          string
+	HashedPassword string
 }
