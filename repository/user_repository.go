@@ -40,14 +40,20 @@ func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.Use
 	defer r.mu.Unlock()
 
 	userParams := database.CreateUserParams{
-		Username: user.Username,
-		Email:    user.Email,
+		Username:       user.Username,
+		Email:          user.Email,
+		HashedPassword: user.Password,
 	}
 
 	dbUser, err := r.DB.CreateUser(ctx, userParams)
 	if err != nil {
-		return nil, err
+		if isUniqueConstraintError(err) {
+			return nil, apperror.ErrUserExists
+		} else {
+			return nil, err
+		}
 	}
+
 	createdUser := &model.User{
 		ID:        dbUser.ID,
 		PublicID:  dbUser.PublicID,
