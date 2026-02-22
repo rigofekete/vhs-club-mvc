@@ -13,6 +13,11 @@ type CreateUserBatchRequest struct {
 	Users []CreateUserRequest `json:"users" binding:"required,dive"`
 }
 
+type UserLoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 type UserResponse struct {
 	PublicID uuid.UUID `json:"public_id"`
 	Username string    `json:"username"`
