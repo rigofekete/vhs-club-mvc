@@ -13,6 +13,8 @@ import (
 
 type Config struct {
 	DB *database.Queries
+	// Needed in case we want to use transactions in our code
+	SQLDB *sql.DB
 }
 
 var AppConfig *Config
@@ -20,13 +22,15 @@ var AppConfig *Config
 func Load() {
 	_ = godotenv.Load()
 
+	sqldb, queries := getEnv("DB_URL")
 	AppConfig = &Config{
-		DB: getEnv("DB_URL"),
+		DB:    queries,
+		SQLDB: sqldb,
 	}
 }
 
 // TODO: Refactor this later when we will need to fill more config fields
-func getEnv(dbString string) *database.Queries {
+func getEnv(dbString string) (*sql.DB, *database.Queries) {
 	dbURL := os.Getenv(dbString)
 	if dbURL == "" {
 		log.Fatal("DB_URL must be set")
@@ -42,5 +46,5 @@ func getEnv(dbString string) *database.Queries {
 
 	dbQueries := database.New(dbConn)
 
-	return dbQueries
+	return dbConn, dbQueries
 }
