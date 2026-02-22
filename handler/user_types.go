@@ -5,6 +5,7 @@ import "github.com/google/uuid"
 type CreateUserRequest struct {
 	Username string `json:"username" binding:"required,alphanum,min=4,max=20"`
 	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=8,max=20"`
 }
 
 type CreateUserBatchRequest struct {
