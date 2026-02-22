@@ -19,8 +19,8 @@ func NewUserHandler(s service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
-	r.POST("/users/batch", h.CreateUserBatch)
 	r.POST("/users", h.CreateUser)
+	r.POST("/users/batch", h.CreateUserBatch)
 	r.GET("/users/:id", h.GetUserByID)
 	r.GET("/users", h.GetUsers)
 	r.DELETE("/users", h.DeleteAllUsers)
