@@ -19,6 +19,7 @@ func NewTapeHandler(s service.TapeService) *TapeHandler {
 
 func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/tapes", h.CreateTape)
+	r.POST("/tapes/batch/", h.CreateTapeBatch)
 	r.GET("/tapes", h.GetAllTapes)
 	r.GET("/tapes/:id", h.GetTapeByID)
 	r.PATCH("/tapes/:id", h.UpdateTape)
@@ -38,6 +39,26 @@ func (h *TapeHandler) CreateTape(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusCreated, TapeSingleResponse(createdTape))
+}
+
+func (h *TapeHandler) CreateTapeBatch(c *gin.Context) {
+	var newTapes CreateTapeBatchRequest
+	if err := c.ShouldBindJSON(&newTapes); err != nil {
+		_ = c.Error(apperror.WrapValidationError(err))
+		return
+	}
+
+	createdTapes, existingCount, err := h.tapeService.CreateTapeBatch(c.Request.Context(), newTapes.ToModels())
+	if err != nil {
+		_ = c.Error(err)
+	}
+
+	batchResponse := TapeBatchResponse{
+		Tapes:         TapeListResponse(createdTapes),
+		AlreadyExists: *existingCount,
+	}
+
+	c.JSON(http.StatusCreated, batchResponse)
 }
 
 func (h *TapeHandler) GetAllTapes(c *gin.Context) {
