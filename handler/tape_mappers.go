@@ -12,8 +12,16 @@ func (r *CreateTapeRequest) ToModel() *model.Tape {
 	}
 }
 
-func TapeSingleResponse(tape *model.Tape) *TapeResponse {
-	return &TapeResponse{
+func (r *CreateTapeBatchRequest) ToModels() []*model.Tape {
+	tapes := make([]*model.Tape, 0, len(r.Tapes))
+	for _, t := range r.Tapes {
+		tapes = append(tapes, t.ToModel())
+	}
+	return tapes
+}
+
+func TapeSingleResponse(tape *model.Tape) TapeResponse {
+	return TapeResponse{
 		PublicID:  tape.PublicID,
 		CreatedAt: tape.CreatedAt,
 		UpdatedAt: tape.UpdatedAt,
@@ -25,8 +33,8 @@ func TapeSingleResponse(tape *model.Tape) *TapeResponse {
 	}
 }
 
-func TapeListResponse(tapes []*model.Tape) []*TapeResponse {
-	tapeList := make([]*TapeResponse, len(tapes))
+func TapeListResponse(tapes []*model.Tape) []TapeResponse {
+	tapeList := make([]TapeResponse, len(tapes))
 	for i, tape := range tapes {
 		tapeList[i] = TapeSingleResponse(tape)
 	}
@@ -43,8 +51,8 @@ func (r UpdateTapeRequest) ToModel() *model.UpdateTape {
 	}
 }
 
-func TapeUpdateResponse(tape *model.Tape) *TapeResponse {
-	return &TapeResponse{
+func TapeUpdateResponse(tape *model.Tape) TapeResponse {
+	return TapeResponse{
 		PublicID:  tape.PublicID,
 		CreatedAt: tape.CreatedAt,
 		UpdatedAt: tape.UpdatedAt,
