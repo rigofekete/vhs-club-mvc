@@ -21,6 +21,7 @@ func NewUserHandler(s service.UserService) *UserHandler {
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/users", h.CreateUser)
 	r.POST("/users/batch", h.CreateUserBatch)
+	r.POST("/users/login", h.UserLogin)
 	r.GET("/users/:id", h.GetUserByID)
 	r.GET("/users", h.GetUsers)
 	r.DELETE("/users", h.DeleteAllUsers)
@@ -62,6 +63,22 @@ func (h *UserHandler) CreateUserBatch(c *gin.Context) {
 	c.JSON(http.StatusCreated, batchResponse)
 }
 
+func (h *UserHandler) UserLogin(c *gin.Context) {
+	var user UserLoginRequest
+	if err := c.ShouldBindJSON(&user); err != nil {
+		_ = c.Error(apperror.WrapValidationError(err))
+		return
+	}
+
+	loggedUser, err := h.userService.UserLogin(c.Request.Context(), user.ToModel())
+	if err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.JSON(http.StatusOK, UserSingleResponse(loggedUser))
+}
+
 func (h *UserHandler) GetUserByID(c *gin.Context) {
 	id := c.Param("id")
 	user, err := h.userService.GetUserByID(c.Request.Context(), id)
@@ -69,6 +86,7 @@ func (h *UserHandler) GetUserByID(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
+
 	c.JSON(http.StatusOK, UserSingleResponse(user))
 }
 
@@ -78,6 +96,7 @@ func (h *UserHandler) GetUsers(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
+
 	c.JSON(http.StatusOK, UserListResponse(users))
 }
 
@@ -87,5 +106,6 @@ func (h *UserHandler) DeleteAllUsers(c *gin.Context) {
 		_ = c.Error(err)
 		return
 	}
+
 	c.Status(http.StatusNoContent)
 }
