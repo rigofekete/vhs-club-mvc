@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/auth"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/repository"
@@ -13,6 +15,7 @@ type UserService interface {
 	CreateUser(context.Context, *model.User) (*model.User, error)
 	CreateUserBatch(context.Context, []*model.User) ([]*model.User, *int32, error)
 	GetUserByID(ctx context.Context, id string) (*model.User, error)
+	UserLogin(ctx context.Context, user *model.User) (*model.User, error)
 	GetAllUsers(context.Context) ([]*model.User, error)
 	DeleteAllUsers(context.Context) error
 }
@@ -37,8 +40,15 @@ func (s *userService) CreateUser(ctx context.Context, user *model.User) (*model.
 }
 
 // TODO: Add a unit test for this
-// TODO: Can we let the DB handle users that already exist, by skipping them
+// TODO: Can we let the DB handle users that already exist, by skipping them in the repo layer
 func (s *userService) CreateUserBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error) {
+	for _, user := range users {
+		hashedPassword, err := auth.HashPassword(user.Password)
+		if err != nil {
+			return nil, nil, err
+		}
+		user.HashedPassword = hashedPassword
+	}
 	return s.repo.SaveBatch(ctx, users)
 }
 
@@ -49,6 +59,26 @@ func (s *userService) GetUserByID(ctx context.Context, id string) (*model.User, 
 	}
 
 	return s.repo.GetByPublicID(ctx, idUUID)
+}
+
+// TODO: Add unit test
+func (s *userService) UserLogin(ctx context.Context, user *model.User) (*model.User, error) {
+	foundUser, err := s.repo.GetByUsername(ctx, user.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("foundUser: %+v", foundUser)
+
+	valid, err := auth.CheckPasswordHash(user.Password, foundUser.HashedPassword)
+	if err != nil {
+		if !valid {
+			return nil, apperror.ErrUserInvalidPW
+		}
+		return nil, err
+	}
+
+	return foundUser, nil
 }
 
 func (s *userService) GetAllUsers(ctx context.Context) ([]*model.User, error) {
