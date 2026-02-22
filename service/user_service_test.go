@@ -52,6 +52,14 @@ func (m *mockUserRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*
 	return nil, args.Error(1)
 }
 
+func (m *mockUserRepository) GetByUsername(ctx context.Context, username string) (*model.User, error) {
+	args := m.Called(ctx, username)
+	if user := args.Get(0); user != nil {
+		return user.(*model.User), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
 func (m *mockUserRepository) GetAll(ctx context.Context) ([]*model.User, error) {
 	args := m.Called(ctx)
 	if users := args.Get(0); users != nil {
@@ -82,7 +90,6 @@ func Test_CreateUser_Success(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockRepo.On("GetAll", ctx).Return(nil, nil)
 	mockRepo.On("Save", ctx, inputUser).Return(createdUser, nil)
 
 	svc := service.NewUserService(mockRepo)
@@ -102,19 +109,9 @@ func Test_CreateUser_Fail(t *testing.T) {
 		Email:    "doppelganger@ghost.com",
 	}
 
-	dbUsers := []*model.User{
-		{
-			Username: "MilesDavis",
-			Email:    "one_and_only@fusion.com",
-		},
-		{
-			Username: "Coltrane",
-			Email:    "bluetrain@love.com",
-		},
-	}
 	ctx := context.Background()
 
-	mockRepo.On("GetAll", ctx).Return(dbUsers, nil)
+	mockRepo.On("Save", ctx, inputUser).Return(nil, apperror.ErrUserExists)
 
 	svc := service.NewUserService(mockRepo)
 	user, err := svc.CreateUser(ctx, inputUser)
