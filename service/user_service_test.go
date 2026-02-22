@@ -28,6 +28,14 @@ func (m *mockUserRespository) Save(ctx context.Context, user *model.User) (*mode
 	return nil, args.Error(1)
 }
 
+func (m *mockUserRespository) SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, error) {
+	args := m.Called(ctx, users)
+	if u := args.Get(0); u != nil {
+		return u.([]*model.User), args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
 func (m *mockUserRespository) GetByID(ctx context.Context, id int32) (*model.User, error) {
 	args := m.Called(ctx, id)
 	if user := args.Get(0); user != nil {
