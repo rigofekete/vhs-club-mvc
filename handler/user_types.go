@@ -7,8 +7,18 @@ type CreateUserRequest struct {
 	Email    string `json:"email" binding:"required,email"`
 }
 
+type CreateUserBatchRequest struct {
+	// dive validator needed to iterate each object of the slice and apply the CreateUserRequest binded validations
+	Users []CreateUserRequest `json:"users" binding:"required,dive"`
+}
+
 type UserResponse struct {
 	PublicID uuid.UUID `json:"public_id"`
 	Username string    `json:"username"`
 	Email    string    `json:"email"`
+}
+
+type UserBatchResponse struct {
+	Users         []UserResponse `json:"tapes"`
+	AlreadyExists int32          `json:"already_exists"`
 }
