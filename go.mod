@@ -3,9 +3,11 @@ module github.com/rigofekete/vhs-club-mvc
 go 1.25.4
 
 require (
+	github.com/alexedwards/argon2id v1.0.0
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.27.0
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/lib/pq v1.11.1
@@ -13,7 +15,6 @@ require (
 )
 
 require (
-	github.com/alexedwards/argon2id v1.0.0 // indirect
 	github.com/bytedance/sonic v1.14.0 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
