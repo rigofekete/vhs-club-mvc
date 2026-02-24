@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
+	"github.com/rigofekete/vhs-club-mvc/middleware"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -17,20 +18,30 @@ func NewRentalHandler(s service.RentalService) *RentalHandler {
 }
 
 func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
-	r.POST("/rentals/:id", h.CreateRental)
+	user := r.Group("/")
+	user.Use(middleware.UserAuth())
+	{
+		user.POST("/rentals/:id", h.CreateRental)
+	}
 	r.GET("/rentals", h.GetAllActiveRentals)
 	r.DELETE("/rentals", h.DeleteAllRentals)
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {
-	var req CreateRentalRequest
+	// var req CreateRentalRequest
 
 	tapeID := c.Param("id")
-	if err := c.ShouldBindJSON(&req); err != nil {
-		_ = c.Error(apperror.WrapValidationError(err))
+	userPublicID, ok := middleware.GetUserID(c)
+	if !ok {
+		_ = c.Error(apperror.ErrUserValidation)
 		return
 	}
-	createdRental, err := h.rentalService.RentTape(c.Request.Context(), tapeID, req.UserPublicID)
+	// if err := c.ShouldBindJSON(&req); err != nil {
+	// 	_ = c.Error(apperror.WrapValidationError(err))
+	// 	return
+	// }
+
+	createdRental, err := h.rentalService.RentTape(c.Request.Context(), tapeID, userPublicID.String())
 	if err != nil {
 		_ = c.Error(err)
 		return
