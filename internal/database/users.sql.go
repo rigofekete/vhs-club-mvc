@@ -18,7 +18,7 @@ VALUES (
   $2,
   $3
 )
-RETURNING id, public_id, created_at, updated_at, username, email, hashed_password
+RETURNING id, public_id, created_at, updated_at, username, email, role, hashed_password
 `
 
 type CreateUserParams struct {
@@ -37,6 +37,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.UpdatedAt,
 		&i.Username,
 		&i.Email,
+		&i.Role,
 		&i.HashedPassword,
 	)
 	return i, err
@@ -52,7 +53,7 @@ func (q *Queries) DeleteAllUsers(ctx context.Context) error {
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, public_id, created_at, updated_at, username, email, hashed_password FROM users
+SELECT id, public_id, created_at, updated_at, username, email, role, hashed_password FROM users
 WHERE id = $1
 `
 
@@ -66,13 +67,14 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 		&i.UpdatedAt,
 		&i.Username,
 		&i.Email,
+		&i.Role,
 		&i.HashedPassword,
 	)
 	return i, err
 }
 
 const getUserByPublicID = `-- name: GetUserByPublicID :one
-SELECT id, public_id, created_at, updated_at, username, email, hashed_password FROM users
+SELECT id, public_id, created_at, updated_at, username, email, role, hashed_password FROM users
 WHERE public_id = $1
 `
 
@@ -86,13 +88,14 @@ func (q *Queries) GetUserByPublicID(ctx context.Context, publicID uuid.UUID) (Us
 		&i.UpdatedAt,
 		&i.Username,
 		&i.Email,
+		&i.Role,
 		&i.HashedPassword,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, public_id, created_at, updated_at, username, email, hashed_password FROM users
+SELECT id, public_id, created_at, updated_at, username, email, role, hashed_password FROM users
 WHERE username = $1
 `
 
@@ -106,13 +109,14 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.UpdatedAt,
 		&i.Username,
 		&i.Email,
+		&i.Role,
 		&i.HashedPassword,
 	)
 	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, public_id, created_at, updated_at, username, email, hashed_password FROM users
+SELECT id, public_id, created_at, updated_at, username, email, role, hashed_password FROM users
 ORDER BY created_at ASC
 `
 
@@ -132,6 +136,7 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			&i.UpdatedAt,
 			&i.Username,
 			&i.Email,
+			&i.Role,
 			&i.HashedPassword,
 		); err != nil {
 			return nil, err
