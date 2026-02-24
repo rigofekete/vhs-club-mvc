@@ -80,7 +80,7 @@ func extractToken(c *gin.Context) (uuid.UUID, string, error) {
 	return userID, role, nil
 }
 
-// Exported helper to extract authenticated user ID from the gin Context's object Keys map, from the req header.
+// Exported helper to extract authenticated user ID from the gin Context's object Keys map, set from the req header through extractToken call.
 func GetUserID(c *gin.Context) (uuid.UUID, bool) {
 	value, exists := c.Get(UserIDKey)
 	if !exists {
