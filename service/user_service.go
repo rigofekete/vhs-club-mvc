@@ -2,9 +2,10 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/auth"
 	"github.com/rigofekete/vhs-club-mvc/model"
@@ -68,15 +69,20 @@ func (s *userService) UserLogin(ctx context.Context, user *model.User) (*model.U
 		return nil, err
 	}
 
-	fmt.Printf("foundUser: %+v", foundUser)
-
 	valid, err := auth.CheckPasswordHash(user.Password, foundUser.HashedPassword)
 	if err != nil {
-		if !valid {
-			return nil, apperror.ErrUserInvalidPW
-		}
 		return nil, err
 	}
+	if !valid {
+		return nil, apperror.ErrUserInvalidPW
+	}
+
+	token, err := auth.MakeJWT(foundUser.PublicID, foundUser.Role, config.AppConfig.JWTSecret, 24*time.Hour)
+	if err != nil {
+		return nil, err
+	}
+
+	foundUser.Token = token
 
 	return foundUser, nil
 }
