@@ -154,6 +154,7 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*m
 		UpdatedAt:      dbUser.UpdatedAt,
 		Username:       dbUser.Username,
 		Email:          dbUser.Email,
+		Role:           dbUser.Role,
 		HashedPassword: dbUser.HashedPassword,
 	}
 
