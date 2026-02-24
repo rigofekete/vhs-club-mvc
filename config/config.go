@@ -14,7 +14,8 @@ import (
 type Config struct {
 	DB *database.Queries
 	// Needed in case we want to use transactions in our code
-	SQLDB *sql.DB
+	SQLDB     *sql.DB
+	JWTSecret string
 }
 
 var AppConfig *Config
@@ -22,19 +23,25 @@ var AppConfig *Config
 func Load() {
 	_ = godotenv.Load()
 
-	sqldb, queries := getEnv("DB_URL")
+	sqldb, queries, secret := getEnv("DB_URL", "JWT_SECRET")
 	AppConfig = &Config{
-		DB:    queries,
-		SQLDB: sqldb,
+		DB:        queries,
+		SQLDB:     sqldb,
+		JWTSecret: secret,
 	}
 }
 
-// TODO: Refactor this later when we will need to fill more config fields
-func getEnv(dbString string) (*sql.DB, *database.Queries) {
+func getEnv(dbString, jwtSecret string) (*sql.DB, *database.Queries, string) {
 	dbURL := os.Getenv(dbString)
 	if dbURL == "" {
 		log.Fatal("DB_URL must be set")
 	}
+
+	secret := os.Getenv(jwtSecret)
+	if secret == "" {
+		log.Fatal("JWT_SECRET must be set")
+	}
+
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		log.Fatalf("error opening database: %v", err)
@@ -46,5 +53,5 @@ func getEnv(dbString string) (*sql.DB, *database.Queries) {
 
 	dbQueries := database.New(dbConn)
 
-	return dbConn, dbQueries
+	return dbConn, dbQueries, secret
 }
