@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
-	"github.com/rigofekete/vhs-club-mvc/middleware"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -22,20 +21,21 @@ func NewUserHandler(s service.UserService) *UserHandler {
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 	r.POST("/users", h.CreateUser)
 	r.POST("/users/login", h.UserLogin)
-	// r.POST("/users/batch", h.CreateUserBatch)
-	// r.GET("/users/:id", h.GetUserByID)
-	// r.GET("/users", h.GetUsers)
-	// r.DELETE("/users", h.DeleteAllUsers)
+	r.POST("/users/batch", h.CreateUserBatch)
+	r.GET("/users/:id", h.GetUserByID)
+	r.GET("/users", h.GetUsers)
+	r.DELETE("/users", h.DeleteAllUsers)
 
-	// Admin routes
-	admin := r.Group("/users")
-	admin.Use(middleware.AdminAuth())
-	{
-		admin.POST("/batch", h.CreateUserBatch)
-		admin.GET("/:id", h.GetUserByID)
-		admin.GET("/", h.GetUsers)
-		admin.DELETE("/", h.DeleteAllUsers)
-	}
+	// TODO: Decide how to implement the admin routes/auth
+	// // Admin routes
+	// admin := r.Group("/users")
+	// admin.Use(middleware.AdminAuth())
+	// {
+	// 	admin.POST("/batch", h.CreateUserBatch)
+	// 	admin.GET("/:id", h.GetUserByID)
+	// 	admin.GET("/", h.GetUsers)
+	// 	admin.DELETE("/", h.DeleteAllUsers)
+	// }
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
