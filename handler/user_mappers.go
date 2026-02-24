@@ -6,6 +6,7 @@ func (r *CreateUserRequest) ToModel() *model.User {
 	return &model.User{
 		Username: r.Username,
 		Email:    r.Email,
+		Password: r.Password,
 	}
 }
 
@@ -29,6 +30,15 @@ func UserSingleResponse(user *model.User) UserResponse {
 		PublicID: user.PublicID,
 		Username: user.Username,
 		Email:    user.Email,
+	}
+}
+
+func LoginResponse(user *model.User) UserLoginResponse {
+	return UserLoginResponse{
+		PublidID: user.PublicID,
+		Username: user.Username,
+		Email:    user.Email,
+		Token:    user.Token,
 	}
 }
 
