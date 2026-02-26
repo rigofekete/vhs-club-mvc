@@ -23,37 +23,6 @@ function Login() {
     },
   ];
 
-  // const handleChange = (event) => {
-  //   setUsername(event.target.value);
-  // };
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const response = await fetch('http://localhost:8080/users');
-  //       const jsonData = await response.json();
-  //       setUsers(jsonData);
-  //     } catch (err) { console.error('Failed to fetch users:', err); }
-  //   };
-  //   fetchData();
-  // }, []);
-  //
-
-  // const handleLogin = (event) => {
-  //   event.preventDefault();
-  //
-  //   const userExists = users.some((user) => user.username === username);
-  //
-  //   console.log('Users fetched', users);
-  //
-  //   if (userExists) {
-  //     setLogin(true);
-  //     console.log("Login complete!")
-  //   } else {
-  //     setError('Username not found. Please try again.');
-  //   }
-  // };
-
   const handleLogin = async (event) => {
     event.preventDefault();
     setError('');
@@ -79,6 +48,7 @@ function Login() {
 
       const data = await response.json();
       localStorage.setItem('token', data.token);
+      localStorage.setItem('username', data.username);
       setLogin(true);
       setTimeout(() => {
         navigate('/dashboard');
@@ -107,10 +77,12 @@ function Login() {
               />
             ))}
             <button className="button" type="submit">Login</button>
-            {error && <p className="error-message">{error}</p>}
+            <p className="error-message">
+              {error || '\u00A0'}
+            </p>
           </form>
         )}
-      </div>
+      </div >
     </>
   )
 }
