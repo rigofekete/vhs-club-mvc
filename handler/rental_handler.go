@@ -18,10 +18,11 @@ func NewRentalHandler(s service.RentalService) *RentalHandler {
 }
 
 func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
-	user := r.Group("/")
+	user := r.Group("/rentals")
 	user.Use(middleware.UserAuth())
 	{
-		user.POST("/rentals/:id", h.CreateRental)
+		user.POST("/:id", h.CreateRental)
+		user.PATCH("/:id", h.ReturnRental)
 	}
 	r.GET("/rentals", h.GetAllActiveRentals)
 	r.DELETE("/rentals", h.DeleteAllRentals)
@@ -42,6 +43,22 @@ func (h *RentalHandler) CreateRental(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, RentalSingleResponse(createdRental))
+}
+
+func (h *RentalHandler) ReturnRental(c *gin.Context) {
+	rentalID := c.Param("id")
+	publicID, ok := middleware.GetUserID(c)
+	if !ok {
+		_ = c.Error(apperror.ErrUserValidation)
+		return
+	}
+
+	if err := h.rentalService.ReturnTape(c.Request.Context(), publicID.String(), rentalID); err != nil {
+		_ = c.Error(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
 }
 
 func (h *RentalHandler) GetAllActiveRentals(c *gin.Context) {
