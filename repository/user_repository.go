@@ -123,7 +123,7 @@ func (r *userRepository) GetByID(ctx context.Context, id int32) (*model.User, er
 func (r *userRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*model.User, error) {
 	dbUser, err := r.DB.GetUserByPublicID(ctx, id)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrUserNotFound
 	}
 
 	user := &model.User{
