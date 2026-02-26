@@ -28,18 +28,12 @@ func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {
-	// var req CreateRentalRequest
-
 	tapeID := c.Param("id")
 	userPublicID, ok := middleware.GetUserID(c)
 	if !ok {
 		_ = c.Error(apperror.ErrUserValidation)
 		return
 	}
-	// if err := c.ShouldBindJSON(&req); err != nil {
-	// 	_ = c.Error(apperror.WrapValidationError(err))
-	// 	return
-	// }
 
 	createdRental, err := h.rentalService.RentTape(c.Request.Context(), tapeID, userPublicID.String())
 	if err != nil {
