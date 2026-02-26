@@ -2,15 +2,24 @@ package service_test
 
 import (
 	"context"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
+	"github.com/rigofekete/vhs-club-mvc/internal/auth"
 	"github.com/rigofekete/vhs-club-mvc/model"
 	"github.com/rigofekete/vhs-club-mvc/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+// Needed to load secret for MakeJWT calls across the service_test package
+func TestMain(m *testing.M) {
+	config.AppConfig = &config.Config{JWTSecret: "test-secret"}
+	os.Exit(m.Run())
+}
 
 type mockUserRepository struct {
 	mock.Mock
@@ -80,12 +89,14 @@ func Test_CreateUser_Success(t *testing.T) {
 	inputUser := &model.User{
 		Username: "MilesDavis",
 		Email:    "grumpy.genius@cool.com",
+		Password: "123",
 	}
 
 	createdUser := &model.User{
 		ID:       id,
 		Username: "MilesDavis",
 		Email:    "grumpy.genius@cool.com",
+		Password: "123",
 	}
 
 	ctx := context.Background()
@@ -119,6 +130,145 @@ func Test_CreateUser_Fail(t *testing.T) {
 	assert.Nil(t, user)
 	assert.Error(t, err)
 	assert.Equal(t, "user already exists", err.Error())
+
+	mockRepo.AssertExpectations(t)
+}
+
+func Test_UserLogin_Success(t *testing.T) {
+	mockRepo := NewUserMockRepository()
+
+	username := "JohnCarmack"
+	password := "Wolf3D"
+	hashed, _ := auth.HashPassword(password)
+
+	publicID := uuid.New()
+	user := &model.User{
+		PublicID:       publicID,
+		Username:       username,
+		Password:       password,
+		HashedPassword: hashed,
+	}
+
+	foundUser := &model.User{
+		PublicID:       publicID,
+		Username:       username,
+		Role:           "user",
+		HashedPassword: hashed,
+	}
+
+	ctx := context.Background()
+
+	mockRepo.On("GetByUsername", ctx, user.Username).Return(foundUser, nil)
+	svc := service.NewUserService(mockRepo)
+	loggedUser, err := svc.UserLogin(ctx, user)
+
+	assert.Nil(t, err)
+	assert.NotEqual(t, loggedUser.Token, "")
+
+	mockRepo.AssertExpectations(t)
+}
+
+func Test_UserLogin_UserNotFound(t *testing.T) {
+	mockRepo := NewUserMockRepository()
+
+	username := "JohnRomero"
+	password := "DoomGuy"
+	hashed, _ := auth.HashPassword(password)
+
+	publicID := uuid.New()
+	user := &model.User{
+		PublicID:       publicID,
+		Username:       username,
+		Password:       password,
+		HashedPassword: hashed,
+	}
+
+	ctx := context.Background()
+
+	mockRepo.On("GetByUsername", ctx, user.Username).Return(nil, apperror.ErrUserNotFound)
+	svc := service.NewUserService(mockRepo)
+	nullUser, err := svc.UserLogin(ctx, user)
+
+	assert.Nil(t, nullUser)
+	assert.Error(t, err)
+	assert.Equal(t, err, apperror.ErrUserNotFound)
+
+	mockRepo.AssertExpectations(t)
+}
+
+func Test_UserLogin_InvalidPW(t *testing.T) {
+	mockRepo := NewUserMockRepository()
+
+	username := "JohnRomero"
+	password := "DoomGuy"
+	hashed, _ := auth.HashPassword(password)
+
+	publicID := uuid.New()
+	user := &model.User{
+		PublicID:       publicID,
+		Username:       username,
+		Password:       "1234",
+		HashedPassword: hashed,
+	}
+
+	ctx := context.Background()
+
+	mockRepo.On("GetByUsername", ctx, user.Username).Return(nil, apperror.ErrUserInvalidPW)
+	svc := service.NewUserService(mockRepo)
+	nullUser, err := svc.UserLogin(ctx, user)
+
+	assert.Nil(t, nullUser)
+	assert.Error(t, err)
+	assert.Equal(t, err, apperror.ErrUserInvalidPW)
+
+	mockRepo.AssertExpectations(t)
+}
+
+func Test_CreateUserBatch_Success(t *testing.T) {
+	mockRepo := NewUserMockRepository()
+
+	password1 := "123"
+	password2 := "magyar60"
+
+	userBatch := []*model.User{
+		{
+			Username: "MilesDavis",
+			Email:    "grumpy.genius@cool.com",
+			Password: password1,
+		},
+		{
+			Username: "Puskas",
+			Email:    "pancho@hatharom.hu",
+			Password: password2,
+		},
+	}
+
+	hashPW1, _ := auth.HashPassword(password1)
+	hashPW2, _ := auth.HashPassword(password2)
+
+	savedBatch := []*model.User{
+		{
+			Username:       "MilesDavis",
+			Email:          "grumpy.genius@cool.com",
+			HashedPassword: hashPW1,
+		},
+		{
+			Username:       "Puskas",
+			Email:          "pancho@hatharom.hu",
+			HashedPassword: hashPW2,
+		},
+	}
+	ctx := context.Background()
+	countArg := int32(0)
+
+	mockRepo.On("SaveBatch", ctx, userBatch).Return(savedBatch, &countArg, nil)
+
+	svc := service.NewUserService(mockRepo)
+	users, existCount, err := svc.CreateUserBatch(ctx, userBatch)
+
+	assert.Nil(t, err)
+	assert.Equal(t, users[0].HashedPassword, hashPW1)
+	assert.Equal(t, *existCount, countArg)
 
 	mockRepo.AssertExpectations(t)
 }
