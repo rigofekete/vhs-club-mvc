@@ -125,6 +125,7 @@
   border-color: #F3A6A6;
   color: #F8C9AA;
   transform: scale(1.05);
+  cursor: pointer;
 }
 
 .Dashboard .tape-cover:active {
