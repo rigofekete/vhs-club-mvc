@@ -1,7 +1,6 @@
 .Dashboard {
   display: flex;
   min-height: 100vh;
-  /* transform: scale(0.9); */
   transform-origin: top left;
   animation: dashboardFadeIn 2s ease forwards;
   opacity: 0;
@@ -30,14 +29,13 @@
   padding: 30px 20px;
   color: #9DB8CB;
   position: relative;
-  /* gap: 2px; */
 }
 
 .Dashboard .user-panel::after {
   content: '';
   position: absolute;
   right: 0;
-  top: 315px;
+  top: 305px;
   bottom: 50px;
   width: 1px;
   background-color: #7A7FD4;
@@ -52,6 +50,10 @@
   mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 1) 50%,
       rgba(0, 0, 0, 0) 80%);
   border-radius: 8px;
+}
+
+.Dashboard .user-name {
+  margin-top: -10px;
 }
 
 .Dashboard .panel-button {
@@ -87,7 +89,7 @@
 
 .Dashboard .tape-catalog {
   margin-left: 70px;
-  margin-top: 250px;
+  margin-top: 240px;
   color: #F8C9AA;
   flex: 1;
   padding: 30px;
@@ -96,10 +98,8 @@
 .Dashboard .tape-grid {
   margin-top: 40px;
   display: grid;
-  /* grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); */
   grid-template-columns: repeat(auto-fill, 200px);
   gap: 20px;
-  /* justify-content: center; */
 }
 
 .Dashboard .tape-director {
@@ -248,5 +248,4 @@
   margin-left: 50px;
   color: #B08AAB;
   animation: rentFadeIn 0.5s ease forwards;
-  /* animation: rentFadeOut 2s ease forwards; */
 }
