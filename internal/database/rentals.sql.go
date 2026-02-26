@@ -71,41 +71,29 @@ func (q *Queries) DeleteAllRentals(ctx context.Context) error {
 	return err
 }
 
-const getActiveRentalByUser = `-- name: GetActiveRentalByUser :many
+const getActiveRental = `-- name: GetActiveRental :one
 SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
-WHERE user_id = $1 AND returned_at IS NULL
+WHERE public_id = $1 AND user_id = $2 AND returned_at IS NULL
 `
 
-// NULL is not a value so only IS keyword works
-func (q *Queries) GetActiveRentalByUser(ctx context.Context, userID int32) ([]Rental, error) {
-	rows, err := q.db.QueryContext(ctx, getActiveRentalByUser, userID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Rental
-	for rows.Next() {
-		var i Rental
-		if err := rows.Scan(
-			&i.ID,
-			&i.PublicID,
-			&i.CreatedAt,
-			&i.UserID,
-			&i.TapeID,
-			&i.RentedAt,
-			&i.ReturnedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type GetActiveRentalParams struct {
+	PublicID uuid.UUID
+	UserID   int32
+}
+
+func (q *Queries) GetActiveRental(ctx context.Context, arg GetActiveRentalParams) (Rental, error) {
+	row := q.db.QueryRowContext(ctx, getActiveRental, arg.PublicID, arg.UserID)
+	var i Rental
+	err := row.Scan(
+		&i.ID,
+		&i.PublicID,
+		&i.CreatedAt,
+		&i.UserID,
+		&i.TapeID,
+		&i.RentedAt,
+		&i.ReturnedAt,
+	)
+	return i, err
 }
 
 const getActiveRentalCountByTape = `-- name: GetActiveRentalCountByTape :one
@@ -139,6 +127,43 @@ WHERE tape_id = $1 AND returned_at IS NULL
 
 func (q *Queries) GetActiveRentalbyTape(ctx context.Context, tapeID int32) ([]Rental, error) {
 	rows, err := q.db.QueryContext(ctx, getActiveRentalbyTape, tapeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Rental
+	for rows.Next() {
+		var i Rental
+		if err := rows.Scan(
+			&i.ID,
+			&i.PublicID,
+			&i.CreatedAt,
+			&i.UserID,
+			&i.TapeID,
+			&i.RentedAt,
+			&i.ReturnedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getActiveRentalsByUser = `-- name: GetActiveRentalsByUser :many
+SELECT id, public_id, created_at, user_id, tape_id, rented_at, returned_at FROM rentals
+WHERE user_id = $1 AND returned_at IS NULL
+`
+
+// NULL is not a value so only IS keyword works
+func (q *Queries) GetActiveRentalsByUser(ctx context.Context, userID int32) ([]Rental, error) {
+	rows, err := q.db.QueryContext(ctx, getActiveRentalsByUser, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -227,16 +252,11 @@ func (q *Queries) GetAllActiveRentals(ctx context.Context) ([]GetAllActiveRental
 
 const returnTape = `-- name: ReturnTape :exec
 UPDATE rentals
-SET returned_at = $2
+SET returned_at = NOW()
 WHERE id = $1
 `
 
-type ReturnTapeParams struct {
-	ID         int32
-	ReturnedAt sql.NullTime
-}
-
-func (q *Queries) ReturnTape(ctx context.Context, arg ReturnTapeParams) error {
-	_, err := q.db.ExecContext(ctx, returnTape, arg.ID, arg.ReturnedAt)
+func (q *Queries) ReturnTape(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, returnTape, id)
 	return err
 }
