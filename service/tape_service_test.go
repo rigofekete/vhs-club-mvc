@@ -149,6 +149,51 @@ func Test_CreateTape_Fail(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
+func Test_CreateTapeBatch_Success(t *testing.T) {
+	mockRepo := NewTapeMockRepository()
+
+	tapeBatch := []*model.Tape{
+		{
+			Title:    "Jurassic Park",
+			Director: "Peter Jackson",
+			Genre:    "Action",
+		},
+		{
+			Title:    "Twin Peaks",
+			Director: "David Lynch",
+			Genre:    "Horror",
+		},
+	}
+
+	savedBatch := []*model.Tape{
+		{
+			Title:    "Jurassic Park",
+			Director: "Peter Jackson",
+			Genre:    "Action",
+		},
+		{
+			Title:    "Twin Peaks",
+			Director: "David Lynch",
+			Genre:    "Horror",
+		},
+	}
+
+	ctx := context.Background()
+	countArg := int32(2)
+
+	mockRepo.On("SaveBatch", ctx, tapeBatch).Return(savedBatch, &countArg, nil)
+
+	svc := service.NewTapeService(mockRepo)
+	tapes, existCount, err := svc.CreateTapeBatch(ctx, tapeBatch)
+
+	assert.Nil(t, err)
+	assert.Equal(t, tapes[1].Title, "Twin Peaks")
+	assert.Equal(t, *existCount, countArg)
+	assert.Equal(t, len(tapes), 2)
+
+	mockRepo.AssertExpectations(t)
+}
+
 func Test_GetAllTapes(t *testing.T) {
 	mockRepo := NewTapeMockRepository()
 
