@@ -22,10 +22,14 @@ RETURNING *;
 
 -- name: ReturnTape :exec
 UPDATE rentals
-SET returned_at = $2
+SET returned_at = NOW()
 WHERE id = $1;
 
--- name: GetActiveRentalByUser :many
+-- name: GetActiveRental :one
+SELECT * FROM rentals
+WHERE public_id = $1 AND user_id = $2 AND returned_at IS NULL;
+
+-- name: GetActiveRentalsByUser :many
 SELECT * FROM rentals
 -- NULL is not a value so only IS keyword works
 WHERE user_id = $1 AND returned_at IS NULL;
