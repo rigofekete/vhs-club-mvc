@@ -11,6 +11,7 @@ import (
 
 type RentalService interface {
 	RentTape(ctx context.Context, tapeID string, userID string) (*model.Rental, error)
+	ReturnTape(ctx context.Context, userID, rentalID string) error
 	GetAllActiveRentals(ctx context.Context) ([]*model.Rental, error)
 	DeleteAllRentals(ctx context.Context) error
 }
@@ -71,6 +72,25 @@ func (s *rentalService) RentTape(ctx context.Context, tapePublicID, userPublicID
 	}
 
 	return s.rentalRepo.Save(ctx, tape.ID, user.ID)
+}
+
+func (s *rentalService) ReturnTape(ctx context.Context, userPublicID, rentalPublicID string) error {
+	rentalUUID, err := uuid.Parse(rentalPublicID)
+	if err != nil {
+		return err
+	}
+
+	userUUID, err := uuid.Parse(userPublicID)
+	if err != nil {
+		return err
+	}
+
+	user, err := s.userRepo.GetByPublicID(ctx, userUUID)
+	if err != nil {
+		return err
+	}
+
+	return s.rentalRepo.ReturnTape(ctx, rentalUUID, user.ID)
 }
 
 func (s *rentalService) GetAllActiveRentals(ctx context.Context) ([]*model.Rental, error) {

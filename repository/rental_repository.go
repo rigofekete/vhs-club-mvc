@@ -4,13 +4,16 @@ import (
 	"context"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
+	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
 	"github.com/rigofekete/vhs-club-mvc/internal/database"
 	"github.com/rigofekete/vhs-club-mvc/model"
 )
 
 type RentalRepository interface {
 	Save(ctx context.Context, tapeID, userID int32) (*model.Rental, error)
+	ReturnTape(ctx context.Context, rentalID uuid.UUID, userID int32) error
 	GetAllActive(ctx context.Context) ([]*model.Rental, error)
 	GetActiveRentCountByTape(ctx context.Context, tapeID int32) (*int64, error)
 	GetActiveRentCountByUser(ctx context.Context, userID int32) (*int64, error)
@@ -54,6 +57,20 @@ func (r *rentalRepository) Save(ctx context.Context, tapeID, userID int32) (*mod
 		ReturnedAt: dbRental.ReturnedAt,
 	}
 	return savedRental, nil
+}
+
+func (r *rentalRepository) ReturnTape(ctx context.Context, rentalID uuid.UUID, userID int32) error {
+	params := database.GetActiveRentalParams{
+		PublicID: rentalID,
+		UserID:   userID,
+	}
+	rental, err := r.DB.GetActiveRental(ctx, params)
+	if err != nil {
+		// TODO: Consider creating an error sentinel for this error case
+		return apperror.ErrBadRequest
+	}
+
+	return r.DB.ReturnTape(ctx, rental.ID)
 }
 
 func (r *rentalRepository) GetAllActive(ctx context.Context) ([]*model.Rental, error) {
