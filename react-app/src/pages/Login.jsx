@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Login.css'
-import Header from '../components/Header'
+import tvFrame from '../assets/tv_frame.png'
+import tvVideo from '/video/tv.mp4'
 import InputField from '../components/InputField'
 
 function Login() {
@@ -62,7 +63,12 @@ function Login() {
   return (
     <>
       <div className="Login">
-        < Header logged={logged} />
+        <div className="tv-container">
+          <video className="tv-video" autoPlay loop muted playsInline>
+            <source src={tvVideo} type="video/mp4" />
+          </video>
+          <img className="tv-frame" src={tvFrame} alt="" />
+        </div>
         {logged ? (
           <p className="welcome-text"> Welcome, {username}</p>
         ) : (
