@@ -9,9 +9,10 @@ function InputField(props) {
   return (
     <div className={`input-wrapper ${className}`}>
       <label>
-        {label}
+        {/* {label} */}
       </label>
-      <input type={type} onChange={onChange} />
+      {/* <input type={type} onChange={onChange} /> */}
+      <input type={type} onChange={onChange} placeholder={label} />
     </div>
   );
 }
