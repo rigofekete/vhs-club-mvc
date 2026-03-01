@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"sync"
 
 	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -21,7 +20,6 @@ type RentalRepository interface {
 }
 
 type rentalRepository struct {
-	mu sync.Mutex
 	DB *database.Queries
 }
 
@@ -32,9 +30,6 @@ func NewRentalRepository() RentalRepository {
 }
 
 func (r *rentalRepository) Save(ctx context.Context, tapeID, userID int32) (*model.Rental, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	rentalParams := database.CreateRentalParams{
 		UserID: userID,
 		TapeID: tapeID,
@@ -74,9 +69,6 @@ func (r *rentalRepository) ReturnTape(ctx context.Context, rentalID uuid.UUID, u
 }
 
 func (r *rentalRepository) GetAllActive(ctx context.Context) ([]*model.Rental, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	dbRentals, err := r.DB.GetAllActiveRentals(ctx)
 	if err != nil {
 		return nil, err
@@ -100,8 +92,6 @@ func (r *rentalRepository) GetAllActive(ctx context.Context) ([]*model.Rental, e
 }
 
 func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID int32) (*int64, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 	count, err := r.DB.GetActiveRentalCountByTape(ctx, tapeID)
 	if err != nil {
 		return nil, err
@@ -110,8 +100,6 @@ func (r *rentalRepository) GetActiveRentCountByTape(ctx context.Context, tapeID 
 }
 
 func (r *rentalRepository) GetActiveRentCountByUser(ctx context.Context, userID int32) (*int64, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 	count, err := r.DB.GetActiveRentalCountByUser(ctx, userID)
 	if err != nil {
 		return nil, err
@@ -120,9 +108,6 @@ func (r *rentalRepository) GetActiveRentCountByUser(ctx context.Context, userID 
 }
 
 func (r *rentalRepository) DeleteAllRentals(ctx context.Context) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	if err := r.DB.DeleteAllRentals(ctx); err != nil {
 		return err
 	}

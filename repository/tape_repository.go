@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"sync"
 
 	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -24,8 +23,6 @@ type TapeRepository interface {
 }
 
 type tapeRepository struct {
-	// TODO: mutex is probably not needed
-	mu sync.Mutex
 	DB *database.Queries
 	db *sql.DB
 }
@@ -38,8 +35,6 @@ func NewTapeRepository() TapeRepository {
 }
 
 func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tape, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 	// TODO: Consider doing a function to convert data to and from DAO (similar to the DTO in handler layer)
 	tapeParams := database.CreateTapeParams{
 		Title:    tape.Title,
@@ -69,9 +64,6 @@ func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tap
 }
 
 func (r *tapeRepository) SaveBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	createdTapes := make([]*model.Tape, 0, len(tapes))
 	existingCount := int32(0)
 	for _, tape := range tapes {
@@ -111,8 +103,6 @@ func (r *tapeRepository) SaveBatch(ctx context.Context, tapes []*model.Tape) ([]
 }
 
 func (r *tapeRepository) GetAll(ctx context.Context) ([]*model.Tape, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 	dbTapes, err := r.DB.GetTapes(context.Background())
 	if err != nil {
 		return nil, err
@@ -136,9 +126,6 @@ func (r *tapeRepository) GetAll(ctx context.Context) ([]*model.Tape, error) {
 }
 
 func (r *tapeRepository) GetByID(ctx context.Context, id int32) (*model.Tape, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	dbTape, err := r.DB.GetTapeByID(context.Background(), id)
 	if err != nil {
 		return nil, apperror.ErrTapeNotFound
@@ -179,9 +166,6 @@ func (r *tapeRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*mode
 }
 
 func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTape) (*model.Tape, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	dbUpdateParams := database.UpdateTapeParams{
 		ID:       updateTape.ID,
 		Title:    toNullString(updateTape.Title),
@@ -212,9 +196,6 @@ func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTap
 }
 
 func (r *tapeRepository) Delete(ctx context.Context, id int32) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	err := r.DB.DeleteTape(context.Background(), id)
 	if err != nil {
 		return err
@@ -223,9 +204,6 @@ func (r *tapeRepository) Delete(ctx context.Context, id int32) error {
 }
 
 func (r *tapeRepository) DeleteAll(ctx context.Context) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	err := r.DB.DeleteAllTapes(context.Background())
 	if err != nil {
 		return err

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/google/uuid"
 	"github.com/rigofekete/vhs-club-mvc/config"
@@ -25,7 +24,6 @@ type UserRepository interface {
 }
 
 type userRepository struct {
-	mu sync.Mutex
 	DB *database.Queries
 	db *sql.DB
 }
@@ -38,9 +36,6 @@ func NewUserRepository() UserRepository {
 }
 
 func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.User, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	userParams := database.CreateUserParams{
 		Username:       user.Username,
 		Email:          user.Email,
@@ -68,9 +63,6 @@ func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.Use
 }
 
 func (r *userRepository) SaveBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	createdUsers := make([]*model.User, 0, len(users))
 	existingCount := int32(0)
 	for _, user := range users {
@@ -162,8 +154,6 @@ func (r *userRepository) GetByUsername(ctx context.Context, username string) (*m
 }
 
 func (r *userRepository) GetAll(ctx context.Context) ([]*model.User, error) {
-	r.mu.Lock()
-	defer r.mu.Unlock()
 	dbUsers, err := r.DB.GetUsers(ctx)
 	if err != nil {
 		return nil, err
@@ -184,9 +174,6 @@ func (r *userRepository) GetAll(ctx context.Context) ([]*model.User, error) {
 }
 
 func (r *userRepository) DeleteAll(ctx context.Context) error {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
 	err := r.DB.DeleteAllUsers(ctx)
 	if err != nil {
 		return err
