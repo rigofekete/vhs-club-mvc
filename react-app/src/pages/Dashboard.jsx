@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 import TapeDetail from '../components/TapeDetail'
 import MyRentals from '../components/MyRentals'
+import ParabolicBackground from '../components/ParabolicBackground'
 
 
 
@@ -127,78 +128,82 @@ function Dashboard() {
 
   return (
     <div className="Dashboard" >
-      <aside className="user-panel">
-        <img className="user-photo" src={`/profile/${username}.png`} />
-        <h2 className="user-name">{username}</h2>
-        <button className="panel-button" onClick={handleMyRentals}>My Rentals</button>
-        <button className="panel-button" onClick={handleCatalog}>
-          Catalog
-        </button>
-        <button className="panel-button logout-button" onClick={handleLogout}>
-          Logout
-        </button>
-      </aside>
+      <ParabolicBackground animateDuration={1000} trigger={animKey} />
+      <div className="dashboard-content">
+        <aside className="user-panel">
+          <img className="user-photo" src={`/profile/${username}.png`} />
+          <h2 className="user-name">{username}</h2>
+          <button className="panel-button" onClick={handleMyRentals}>My Rentals</button>
+          <button className="panel-button" onClick={handleCatalog}>
+            Catalog
+          </button>
+          <button className="panel-button logout-button" onClick={handleLogout}>
+            Logout
+          </button>
+        </aside>
 
-      <div className="tape-catalog" key={animKey}>
-        <div className="catalog-fade">
-          <h2>{view === 'myRentals' ? 'My Rentals' : 'VHS Catalog'}</h2>
+        <div className="tape-catalog" key={animKey}>
+          <div className="catalog-fade">
+            <h2>{view === 'myRentals' ? 'My Rentals' : 'VHS Catalog'}</h2>
 
-          {view === 'renting' && (
-            <div className="rent-animation-wrapper">
-              <video
-                className={`rent-animation ${videoFadingOut ? 'fade-out' : ''}`}
-                src="/videos/rented.mp4"
-                autoPlay
-                onEnded={() => {
-                  setError('');
-                  setVideoFadingOut(true);
-                  setTimeout(() => {
-                    setVideoFadingOut(false);
-                    setView('thankYou');
-                  }, 1000);
-                }}
-              />
-            </div>
-          )}
-
-          {view === 'thankYou' && (
-            <p className="thank-you-text">Thank you for renting!</p>
-          )}
-
-          {view === 'myRentals' && (
-            <MyRentals
-              rentals={rentals}
-              onBack={handleCatalog}
-            />
-          )}
-
-          {view === 'detail' && selectedTape && (
-            <TapeDetail
-              tape={selectedTape}
-              error={error}
-              onBack={handleCatalog}
-              onRent={() => handleRent(selectedTape)}
-            />
-          )}
-
-          {view === 'catalog' && (
-            <>
-              {loading && <p className="loading-text">Loading tapes...</p>}
-              {error && <p className="error-message">{error}</p>}
-
-              <div className="tape-grid">
-                {tapes.map((tape) => (
-                  <div key={tape.public_id} className="tape-card" onClick={() => handleTapeClick(tape)}>
-                    <img className="tape-cover"
-                      src={`/tapes/${tape.title}.png`}
-                    />
-                    <h4 className="tape-title">{tape.title}</h4>
-                    <p className="tape-director">{tape.director}</p>
-                  </div>
-                ))}
+            {/* work on this, it looks choppy */}
+            {view === 'renting' && (
+              <div className="rent-animation-wrapper">
+                <video
+                  className={`rent-animation ${videoFadingOut ? 'fade-out' : ''}`}
+                  src="/videos/rented.mp4"
+                  autoPlay
+                  onEnded={() => {
+                    setError('');
+                    setVideoFadingOut(true);
+                    setTimeout(() => {
+                      setVideoFadingOut(false);
+                      setView('thankYou');
+                    }, 1000);
+                  }}
+                />
               </div>
-            </>
-          )}
+            )}
+
+            {view === 'thankYou' && (
+              <p className="thank-you-text">Thank you for renting!</p>
+            )}
+
+            {view === 'myRentals' && (
+              <MyRentals
+                rentals={rentals}
+                onBack={handleCatalog}
+              />
+            )}
+
+            {view === 'detail' && selectedTape && (
+              <TapeDetail
+                tape={selectedTape}
+                error={error}
+                onBack={handleCatalog}
+                onRent={() => handleRent(selectedTape)}
+              />
+            )}
+
+            {view === 'catalog' && (
+              <>
+                {loading && <p className="loading-text">Loading tapes...</p>}
+                {error && <p className="error-message">{error}</p>}
+
+                <div className="tape-grid">
+                  {tapes.map((tape) => (
+                    <div key={tape.public_id} className="tape-card" onClick={() => handleTapeClick(tape)}>
+                      <img className="tape-cover"
+                        src={`/tapes/${tape.title}.png`}
+                      />
+                      <h4 className="tape-title">{tape.title}</h4>
+                      <p className="tape-director">{tape.director}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
