@@ -1,12 +1,8 @@
 .Login {
-  text-align: center;
-  width: fit-content;
   margin: auto;
-  margin-top: 110px;
-  font-size: 0.8em;
-  /* min-height: 500px; */
   max-width: 1280px;
-  padding: clamp(1em, 5vw, 7em);
+  padding-top: 20vh;
+  font-size: 0.8em;
 }
 
 .tv-container {
@@ -16,6 +12,42 @@
   height: 350px;
   /* adjust to your TV frame size */
   margin: 0 auto;
+}
+
+.tv-container-zoom {
+  animation: zoomIn 3s ease forwards;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.4);
+  }
+}
+
+.tv-video {
+  position: absolute;
+  background-color: #1d2021;
+  top: 11%;
+  left: 5%;
+  width: 76%;
+  height: 82%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.tv-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  >>>>>>>73c469f (Removed old .header rules. Refactored .Login parent styles to keep it more simple and let the parabolic background render always in a fixed position. tv container styles and animation logic for login state. Refactored tv video styles. Added input placeholder styles. Refactored input field styles. Removed old .welcome-text and header styles since they no longer exist.)
 }
 
 .tv-video {
@@ -70,21 +102,23 @@
   margin-top: 10px;
 }
 
-.Login .input-wrapper label {
-  font-size: 1.3em;
-  padding: 5px;
-  color: #9DB8CB;
-}
 
 .Login .input-wrapper input {
-  font-size: 1.0em;
+  font-size: 1.5em;
+  min-height: 35px;
+  min-width: 200px;
   height: 15px;
   padding: 10px 14px;
-  border: 2px solid #7A7FD4;
-  border-radius: 8px;
+  border: 0.5px solid #7A7FD4;
+  border-radius: 2px;
   transition: all 0.2s ease;
   color: #F8C9AA;
   background-color: #080d20;
+}
+
+.Login .input-wrapper input::placeholder {
+  color: #b1b9f9;
+  opacity: 0.30;
 }
 
 .Login .input-wrapper input:hover {
@@ -126,43 +160,4 @@
   color: #ff4d4d;
   font-size: 1.2em;
   margin-top: 35px;
-}
-
-.Login .welcome-text {
-  font-size: 2.0em;
-  margin-top: 50px;
-  color: #B08AAB;
-  animation: fadeSlideIn 5s ease forwards;
-}
-
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(10px);
-  }
-}
-
-.logo-blink {
-  animation: fadeInOut 2s ease-in-out 3;
-}
-
-.header-blink {
-  animation: fadeInOut 2s ease-in-out 3;
-}
-
-@keyframes fadeInOut {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.4;
-  }
 }
