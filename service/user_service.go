@@ -36,7 +36,7 @@ func (s *userService) CreateUser(ctx context.Context, user *model.User) (*model.
 	if err != nil {
 		return nil, err
 	}
-	user.Password = hashedPassword
+	user.HashedPassword = hashedPassword
 	return s.repo.Save(ctx, user)
 }
 
