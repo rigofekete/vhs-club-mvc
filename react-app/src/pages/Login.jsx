@@ -89,7 +89,6 @@ function Login() {
                 onChange={inputField.onChange}
               />
             ))}
-            {/* <button className="button" type="submit">Login</button> */}
             <button type="submit" style={{ display: 'none' }} />
             <p className="error-message">
               {error || '\u00A0'}
