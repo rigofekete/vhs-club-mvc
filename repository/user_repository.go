@@ -39,7 +39,7 @@ func (r *userRepository) Save(ctx context.Context, user *model.User) (*model.Use
 	userParams := database.CreateUserParams{
 		Username:       user.Username,
 		Email:          user.Email,
-		HashedPassword: user.Password,
+		HashedPassword: user.HashedPassword,
 	}
 
 	dbUser, err := r.DB.CreateUser(ctx, userParams)
