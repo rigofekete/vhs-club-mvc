@@ -16,9 +16,9 @@ const (
 )
 
 // Middlewares
-
 func UserAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// TODO: maybe the extractToken function name should be more explicit?
 		userID, role, err := extractToken(c)
 		if err != nil {
 			_ = c.Error(err)
@@ -27,6 +27,8 @@ func UserAuth() gin.HandlerFunc {
 		}
 		if role != "user" {
 			_ = c.Error(apperror.ErrInvalidUserID)
+			c.Abort()
+			return
 		}
 		c.Set(UserIDKey, userID)
 		c.Set(UserRoleKey, role)
@@ -54,7 +56,6 @@ func AdminAuth() gin.HandlerFunc {
 }
 
 // Helpers
-
 func extractToken(c *gin.Context) (uuid.UUID, string, error) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
@@ -80,7 +81,8 @@ func extractToken(c *gin.Context) (uuid.UUID, string, error) {
 	return userID, role, nil
 }
 
-// Exported helper to extract authenticated user ID from the gin Context's object Keys map, set from the req header through extractToken call.
+// Exported helper to extract authenticated user ID from the gin Context's object Keys map, set through User/AdminAuth call.
+// This will be called in the Create/ReturnRental handler layer methods, to extract the ID from the gin.Context of the request.
 func GetUserID(c *gin.Context) (uuid.UUID, bool) {
 	value, exists := c.Get(UserIDKey)
 	if !exists {
