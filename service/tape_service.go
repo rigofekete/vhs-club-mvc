@@ -45,7 +45,6 @@ func (s *tapeService) CreateTape(ctx context.Context, tape *model.Tape) (*model.
 	return s.repo.Save(ctx, tape)
 }
 
-// TODO: Add unit test
 func (s *tapeService) CreateTapeBatch(ctx context.Context, tapes []*model.Tape) ([]*model.Tape, *int32, error) {
 	return s.repo.SaveBatch(ctx, tapes)
 }
