@@ -130,7 +130,6 @@ func mapErrorToAppError(err error) *AppError {
 	}
 }
 
-// TODO: Should this be moved to  middleware package ?
 // Middleware factory function
 func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {

@@ -26,8 +26,6 @@ func main() {
 	})
 
 	// Dependency Injections
-
-	// TODO: Where to place this health check?
 	userRepository := repository.NewUserRepository()
 	userService := service.NewUserService(userRepository)
 	userHandler := handler.NewUserHandler(userService)
