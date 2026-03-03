@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './Login.css'
 import tvFrame from '../assets/tv_frame.png'
-import tvVideo from '/video/tv.mp4'
+import tvVideo from '/videos/tv.mp4'
+import tvVideo2 from '/videos/intro.mp4'
 import InputField from '../components/InputField'
+import ParabolicBackground from '../components/ParabolicBackground'
 
 function Login() {
   const navigate = useNavigate()
@@ -53,7 +55,7 @@ function Login() {
       setLogin(true);
       setTimeout(() => {
         navigate('/dashboard');
-      }, 3000);
+      }, 2000);
     } catch (err) {
       setError('Unable to connect to server.');
     }
@@ -62,16 +64,21 @@ function Login() {
 
   return (
     <>
+      <ParabolicBackground animate={logged} animateDuration={1200} />
       <div className="Login">
-        <div className="tv-container">
-          <video className="tv-video" autoPlay loop muted playsInline>
-            <source src={tvVideo} type="video/mp4" />
-          </video>
+        <div className={`tv-container ${logged ? 'tv-container-zoom' : ''}`}>
+          {logged ? (
+            <video key="logged" className="tv-video" autoPlay muted playsInline>
+              <source src={tvVideo2} type="video/mp4" />
+            </video>
+          ) : (
+            <video key="login" className="tv-video" autoPlay muted playsInline>
+              <source src={tvVideo} type="video/mp4" />
+            </video>
+          )}
           <img className="tv-frame" src={tvFrame} alt="" />
         </div>
-        {logged ? (
-          <p className="welcome-text"> Welcome, {username}</p>
-        ) : (
+        {logged ? null : (
           <form onSubmit={handleLogin} >
             {inputFields.map((inputField, index) => (
               <InputField
@@ -82,7 +89,8 @@ function Login() {
                 onChange={inputField.onChange}
               />
             ))}
-            <button className="button" type="submit">Login</button>
+            {/* <button className="button" type="submit">Login</button> */}
+            <button type="submit" style={{ display: 'none' }} />
             <p className="error-message">
               {error || '\u00A0'}
             </p>
