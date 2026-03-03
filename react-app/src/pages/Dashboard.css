@@ -1,9 +1,19 @@
 .Dashboard {
-  display: flex;
+  /* display: flex; */
+  margin: auto;
   min-height: 100vh;
+  /* min-width: 100vh; */
+  /* width: 50%; */
   transform-origin: top left;
-  animation: dashboardFadeIn 2s ease forwards;
   opacity: 0;
+  animation: dashboardFadeIn 2s ease forwards;
+}
+
+.Dashboard .dashboard-content {
+  display: flex;
+  max-width: 1800px;
+  margin: 0 auto;
+  min-height: 100vh;
 }
 
 
