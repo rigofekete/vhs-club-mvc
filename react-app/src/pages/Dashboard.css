@@ -34,7 +34,6 @@
   margin-top: 50px;
   margin-left: 50px;
   padding: 30px 20px;
-  color: #9DB8CB;
   position: relative;
 }
 
@@ -60,19 +59,23 @@
 }
 
 .Dashboard .user-name {
+  color: #9DA8CB;
+  text-shadow: 0 0 3px;
   margin-top: -10px;
 }
 
 .Dashboard .panel-button {
   margin-top: 20px;
-  font-size: 1.1em;
+  font-size: 0.8em;
+  width: 150px;
   padding: 10px 20px;
   background-color: #080d20;
   color: #F8C9AA;
-  border: 2px solid #7A7FD4;
-  border-radius: 8px;
+  border: 1px solid #7A7FD4;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s ease;
+  text-shadow: 0 0 5px;
 }
 
 .Dashboard .panel-button:hover {
@@ -97,9 +100,10 @@
 .Dashboard .tape-catalog {
   margin-left: 70px;
   margin-top: 240px;
-  color: #F8C9AA;
+  color: #F8C9AC;
   flex: 1;
   padding: 30px;
+  text-shadow: 0 0 3px;
 }
 
 .Dashboard .tape-grid {
@@ -109,13 +113,19 @@
   gap: 20px;
 }
 
+.Dashboard .tape-title {
+  /* color: #E1B64E; */
+  color: F8C9AA;
+  text-shadow: 0 0 1px;
+}
+
 .Dashboard .tape-director {
   color: #9DB8CB;
+  text-shadow: 0 0 1px;
 }
 
 .Dashboard .tape-card {
   text-align: center;
-  color: #F8C9AA;
 }
 
 .Dashboard .tape-cover {
@@ -124,6 +134,8 @@
   object-fit: cover;
   background-color: #333;
   border-radius: 8px;
+  /* box-shadow: 0 0 8px rgba(0, 255, 180, 0.25), 0 0 90px rgba(0, 255, 180, */
+  /*     0.1); */
   filter: sepia(1) hue-rotate(90deg) saturate(2);
   transition: all 0.2s ease;
 }
@@ -131,6 +143,8 @@
 .Dashboard .tape-cover:hover {
   border-color: #F3A6A6;
   color: #F8C9AA;
+  box-shadow: 0 0 40px rgba(0, 255, 180, 0.4), 0 0 30px rgba(0, 255, 180,
+      0.15);
   transform: scale(1.05);
   cursor: pointer;
 }
@@ -156,17 +170,21 @@
 }
 
 .Dashboard .tape-detail h3 {
+  text-shadow: 0 0 1px;
   color: #F8C9AA;
 }
 
 .Dashboard .tape-detail p {
+  text-shadow: 0 0 1px;
   color: #9DB8CB;
 }
 
 .Dashboard .tape-detail .error-message {
   color: #ff4d4d;
-  font-size: 1.2em;
-  margin-top: 10px;
+  text-shadow: 0 0 2px;
+  font-size: 1.1em;
+  padding-top: 12px;
+  /* margin-top: 10px; */
 }
 
 .Dashboard .tape-detail .panel-button {
@@ -242,10 +260,12 @@
 }
 
 .Dashboard .rental-title {
+  text-shadow: 0 0 2px;
   color: #F8C9AA;
 }
 
 .Dashboard .rental-date {
+  text-shadow: 0 0 2px;
   color: #9DB8CB;
   font-size: 0.9em;
 }

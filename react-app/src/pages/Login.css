@@ -8,9 +8,7 @@
 .tv-container {
   position: relative;
   width: 500px;
-  /* adjust to your TV frame size */
   height: 350px;
-  /* adjust to your TV frame size */
   margin: 0 auto;
 }
 
@@ -24,7 +22,7 @@
   }
 
   to {
-    transform: scale(1.4);
+    transform: scale(1.1);
   }
 }
 
@@ -47,13 +45,10 @@
   height: 100%;
   z-index: 2;
   pointer-events: none;
-  >>>>>>>73c469f (Removed old .header rules. Refactored .Login parent styles to keep it more simple and let the parabolic background render always in a fixed position. tv container styles and animation logic for login state. Refactored tv video styles. Added input placeholder styles. Refactored input field styles. Removed old .welcome-text and header styles since they no longer exist.)
 }
 
 .tv-video {
   position: absolute;
-  /* These values position the video within the "screen" area
-   of your TV frame */
   top: 11%;
   left: 5%;
   width: 76%;
@@ -69,19 +64,9 @@
   width: 100%;
   height: 100%;
   z-index: 2;
-  /* frame sits ON TOP of the video */
   pointer-events: none;
-  /* so clicks pass through to video if
-   needed */
 }
 
-/* .Login .header { */
-/*   line-height: 1.1; */
-/*   font-size: 1.7em; */
-/*   letter-spacing: -3.9px; */
-/*   color: #7A7FD3; */
-/*   margin-bottom: 10px; */
-/* } */
 
 .Login form {
   display: flex;
@@ -104,20 +89,21 @@
 
 
 .Login .input-wrapper input {
-  font-size: 1.5em;
-  min-height: 35px;
-  min-width: 200px;
-  height: 15px;
+  font-size: 1.3em;
+  width: 210px;
+  height: 24px;
   padding: 10px 14px;
   border: 0.5px solid #7A7FD4;
   border-radius: 2px;
   transition: all 0.2s ease;
   color: #F8C9AA;
+  text-shadow: 0 0 2px;
   background-color: #080d20;
 }
 
 .Login .input-wrapper input::placeholder {
   color: #b1b9f9;
+  text-shadow: 0 0 1px;
   opacity: 0.30;
 }
 
@@ -128,6 +114,7 @@
 .Login .input-wrapper input:focus {
   outline: none;
   border-color: #E5B750;
+  box-shadow: 0 0 10px;
 }
 
 .Login .button {
