@@ -25,6 +25,7 @@ type UserResponse struct {
 }
 
 type UserLoginResponse struct {
+	// TODO: fix
 	PublidID uuid.UUID `json:"public_id"`
 	Username string    `json:"username"`
 	Email    string    `json:"email"`

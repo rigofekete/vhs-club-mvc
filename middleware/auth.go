@@ -26,6 +26,7 @@ func UserAuth() gin.HandlerFunc {
 			return
 		}
 		if role != "user" {
+			// TODO: change err
 			_ = c.Error(apperror.ErrInvalidUserID)
 			c.Abort()
 			return
