@@ -12,9 +12,6 @@ function MyRentals({ rentals, onBack, onRentalClick }) {
                 src={`/tapes/${rental.tape_title}.png`}
               />
               <h4 className="rental-title">{rental.tape_title}</h4>
-              <p className="rental-date">
-                Rented: {new Date(rental.rented_at).toLocaleDateString()}
-              </p>
             </div>
           ))}
         </div>
