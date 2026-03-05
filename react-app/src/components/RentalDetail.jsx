@@ -1,4 +1,3 @@
-
 function RentalDetail({ rental, error, onBack, onReturnRent }) {
   return (
     <div className="tape-detail">
@@ -6,7 +5,9 @@ function RentalDetail({ rental, error, onBack, onReturnRent }) {
         src={`/tapes/${rental.tape_title}.png`}
       />
       <h3>{rental.tape_title}</h3>
-      {/* <p>{rental.director}</p> */}
+      <p className="rental-date">
+        Rented at: {new Date(rental.rented_at).toDateString()}
+      </p>
       <button className="panel-button" onClick={onReturnRent}>
         Return Tape
       </button>
