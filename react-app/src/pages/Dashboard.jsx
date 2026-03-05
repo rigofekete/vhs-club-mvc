@@ -78,40 +78,6 @@ function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    localStorage.removeItem('username')
-    navigate('/login');
-  };
-
-  const handleCatalog = () => {
-    setView('catalog');
-    setSelectedTape(null);
-    setError('');
-    setAnimKey(prev => prev + 1);
-  };
-
-  const handleMyRentals = () => {
-    fetchRentals();
-    setView('myRentals');
-    setSelectedTape(null);
-    setError('');
-    setAnimKey(prev => prev + 1);
-  };
-
-  const handleTapeClick = (tape) => {
-    setSelectedTape(tape);
-    setView('detail');
-    setAnimKey(prev => prev + 1);
-  };
-
-  const handleRentalClick = (rental) => {
-    console.log(rental)
-    setSelectedRental(rental)
-    setView('detailRental');
-    setAnimKey(prev => prev + 1);
-  }
-
   const handleRent = async (tape) => {
     try {
       const response = await fetch(`http://localhost:8080/rentals/${tape.public_id}`, {
@@ -157,6 +123,40 @@ function Dashboard() {
   };
 
 
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('username')
+    navigate('/login');
+  };
+
+  const handleCatalog = () => {
+    setView('catalog');
+    setSelectedTape(null);
+    setError('');
+    setAnimKey(prev => prev + 1);
+  };
+
+  const handleTapeClick = (tape) => {
+    setSelectedTape(tape);
+    setView('detail');
+    setAnimKey(prev => prev + 1);
+  };
+
+  const handleMyRentals = () => {
+    fetchRentals();
+    setView('myRentals');
+    setSelectedTape(null);
+    setError('');
+    setAnimKey(prev => prev + 1);
+  };
+
+  const handleRentalClick = (rental) => {
+    setSelectedRental(rental);
+    setView('detailRental');
+    setAnimKey(prev => prev + 1);
+  }
+
+
   return (
     <div className="Dashboard" >
       <ParabolicBackground animateDuration={1000} trigger={animKey} />
@@ -175,7 +175,7 @@ function Dashboard() {
 
         <div className="tape-catalog" key={animKey}>
           <div className="catalog-fade">
-            <h2>{view === 'myRentals' ? 'My Rentals' : 'VHS Catalog'}</h2>
+            <h2>{view === 'myRentals' || view === 'detailRental' ? 'My Rentals' : 'VHS Catalog'}</h2>
 
             {/* work on this, it looks choppy */}
             {view === 'renting' && (

@@ -107,7 +107,8 @@
 }
 
 .Dashboard .tape-grid {
-  margin-top: 40px;
+  padding-top: 10px;
+  margin-left: -10px;
   display: grid;
   grid-template-columns: repeat(auto-fill, 200px);
   gap: 20px;
@@ -192,7 +193,6 @@
   margin-right: 10px;
 }
 
-
 .Dashboard .rent-animation-wrapper {
   display: flex;
   justify-content: flex-start;
@@ -232,6 +232,7 @@
 
 .Dashboard .my-rentals {
   margin-top: 40px;
+  margin-left: -10px;
 }
 
 .Dashboard .no-rentals {
@@ -276,4 +277,18 @@
   margin-left: 50px;
   color: #B08AAB;
   animation: rentFadeIn 0.5s ease forwards;
+}
+
+.Dashboard .my-rentals .panel-button {
+  margin-top: 0px;
+  margin-left: 16px;
+}
+
+.Dashboard .my-rentals .rental-cover:hover {
+  border-color: #F3A6A6;
+  color: #F8C9AA;
+  box-shadow: 0 0 40px rgba(0, 255, 180, 0.4), 0 0 30px rgba(0, 255, 180,
+      0.15);
+  transform: scale(1.05);
+  cursor: pointer;
 }
