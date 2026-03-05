@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 import TapeDetail from '../components/TapeDetail'
 import MyRentals from '../components/MyRentals'
+import RentalDetail from '../components/RentalDetail'
 import ParabolicBackground from '../components/ParabolicBackground'
-
 
 
 function Dashboard() {
@@ -14,6 +14,7 @@ function Dashboard() {
   const [view, setView] = useState('catalog');
   const [videoFadingOut, setVideoFadingOut] = useState(false);
   const [selectedTape, setSelectedTape] = useState(null);
+  const [selectedRental, setSelectedRental] = useState(null);
   const [animKey, setAnimKey] = useState(0);
   const [tapes, setTapes] = useState([]);
   const [rentals, setRentals] = useState([]);
@@ -104,6 +105,13 @@ function Dashboard() {
     setAnimKey(prev => prev + 1);
   };
 
+  const handleRentalClick = (rental) => {
+    console.log(rental)
+    setSelectedRental(rental)
+    setView('detailRental');
+    setAnimKey(prev => prev + 1);
+  }
+
   const handleRent = async (tape) => {
     try {
       const response = await fetch(`http://localhost:8080/rentals/${tape.public_id}`, {
@@ -121,7 +129,30 @@ function Dashboard() {
 
       setView('renting');
     } catch (err) {
-      setError('Unable to connect to server.');
+      setError('Unable to connect to the server.');
+    }
+  };
+
+  const handleReturnRental = async (rental) => {
+    try {
+      const response = await fetch(`http://localhost:8080/rentals/${rental.public_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errData = await response.json();
+        setError(errData.error || 'Failed to return the rented tape');
+        return;
+      }
+
+
+      // TODO: create a new view with animation for rental return
+      setView('renting')
+    } catch (err) {
+      setError('Unable to connect to the server.');
     }
   };
 
@@ -171,6 +202,7 @@ function Dashboard() {
 
             {view === 'myRentals' && (
               <MyRentals
+                onRentalClick={handleRentalClick}
                 rentals={rentals}
                 onBack={handleCatalog}
               />
@@ -182,6 +214,15 @@ function Dashboard() {
                 error={error}
                 onBack={handleCatalog}
                 onRent={() => handleRent(selectedTape)}
+              />
+            )}
+
+            {view === 'detailRental' && selectedRental && (
+              <RentalDetail
+                rental={selectedRental}
+                error={error}
+                onBack={handleMyRentals}
+                onReturnRent={() => handleReturnRental(selectedRental)}
               />
             )}
 
