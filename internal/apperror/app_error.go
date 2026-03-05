@@ -110,9 +110,9 @@ func mapErrorToAppError(err error) *AppError {
 	case errors.Is(err, ErrTapeUpdateRequest):
 		return &AppError{Code: http.StatusBadRequest, Message: "Tape update request needs at least 1 non nil value"}
 	case errors.Is(err, ErrTapeUnavailable):
-		return &AppError{Code: http.StatusUnprocessableEntity, Message: "Sorry, all the tapes for this movie are currently rented out"}
+		return &AppError{Code: http.StatusUnprocessableEntity, Message: "Sorry, all tapes for this movie are currently rented out."}
 	case errors.Is(err, ErrMaxRentalsPerUser):
-		return &AppError{Code: http.StatusBadRequest, Message: "Unfortunately, you cannot rent any more movies at the moment. Please return one of your current rented tapes"}
+		return &AppError{Code: http.StatusBadRequest, Message: "Unfortunately, you cannot rent more movies at the moment. Please return one of your currently rented tapes."}
 	case errors.Is(err, ErrInvalidHeader):
 		return &AppError{Code: http.StatusUnauthorized, Message: "Missing or invalid authorization header"}
 	case errors.Is(err, ErrInvalidToken):
