@@ -1,4 +1,4 @@
-function MyRentals({ rentals, onBack }) {
+function MyRentals({ rentals, onBack, onRentalClick }) {
   return (
     <div className="my-rentals">
       {rentals.length === 0 ? (
@@ -6,7 +6,7 @@ function MyRentals({ rentals, onBack }) {
       ) : (
         <div className="rentals-grid">
           {rentals.map((rental) => (
-            <div key={rental.public_id} className="rental-card">
+            <div key={rental.public_id} className="rental-card" onClick={() => onRentalClick(rental)}>
               <img
                 className="rental-cover"
                 src={`/tapes/${rental.tape_title}.png`}
