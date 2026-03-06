@@ -18,14 +18,16 @@ func NewRentalHandler(s service.RentalService) *RentalHandler {
 }
 
 func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
-	user := r.Group("/rentals")
+	user := r.Group("/api/rentals")
 	user.Use(middleware.UserAuth())
 	{
 		user.POST("/:id", h.CreateRental)
 		user.PATCH("/:id", h.ReturnRental)
 	}
-	r.GET("/rentals", h.GetAllActiveRentals)
-	r.DELETE("/rentals", h.DeleteAllRentals)
+
+	// TODO: protect these with admin middleware
+	r.GET("/api/rentals", h.GetAllActiveRentals)
+	r.DELETE("/api/rentals", h.DeleteAllRentals)
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {

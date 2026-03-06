@@ -19,12 +19,15 @@ func NewUserHandler(s service.UserService) *UserHandler {
 }
 
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
-	r.POST("/users", h.CreateUser)
-	r.POST("/users/login", h.UserLogin)
-	r.POST("/users/batch", h.CreateUserBatch)
-	r.GET("/users/:id", h.GetUserByID)
-	r.GET("/users", h.GetUsers)
-	r.DELETE("/users", h.DeleteAllUsers)
+	user := r.Group("/api/users")
+	user.POST("/", h.CreateUser)
+	user.POST("/login", h.UserLogin)
+
+	// TODO: these need to be admin protected
+	user.POST("/batch", h.CreateUserBatch)
+	user.GET("/:id", h.GetUserByID)
+	user.GET("/", h.GetUsers)
+	user.DELETE("/", h.DeleteAllUsers)
 
 	// TODO: Decide how to implement the admin routes/auth
 	// // Admin routes

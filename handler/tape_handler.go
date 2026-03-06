@@ -18,13 +18,15 @@ func NewTapeHandler(s service.TapeService) *TapeHandler {
 }
 
 func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
-	r.POST("/tapes", h.CreateTape)
-	r.POST("/tapes/batch/", h.CreateTapeBatch)
-	r.GET("/tapes", h.GetAllTapes)
-	r.GET("/tapes/:id", h.GetTapeByID)
-	r.PATCH("/tapes/:id", h.UpdateTape)
-	r.DELETE("/tapes/:id", h.DeleteTape)
-	r.DELETE("/tapes", h.DeleteAllTapes)
+	// TODO: Protect with adminAuth middleware
+	admin := r.Group("/api/tapes")
+	admin.POST("/", h.CreateTape)
+	admin.POST("/batch/", h.CreateTapeBatch)
+	admin.GET("/", h.GetAllTapes)
+	admin.GET("/:id", h.GetTapeByID)
+	admin.PATCH("/:id", h.UpdateTape)
+	admin.DELETE("/:id", h.DeleteTape)
+	admin.DELETE("/", h.DeleteAllTapes)
 }
 
 func (h *TapeHandler) CreateTape(c *gin.Context) {
