@@ -35,7 +35,7 @@ func UserSingleResponse(user *model.User) UserResponse {
 
 func LoginResponse(user *model.User) UserLoginResponse {
 	return UserLoginResponse{
-		PublidID: user.PublicID,
+		PublicID: user.PublicID,
 		Username: user.Username,
 		Email:    user.Email,
 		Token:    user.Token,
