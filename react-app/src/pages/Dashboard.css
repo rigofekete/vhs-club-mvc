@@ -146,6 +146,7 @@
   color: #F8C9AA;
   box-shadow: 0 0 40px rgba(0, 255, 180, 0.4), 0 0 30px rgba(0, 255, 180,
       0.15);
+  filter: sepia(1) hue-rotate(90deg) saturate(2) brightness(131%);
   transform: scale(1.05);
   cursor: pointer;
 }
