@@ -19,10 +19,10 @@ var (
 	// General
 	ErrBadRequest = errors.New("bad request")
 	// User
-	ErrUserNotFound   = errors.New("user not found")
-	ErrUserValidation = errors.New("invalid user fields")
-	ErrUserExists     = errors.New("user already exists")
-	ErrUserInvalidPW  = errors.New("invalid password")
+	ErrUserNotFound        = errors.New("user not found")
+	ErrUserFieldValidation = errors.New("invalid user fields")
+	ErrUserExists          = errors.New("user already exists")
+	ErrUserInvalidPW       = errors.New("invalid password")
 	// Tape
 	ErrTapeValidation    = errors.New("invalid tape fields")
 	ErrTapeExists        = errors.New("tape already exists")
@@ -97,7 +97,7 @@ func mapErrorToAppError(err error) *AppError {
 		return &AppError{Code: http.StatusNotFound, Message: "User not found"}
 	case errors.Is(err, ErrUserExists):
 		return &AppError{Code: http.StatusConflict, Message: "User already exists in the DB"}
-	case errors.Is(err, ErrUserValidation):
+	case errors.Is(err, ErrUserFieldValidation):
 		return &AppError{Code: http.StatusUnprocessableEntity, Message: "Invalid user fields"}
 	case errors.Is(err, ErrUserInvalidPW):
 		return &AppError{Code: http.StatusUnauthorized, Message: "Invalid password"}
@@ -124,7 +124,7 @@ func mapErrorToAppError(err error) *AppError {
 	case errors.Is(err, ErrInvalidAdmin):
 		return &AppError{Code: http.StatusUnauthorized, Message: "Admin access required"}
 	case errors.Is(err, ErrInvalidUser):
-		return &AppError{Code: http.StatusUnauthorized, Message: "User access required"}
+		return &AppError{Code: http.StatusUnauthorized, Message: "User/Admin access required"}
 	default:
 		return &AppError{Code: http.StatusInternalServerError, Message: "Internal server error"}
 	}
