@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
+	"github.com/rigofekete/vhs-club-mvc/middleware"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -18,15 +19,20 @@ func NewTapeHandler(s service.TapeService) *TapeHandler {
 }
 
 func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
-	// TODO: Protect with adminAuth middleware
+	// TODO: How to protect endpoints used by the frontend app directly
+	app := r.Group("/api/tapes")
+	app.GET("/", h.GetAllTapes)
+	app.GET("/:id", h.GetTapeByID)
+
 	admin := r.Group("/api/tapes")
-	admin.POST("/", h.CreateTape)
-	admin.POST("/batch/", h.CreateTapeBatch)
-	admin.GET("/", h.GetAllTapes)
-	admin.GET("/:id", h.GetTapeByID)
-	admin.PATCH("/:id", h.UpdateTape)
-	admin.DELETE("/:id", h.DeleteTape)
-	admin.DELETE("/", h.DeleteAllTapes)
+	admin.Use(middleware.AdminAuth())
+	{
+		admin.POST("/", h.CreateTape)
+		admin.POST("/batch/", h.CreateTapeBatch)
+		admin.PATCH("/:id", h.UpdateTape)
+		admin.DELETE("/:id", h.DeleteTape)
+		admin.DELETE("/", h.DeleteAllTapes)
+	}
 }
 
 func (h *TapeHandler) CreateTape(c *gin.Context) {

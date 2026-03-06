@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
+	"github.com/rigofekete/vhs-club-mvc/middleware"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
 
@@ -20,25 +21,17 @@ func NewUserHandler(s service.UserService) *UserHandler {
 
 func (h *UserHandler) RegisterRoutes(r *gin.Engine) {
 	user := r.Group("/api/users")
-	user.POST("/", h.CreateUser)
 	user.POST("/login", h.UserLogin)
+	user.POST("/", h.CreateUser)
 
-	// TODO: these need to be admin protected
-	user.POST("/batch", h.CreateUserBatch)
-	user.GET("/:id", h.GetUserByID)
-	user.GET("/", h.GetUsers)
-	user.DELETE("/", h.DeleteAllUsers)
-
-	// TODO: Decide how to implement the admin routes/auth
-	// // Admin routes
-	// admin := r.Group("/users")
-	// admin.Use(middleware.AdminAuth())
-	// {
-	// 	admin.POST("/batch", h.CreateUserBatch)
-	// 	admin.GET("/:id", h.GetUserByID)
-	// 	admin.GET("/", h.GetUsers)
-	// 	admin.DELETE("/", h.DeleteAllUsers)
-	// }
+	admin := r.Group("/api/users")
+	admin.Use(middleware.AdminAuth())
+	{
+		admin.POST("/batch", h.CreateUserBatch)
+		admin.GET("/:id", h.GetUserByID)
+		admin.GET("/", h.GetUsers)
+		admin.DELETE("/", h.DeleteAllUsers)
+	}
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {

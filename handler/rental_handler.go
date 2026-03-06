@@ -18,6 +18,9 @@ func NewRentalHandler(s service.RentalService) *RentalHandler {
 }
 
 func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
+	app := r.Group("/api/rentals")
+	app.GET("/", h.GetAllActiveRentals)
+
 	user := r.Group("/api/rentals")
 	user.Use(middleware.UserAuth())
 	{
@@ -25,16 +28,18 @@ func (h *RentalHandler) RegisterRoutes(r *gin.Engine) {
 		user.PATCH("/:id", h.ReturnRental)
 	}
 
-	// TODO: protect these with admin middleware
-	r.GET("/api/rentals", h.GetAllActiveRentals)
-	r.DELETE("/api/rentals", h.DeleteAllRentals)
+	admin := r.Group("/api/rentals")
+	admin.Use(middleware.AdminAuth())
+	{
+		admin.DELETE("/", h.DeleteAllRentals)
+	}
 }
 
 func (h *RentalHandler) CreateRental(c *gin.Context) {
 	tapeID := c.Param("id")
 	userPublicID, ok := middleware.GetUserID(c)
 	if !ok {
-		_ = c.Error(apperror.ErrUserValidation)
+		_ = c.Error(apperror.ErrUserFieldValidation)
 		return
 	}
 
@@ -51,7 +56,7 @@ func (h *RentalHandler) ReturnRental(c *gin.Context) {
 	rentalID := c.Param("id")
 	publicID, ok := middleware.GetUserID(c)
 	if !ok {
-		_ = c.Error(apperror.ErrUserValidation)
+		_ = c.Error(apperror.ErrUserFieldValidation)
 		return
 	}
 
