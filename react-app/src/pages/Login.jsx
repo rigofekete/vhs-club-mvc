@@ -31,7 +31,7 @@ function Login() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:8080/users/login', {
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ "username": username, "password": password })
@@ -57,7 +57,7 @@ function Login() {
         navigate('/dashboard');
       }, 2000);
     } catch (err) {
-      setError('Unable to connect to server.');
+      setError('Unable to connect to the server.');
     }
   };
 

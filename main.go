@@ -7,7 +7,6 @@ import (
 	"github.com/rigofekete/vhs-club-mvc/config"
 	"github.com/rigofekete/vhs-club-mvc/handler"
 	"github.com/rigofekete/vhs-club-mvc/internal/apperror"
-	"github.com/rigofekete/vhs-club-mvc/middleware"
 	"github.com/rigofekete/vhs-club-mvc/repository"
 	"github.com/rigofekete/vhs-club-mvc/service"
 )
@@ -15,7 +14,7 @@ import (
 func main() {
 	config.Load()
 	router := gin.Default()
-	router.Use(middleware.CORS())
+	// router.Use(middleware.CORS())
 	router.Use(apperror.ErrorHandler())
 
 	// TODO: Where to place this health check?

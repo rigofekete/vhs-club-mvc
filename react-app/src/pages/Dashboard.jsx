@@ -31,7 +31,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8080/tapes');
+        const response = await fetch('api/tapes');
         if (!response.ok) {
           const errData = await response.json();
           let errorMsg = errData.error || 'Failed to fetch tapes';
@@ -69,7 +69,7 @@ function Dashboard() {
 
   const fetchRentals = async () => {
     try {
-      const response = await fetch('http://localhost:8080/rentals');
+      const response = await fetch('api/rentals');
       if (!response.ok) return;
       const data = await response.json();
       setRentals(data.filter(r => r.username === username));
@@ -80,7 +80,7 @@ function Dashboard() {
 
   const handleRent = async (tape) => {
     try {
-      const response = await fetch(`http://localhost:8080/rentals/${tape.public_id}`, {
+      const response = await fetch(`api/rentals/${tape.public_id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -101,7 +101,7 @@ function Dashboard() {
 
   const handleReturnRental = async (rental) => {
     try {
-      const response = await fetch(`http://localhost:8080/rentals/${rental.public_id}`, {
+      const response = await fetch(`api/rentals/${rental.public_id}`, {
         method: 'PATCH',
         headers: {
           'Authorization': `Bearer ${token}`,
