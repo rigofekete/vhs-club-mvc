@@ -1,0 +1,5 @@
+react-app/node_modules
+tmp/
+.git
+.env
+.claude
