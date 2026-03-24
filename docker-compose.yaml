@@ -1,5 +1,7 @@
 services:
-  vhs-db:
+
+  db:
+    image: rigofekete/vhs-db
     build:
       context: .
       dockerfile: ./Dockerfile.db
@@ -17,7 +19,8 @@ services:
       timeout: 5s
       retries: 5
 
-  vhs-backend:
+  backend:
+    image: rigofekete/vhs-backend
     build:
       context: .
       dockerfile: ./Dockerfile.backend
@@ -28,8 +31,19 @@ services:
     ports:
      - "8080:8080"
     depends_on:
-      vhs-db:
+      db:
         condition: service_healthy
+
+  frontend:
+    image: rigofekete/vhs-frontend
+    build:
+      context: ./react-app
+      dockerfile: ./Dockerfile.frontend
+    container_name: vhs-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
 
 volumes:
   tables:
