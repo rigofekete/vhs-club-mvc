@@ -178,7 +178,6 @@ function ParabolicBackground({ animate = false, animateDuration = 0, trigger = 0
         left: 0,
         width: '100vw',
         height: '100vh',
-        zIndex: -1,
         pointerEvents: 'none',
       }}
     />
