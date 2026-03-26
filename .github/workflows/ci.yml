@@ -65,7 +65,7 @@ jobs:
         run: |
           for i in $(seq 1 30); do
             if curl -s -o /dev/null http://localhost:80; then
-              echo curl "frontend is up after ${i}s"
+              echo "frontend is up after ${i}s"
               exit 0
             fi
             sleep 1
