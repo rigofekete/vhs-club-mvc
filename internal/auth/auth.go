@@ -60,6 +60,7 @@ func ValidateJWT(tokenString, tokenSecret string) (uuid.UUID, string, error) {
 		func(token *jwt.Token) (any, error) { return []byte(tokenSecret), nil },
 	)
 	if err != nil || !token.Valid {
+		// NOTE: maybe return a sentinel error here?
 		return uuid.Nil, "", err
 	}
 

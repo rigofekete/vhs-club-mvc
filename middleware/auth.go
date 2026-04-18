@@ -13,6 +13,8 @@ import (
 const (
 	UserIDKey   = "userID"
 	UserRoleKey = "userRole"
+	RoleUser    = "user"
+	RoleAdmin   = "admin"
 )
 
 // Middlewares
@@ -25,7 +27,7 @@ func UserAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		if role != "user" && role != "admin" {
+		if role != RoleUser && role != RoleAdmin {
 			_ = c.Error(apperror.ErrInvalidUser)
 			c.Abort()
 			return
