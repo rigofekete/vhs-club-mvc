@@ -46,7 +46,7 @@ func AdminAuth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		if role != "admin" {
+		if role != RoleAdmin {
 			_ = c.Error(apperror.ErrInvalidAdmin)
 			c.Abort()
 			return

@@ -122,9 +122,9 @@ func mapErrorToAppError(err error) *AppError {
 	case errors.Is(err, ErrInvalidUserID):
 		return &AppError{Code: http.StatusUnauthorized, Message: "Invalid user ID"}
 	case errors.Is(err, ErrInvalidAdmin):
-		return &AppError{Code: http.StatusUnauthorized, Message: "Admin access required"}
+		return &AppError{Code: http.StatusForbidden, Message: "Admin access required"}
 	case errors.Is(err, ErrInvalidUser):
-		return &AppError{Code: http.StatusUnauthorized, Message: "User/Admin access required"}
+		return &AppError{Code: http.StatusForbidden, Message: "User/Admin access required"}
 	default:
 		return &AppError{Code: http.StatusInternalServerError, Message: "Internal server error"}
 	}
