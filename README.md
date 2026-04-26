@@ -11,7 +11,7 @@
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#demo">Demo</a> •
   <a href="#installation">Installation</a> •
-  <a href="#ci-cd">CI/CD</a> 
+  <a href="#ci">CI</a> 
 </p>
 
 ---
@@ -398,11 +398,11 @@ INSERT INTO users (username, email, role, hashed_password) VALUES
 
 > **Note:** Passwords must be hashed using Argon2id. You can generate hashed passwords using the Go application or an Argon2id tool.
 
-## CI/CD
+## CI
 
 ### GitHub Actions Pipeline
 
-The project includes a CI/CD pipeline defined in `.github/workflows/ci.yml` that runs on every push to the `master` branch.
+The project includes a CI pipeline defined in `.github/workflows/ci.yml` that runs on every push to the `master` branch.
 
 ### Pipeline Stages
 
