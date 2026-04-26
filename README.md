@@ -11,7 +11,7 @@
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#demo">Demo</a> •
   <a href="#installation">Installation</a> •
-  <a href="#ci/cd">CI/CD</a> 
+  <a href="#ci-cd">CI/CD</a> 
 </p>
 
 ---
