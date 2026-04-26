@@ -11,7 +11,7 @@
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#demo">Demo</a> •
   <a href="#installation">Installation</a> •
-  <a href="#ci">CI</a> 
+  <a href="#ci">CI</a>
 </p>
 
 ---
@@ -23,10 +23,10 @@ VHS Club is a Linux full-stack web application for a fictional VHS movie rental 
 ## Features
 
 - **User Authentication**: Secure login with JWT-based authentication
-- **VHS Catalog**: Browse a collection of VHS movies with details (title, director, genre, price)
+- **VHS Catalog**: Browse a collection of VHS movies with details (title, director, genre)
 - **Rental System**: Rent available tapes and track rental history
 - **Role-Based Access**: Admin and user roles with different permissions
-- **Responsive Design**: Modern UI that works across devices
+- **Responsive Design**: Frontend developed with React
 - **RESTful API**: Clean API design following REST principles
 - **Database Seeding**: SQL scripts provide initial data including admin account, sample users, and VHS tapes
 
@@ -74,8 +74,8 @@ VHS Club is a Linux full-stack web application for a fictional VHS movie rental 
 </p>
 
 ### Video Demo
-<video src="https://github.com/user-attachments/assets/62a0c20e-715d-46c7-ac17-965eb01ff301" width="400" controls></video>
 
+<video src="https://github.com/user-attachments/assets/62a0c20e-715d-46c7-ac17-965eb01ff301" width="400" controls></video>
 
 ## Installation
 
@@ -124,12 +124,12 @@ The easiest way to run the entire application stack is using Docker Compose. Thi
    - Build the Go backend API
    - Build the React frontend with Nginx
    - Start all services with proper networking
-   
+
    <br>
 
    > **Important:** The database seeding happens automatically on first startup. The `Dockerfile.db` copies `sql/seed.sql` into the PostgreSQL initialization directory, which PostgreSQL executes when the container starts for the first time.
 
-5. **Access the application:**
+4. **Access the application:**
 
    | Service | URL | Description |
    |---------|-----|-------------|
@@ -137,7 +137,7 @@ The easiest way to run the entire application stack is using Docker Compose. Thi
    | Backend API | <http://localhost:8080> | REST API endpoints |
    | Health Check | <http://localhost:8080/health> | API health status |
 
-6. **Stop the services:**
+5. **Stop the services:**
 
    ```bash
    docker compose down
@@ -499,18 +499,12 @@ npm run preview
 
 ### Unit Tests
 
-The project includes comprehensive unit tests for the service layer:
-
 ```bash
 # Run all Go tests with verbose output
 go test -v ./...
 
 # Run tests with coverage report
-go test -coverprofile=coverage.out ./...
-go tool cover -html=coverage.out
-
-# Run specific test file
-go test -v ./service/rental_service_test.go ./service/rental_service.go
+go test -cover ./...
 ```
 
 ### Frontend Tests
@@ -527,7 +521,6 @@ npx vitest run --coverage
 # Run in UI mode
 npx vitest --ui
 ```
-
 
 ## License
 
