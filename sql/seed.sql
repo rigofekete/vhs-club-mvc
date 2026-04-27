@@ -36,18 +36,17 @@ CREATE TABLE tapes (
   title       TEXT NOT NULL UNIQUE,
   director    TEXT NOT NULL,
   genre       TEXT NOT NULL,
-  quantity    INT NOT NULL,
-  price       FLOAT NOT NULL
+  quantity    INT NOT NULL
 );
 
-INSERT INTO tapes (title, director, genre, quantity, price) VALUES
-  ('Amarcord', 'Federico Fellini', 'Drama', 1, 5999.99),
-  ('Taxi Driver', 'Martin Scorsese', 'Thriller', 2, 5999.99),
-  ('Back to the Future', 'Robert Zemeckis', 'Adventure', 5, 2999.99),
-  ('Alien', 'Ridley Scott', 'Horror', 10, 5999.99),
-  ('A torinói ló', 'Béla Tarr', 'Drama', 3, 5999.99),
-  ('Batman', 'Tim Burton', 'Action', 4, 2999.99),
-  ('Fitzcarraldo', 'Werner Herzog', 'Drama', 11, 5999.99);
+INSERT INTO tapes (title, director, genre, quantity) VALUES
+  ('Amarcord', 'Federico Fellini', 'Drama', 1),
+  ('Taxi Driver', 'Martin Scorsese', 'Thriller', 2),
+  ('Back to the Future', 'Robert Zemeckis', 'Adventure', 5),
+  ('Alien', 'Ridley Scott', 'Horror', 10),
+  ('A torinói ló', 'Béla Tarr', 'Drama', 3),
+  ('Batman', 'Tim Burton', 'Action', 4),
+  ('Fitzcarraldo', 'Werner Herzog', 'Drama', 11);
 
 CREATE TABLE rentals (
   id            INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,

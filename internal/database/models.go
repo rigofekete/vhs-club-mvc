@@ -30,7 +30,6 @@ type Tape struct {
 	Director  string
 	Genre     string
 	Quantity  int32
-	Price     float64
 }
 
 type User struct {

@@ -1,11 +1,10 @@
 -- name: CreateTape :one
-INSERT INTO tapes (title, director, genre, quantity, price)
+INSERT INTO tapes (title, director, genre, quantity)
 VALUES (
   $1,
   $2,
   $3,
-  $4,
-  $5
+  $4
 )
 RETURNING *;
 
@@ -28,8 +27,7 @@ SET
   title =       COALESCE(sqlc.narg('title'), title),
   director =    COALESCE(sqlc.narg('director'), director),
   genre =       COALESCE(sqlc.narg('genre'), genre),
-  quantity =    COALESCE(sqlc.narg('quantity'), quantity),
-  price =       COALESCE(sqlc.narg('price'), price)
+  quantity =    COALESCE(sqlc.narg('quantity'), quantity)
 WHERE id = $1
 RETURNING *;
 

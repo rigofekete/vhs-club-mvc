@@ -41,7 +41,6 @@ func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tap
 		Director: tape.Director,
 		Genre:    tape.Genre,
 		Quantity: tape.Quantity,
-		Price:    tape.Price,
 	}
 
 	dbTape, err := r.DB.CreateTape(context.Background(), tapeParams)
@@ -58,7 +57,6 @@ func (r *tapeRepository) Save(ctx context.Context, tape *model.Tape) (*model.Tap
 		Director:  dbTape.Director,
 		Genre:     dbTape.Genre,
 		Quantity:  dbTape.Quantity,
-		Price:     dbTape.Price,
 	}
 	return savedTape, nil
 }
@@ -72,7 +70,6 @@ func (r *tapeRepository) SaveBatch(ctx context.Context, tapes []*model.Tape) ([]
 			Director: tape.Director,
 			Genre:    tape.Genre,
 			Quantity: tape.Quantity,
-			Price:    tape.Price,
 		}
 
 		dbTape, err := r.DB.CreateTape(ctx, tapeParams)
@@ -94,7 +91,6 @@ func (r *tapeRepository) SaveBatch(ctx context.Context, tapes []*model.Tape) ([]
 			Director:  dbTape.Director,
 			Genre:     dbTape.Genre,
 			Quantity:  dbTape.Quantity,
-			Price:     dbTape.Price,
 		}
 		createdTapes = append(createdTapes, createdTape)
 	}
@@ -118,7 +114,6 @@ func (r *tapeRepository) GetAll(ctx context.Context) ([]*model.Tape, error) {
 			Director:  tape.Director,
 			Genre:     tape.Genre,
 			Quantity:  tape.Quantity,
-			Price:     tape.Price,
 		}
 		tapes = append(tapes, t)
 	}
@@ -140,7 +135,6 @@ func (r *tapeRepository) GetByID(ctx context.Context, id int32) (*model.Tape, er
 		Director:  dbTape.Director,
 		Genre:     dbTape.Genre,
 		Quantity:  dbTape.Quantity,
-		Price:     dbTape.Price,
 	}
 
 	return tape, nil
@@ -160,7 +154,6 @@ func (r *tapeRepository) GetByPublicID(ctx context.Context, id uuid.UUID) (*mode
 		Director:  dbTape.Director,
 		Genre:     dbTape.Genre,
 		Quantity:  dbTape.Quantity,
-		Price:     dbTape.Price,
 	}
 	return tape, nil
 }
@@ -172,7 +165,6 @@ func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTap
 		Director: toNullString(updateTape.Director),
 		Genre:    toNullString(updateTape.Genre),
 		Quantity: toNullInt32(updateTape.Quantity),
-		Price:    toNullFloat64(updateTape.Price),
 	}
 
 	dbTape, err := r.DB.UpdateTape(context.Background(), dbUpdateParams)
@@ -189,7 +181,6 @@ func (r *tapeRepository) Update(ctx context.Context, updateTape *model.UpdateTap
 		Director:  dbTape.Director,
 		Genre:     dbTape.Genre,
 		Quantity:  dbTape.Quantity,
-		Price:     dbTape.Price,
 	}
 
 	return tape, nil
@@ -227,9 +218,9 @@ func toNullInt32(i *int32) sql.NullInt32 {
 	return sql.NullInt32{Int32: *i, Valid: true}
 }
 
-func toNullFloat64(f *float64) sql.NullFloat64 {
-	if f == nil {
-		return sql.NullFloat64{Valid: false}
-	}
-	return sql.NullFloat64{Float64: *f, Valid: true}
-}
+// func toNullFloat64(f *float64) sql.NullFloat64 {
+// 	if f == nil {
+// 		return sql.NullFloat64{Valid: false}
+// 	}
+// 	return sql.NullFloat64{Float64: *f, Valid: true}
+// }

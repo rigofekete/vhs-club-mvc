@@ -8,7 +8,6 @@ func (r *CreateTapeRequest) ToModel() *model.Tape {
 		Director: r.Director,
 		Genre:    r.Genre,
 		Quantity: r.Quantity,
-		Price:    r.Price,
 	}
 }
 
@@ -29,7 +28,6 @@ func TapeSingleResponse(tape *model.Tape) TapeResponse {
 		Director:  tape.Director,
 		Genre:     tape.Genre,
 		Quantity:  tape.Quantity,
-		Price:     tape.Price,
 	}
 }
 
@@ -47,7 +45,6 @@ func (r UpdateTapeRequest) ToModel() *model.UpdateTape {
 		Director: r.Director,
 		Genre:    r.Genre,
 		Quantity: r.Quantity,
-		Price:    r.Price,
 	}
 }
 
@@ -60,6 +57,5 @@ func TapeUpdateResponse(tape *model.Tape) TapeResponse {
 		Director:  tape.Director,
 		Genre:     tape.Genre,
 		Quantity:  tape.Quantity,
-		Price:     tape.Price,
 	}
 }

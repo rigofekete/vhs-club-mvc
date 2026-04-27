@@ -13,15 +13,14 @@ import (
 )
 
 const createTape = `-- name: CreateTape :one
-INSERT INTO tapes (title, director, genre, quantity, price)
+INSERT INTO tapes (title, director, genre, quantity)
 VALUES (
   $1,
   $2,
   $3,
-  $4,
-  $5
+  $4
 )
-RETURNING id, public_id, created_at, updated_at, title, director, genre, quantity, price
+RETURNING id, public_id, created_at, updated_at, title, director, genre, quantity
 `
 
 type CreateTapeParams struct {
@@ -29,7 +28,6 @@ type CreateTapeParams struct {
 	Director string
 	Genre    string
 	Quantity int32
-	Price    float64
 }
 
 func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, error) {
@@ -38,7 +36,6 @@ func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, e
 		arg.Director,
 		arg.Genre,
 		arg.Quantity,
-		arg.Price,
 	)
 	var i Tape
 	err := row.Scan(
@@ -50,7 +47,6 @@ func (q *Queries) CreateTape(ctx context.Context, arg CreateTapeParams) (Tape, e
 		&i.Director,
 		&i.Genre,
 		&i.Quantity,
-		&i.Price,
 	)
 	return i, err
 }
@@ -75,7 +71,7 @@ func (q *Queries) DeleteTape(ctx context.Context, id int32) error {
 }
 
 const getTapeByID = `-- name: GetTapeByID :one
-SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity FROM tapes
 WHERE id = $1
 `
 
@@ -91,13 +87,12 @@ func (q *Queries) GetTapeByID(ctx context.Context, id int32) (Tape, error) {
 		&i.Director,
 		&i.Genre,
 		&i.Quantity,
-		&i.Price,
 	)
 	return i, err
 }
 
 const getTapeFromPublicID = `-- name: GetTapeFromPublicID :one
-SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity FROM tapes
 WHERE public_id = $1
 `
 
@@ -113,13 +108,12 @@ func (q *Queries) GetTapeFromPublicID(ctx context.Context, publicID uuid.UUID) (
 		&i.Director,
 		&i.Genre,
 		&i.Quantity,
-		&i.Price,
 	)
 	return i, err
 }
 
 const getTapes = `-- name: GetTapes :many
-SELECT id, public_id, created_at, updated_at, title, director, genre, quantity, price FROM tapes
+SELECT id, public_id, created_at, updated_at, title, director, genre, quantity FROM tapes
 ORDER BY created_at ASC
 `
 
@@ -141,7 +135,6 @@ func (q *Queries) GetTapes(ctx context.Context) ([]Tape, error) {
 			&i.Director,
 			&i.Genre,
 			&i.Quantity,
-			&i.Price,
 		); err != nil {
 			return nil, err
 		}
@@ -163,10 +156,9 @@ SET
   title =       COALESCE($2, title),
   director =    COALESCE($3, director),
   genre =       COALESCE($4, genre),
-  quantity =    COALESCE($5, quantity),
-  price =       COALESCE($6, price)
+  quantity =    COALESCE($5, quantity)
 WHERE id = $1
-RETURNING id, public_id, created_at, updated_at, title, director, genre, quantity, price
+RETURNING id, public_id, created_at, updated_at, title, director, genre, quantity
 `
 
 type UpdateTapeParams struct {
@@ -175,7 +167,6 @@ type UpdateTapeParams struct {
 	Director sql.NullString
 	Genre    sql.NullString
 	Quantity sql.NullInt32
-	Price    sql.NullFloat64
 }
 
 func (q *Queries) UpdateTape(ctx context.Context, arg UpdateTapeParams) (Tape, error) {
@@ -185,7 +176,6 @@ func (q *Queries) UpdateTape(ctx context.Context, arg UpdateTapeParams) (Tape, e
 		arg.Director,
 		arg.Genre,
 		arg.Quantity,
-		arg.Price,
 	)
 	var i Tape
 	err := row.Scan(
@@ -197,7 +187,6 @@ func (q *Queries) UpdateTape(ctx context.Context, arg UpdateTapeParams) (Tape, e
 		&i.Director,
 		&i.Genre,
 		&i.Quantity,
-		&i.Price,
 	)
 	return i, err
 }
