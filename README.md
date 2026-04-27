@@ -380,24 +380,6 @@ The `sql/seed.sql` file handles everything:
 
 > **Note:** The seed script uses `CREATE DATABASE` and `\c` (connect) commands, so it must be run as a superuser (e.g., `postgres` user) and not as a regular database user.
 
-### Customizing Seed Data
-
-You can modify the seed file to add your own initial data:
-
-- **`sql/seed.sql`** - Single file containing database creation, schema, tables, and all initial data
-
-To add new users, add INSERT statements to the users section of `sql/seed.sql`:
-
-```sql
-INSERT INTO users (username, email, role, hashed_password) VALUES
-  (
-    'YourUser', 'email@example.com', 'user',
-    '$argon2id$v=19$m=65536,t=1,p=24$...'
-  );
-```
-
-> **Note:** Passwords must be hashed using Argon2id. You can generate hashed passwords using the Go application or an Argon2id tool.
-
 ## CI
 
 ### GitHub Actions Pipeline
