@@ -26,8 +26,9 @@ VHS Club is a Linux full-stack web application for a fictional VHS movie rental 
 - **VHS Catalog**: Browse a collection of VHS movies with details (title, director, genre)
 - **Rental System**: Rent available tapes and track rental history
 - **Role-Based Access**: Admin and user roles with different permissions
-- **Responsive Design**: Frontend developed with React
+- **React Frontend**: User interface built with React for a smooth browsing and rental experience
 - **RESTful API**: Clean API design following REST principles
+- **Dockerized Deployment**: Complete containerization with Docker Compose for easy setup and deployment
 - **Database Seeding**: SQL scripts provide initial data including admin account, sample users, and VHS tapes
 
 ## Tech Stack
