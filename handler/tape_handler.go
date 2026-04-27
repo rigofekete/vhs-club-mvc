@@ -19,7 +19,6 @@ func NewTapeHandler(s service.TapeService) *TapeHandler {
 }
 
 func (h *TapeHandler) RegisterRoutes(r *gin.Engine) {
-	// TODO: How to protect endpoints used by the frontend app directly
 	app := r.Group("/api/tapes")
 	app.GET("/", h.GetAllTapes)
 	app.GET("/:id", h.GetTapeByID)
@@ -100,7 +99,6 @@ func (h *TapeHandler) UpdateTape(c *gin.Context) {
 		return
 	}
 
-	// TODO: Same names for methods in different layers. Check good practice.
 	tape, err := h.tapeService.UpdateTape(c.Request.Context(), id, req.ToModel())
 	if err != nil {
 		_ = c.Error(err)

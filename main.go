@@ -17,7 +17,6 @@ func main() {
 	// router.Use(middleware.CORS())
 	router.Use(apperror.ErrorHandler())
 
-	// TODO: Where to place this health check?
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status": "ok",

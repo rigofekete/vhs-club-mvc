@@ -40,7 +40,6 @@ func (s *userService) CreateUser(ctx context.Context, user *model.User) (*model.
 	return s.repo.Save(ctx, user)
 }
 
-// TODO: Can we let the DB handle users that already exist, by skipping them in the repo layer
 func (s *userService) CreateUserBatch(ctx context.Context, users []*model.User) ([]*model.User, *int32, error) {
 	for _, user := range users {
 		hashedPassword, err := auth.HashPassword(user.Password)

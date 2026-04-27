@@ -20,7 +20,6 @@ const (
 // Middlewares
 func UserAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// TODO: maybe the extractToken function name should be more explicit?
 		userID, role, err := extractToken(c)
 		if err != nil {
 			_ = c.Error(err)
