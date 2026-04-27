@@ -456,6 +456,64 @@ go test -cover ./...
 sqlc generate
 ```
 
+### Database Schema & Code Generation
+
+The backend uses [SQLC](https://sqlc.dev/) to generate type-safe Go code from SQL queries. This ensures compile-time type safety and eliminates the need for manual struct mapping.
+
+#### Schema Location
+
+The database schema and queries are organized as follows:
+
+| Path | Description |
+|------|-------------|
+| `sql/schema/` | Database schema migration files (001_tapes.sql, 002_users.sql, 003_rentals.sql) |
+| `sql/queries/` | SQL queries used by the application (users.sql, tapes.sql, rentals.sql) |
+| `sql/seed.sql` | Complete seed script that creates the database, schema, tables, and initial data |
+| `sqlc.yaml` | SQLC configuration file |
+
+> **Important:** SQLC reads all files in the `sql/schema/` directory to understand the database structure when generating Go types. The `sqlc.yaml` file points SQLC to these paths.
+
+#### Two Approaches to Database Setup
+
+You have two options for working with the database:
+
+**Option 1: Use the Ready-Made Seed (Recommended for Quick Start)**
+
+The easiest way is to use the provided `sql/seed.sql` script, which creates the database and populates it with initial data:
+
+```bash
+# Run the complete seed script (creates database, schema, tables, and sample data)
+sudo -u postgres psql -f sql/seed.sql
+```
+
+> **Note:** This approach uses the pre-generated Go types in `internal/database/`. No additional steps are needed — the generated code is already committed to the repository and ready to use.
+
+**Option 2: Modify the Schema and Regenerate**
+
+If you want to customize the database structure:
+
+1. **Edit the schema files** in `sql/schema/` (001_tapes.sql, 002_users.sql, 003_rentals.sql) to add or modify tables, columns, or constraints
+
+2. **Edit or add queries** in the `sql/queries/` directory (e.g., `users.sql`, `tapes.sql`)
+
+3. **Regenerate the Go code**:
+
+   Run the following commands from the **project root** (where `sqlc.yaml` is located):
+
+   ```bash
+   # Install SQLC if you haven't already
+   go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+
+   # Generate type-safe Go code from SQL queries
+   sqlc generate
+   ```
+
+   This command reads `sqlc.yaml` and generates Go structs and methods in `internal/database/`.
+
+4. **Apply the updated schema** to your database by running the modified schema files or re-seeding
+
+> **Important:** When modifying the schema, you **must** run `sqlc generate` afterwards. The Go code in `internal/database/` is auto-generated from the SQL files, and any changes to the schema will not be reflected in the Go types until you regenerate.
+
 ### Frontend Development
 
 ```bash
