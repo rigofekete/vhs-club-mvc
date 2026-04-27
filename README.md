@@ -341,15 +341,15 @@ The following accounts are available after seeding:
 
 The seed script also populates the catalog with classic VHS movies:
 
-| Title | Director | Genre | Quantity | Price |
-|-------|----------|-------|----------|-------|
-| Amarcord | Federico Fellini | Drama | 1 | 5999.99 |
-| Taxi Driver | Martin Scorsese | Thriller | 2 | 5999.99 |
-| Back to the Future | Robert Zemeckis | Adventure | 5 | 2999.99 |
-| Alien | Ridley Scott | Horror | 10 | 5999.99 |
-| A torinói ló | Béla Tarr | Drama | 3 | 5999.99 |
-| Batman | Tim Burton | Action | 4 | 2999.99 |
-| Fitzcarraldo | Werner Herzog | Drama | 11 | 5999.99 |
+| Title | Director | Genre | Quantity |
+|-------|----------|-------|----------|
+| Amarcord | Federico Fellini | Drama | 1 |
+| Taxi Driver | Martin Scorsese | Thriller | 2 |
+| Back to the Future | Robert Zemeckis | Adventure | 5 |
+| Alien | Ridley Scott | Horror | 10 |
+| A torinói ló | Béla Tarr | Drama | 3 |
+| Batman | Tim Burton | Action | 4 |
+| Fitzcarraldo | Werner Herzog | Drama | 11 |
 
 ### Seeding with Docker Compose
 
