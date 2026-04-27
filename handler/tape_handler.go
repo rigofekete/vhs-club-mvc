@@ -131,6 +131,5 @@ func updateValid(req *UpdateTapeRequest) bool {
 	return (req.Title != nil ||
 		req.Director != nil ||
 		req.Genre != nil ||
-		req.Quantity != nil ||
-		req.Price != nil)
+		req.Quantity != nil)
 }

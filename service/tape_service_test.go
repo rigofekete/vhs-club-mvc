@@ -88,7 +88,7 @@ func Test_CreateTape_Success(t *testing.T) {
 		Title:    "Sleeper",
 		Director: "Woody ALlen",
 		Genre:    "Comedy",
-		Quantity: 1, Price: 5999.99,
+		Quantity: 1,
 	}
 
 	createdTape := &model.Tape{
@@ -97,7 +97,6 @@ func Test_CreateTape_Success(t *testing.T) {
 		Director: "Woody ALlen",
 		Genre:    "Comedy",
 		Quantity: 1,
-		Price:    5999.99,
 	}
 
 	ctx := context.Background()
@@ -122,7 +121,6 @@ func Test_CreateTape_Fail(t *testing.T) {
 		Director: "Stanley Kubrick",
 		Genre:    "Horror",
 		Quantity: 1,
-		Price:    5999.99,
 	}
 
 	dbTapes := []*model.Tape{
@@ -131,7 +129,6 @@ func Test_CreateTape_Fail(t *testing.T) {
 			Director: "Stanley Kubrick",
 			Genre:    "Horror",
 			Quantity: 1,
-			Price:    5999.99,
 		},
 	}
 
@@ -207,7 +204,6 @@ func Test_GetAllTapes(t *testing.T) {
 			Director: "Martin Scorcese",
 			Genre:    "Thriller",
 			Quantity: 1,
-			Price:    5999.99,
 		},
 		{
 			ID:       id2,
@@ -215,7 +211,6 @@ func Test_GetAllTapes(t *testing.T) {
 			Director: "Federico Fellini",
 			Genre:    "Drama",
 			Quantity: 1,
-			Price:    5999.99,
 		},
 		{
 			ID:       id3,
@@ -223,7 +218,6 @@ func Test_GetAllTapes(t *testing.T) {
 			Director: "Francis Ford Coppola",
 			Genre:    "Drama",
 			Quantity: 1,
-			Price:    5999.99,
 		},
 	}
 
@@ -254,7 +248,6 @@ func Test_GetTapeByID_Success(t *testing.T) {
 		Director: "Ridley Scott",
 		Genre:    "Horror",
 		Quantity: 1,
-		Price:    5999.99,
 	}
 
 	mockRepo.On("GetByPublicID", ctx, idUUID).Return(returnedTape, nil)
@@ -304,7 +297,6 @@ func Test_UpdateTape_Success(t *testing.T) {
 		Director: "Takeshi Kitano",
 		Genre:    "Drama",
 		Quantity: 1,
-		Price:    5999.99,
 	}
 
 	updatedTape := &model.Tape{
@@ -313,7 +305,6 @@ func Test_UpdateTape_Success(t *testing.T) {
 		Director: "Takeshi Kitano",
 		Genre:    "Difficult to label",
 		Quantity: 1,
-		Price:    5999.99,
 	}
 
 	ctx := context.Background()
@@ -368,7 +359,6 @@ func Test_DeleteTape_Success(t *testing.T) {
 		Director: "Ridley Scott",
 		Genre:    "Horror",
 		Quantity: 5,
-		Price:    5999.99,
 	}
 	ctx := context.Background()
 	mockRepo.On("GetByPublicID", ctx, idUUID).Return(returnedTape, nil)

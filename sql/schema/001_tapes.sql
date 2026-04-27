@@ -7,8 +7,7 @@ CREATE TABLE tapes(
   title       TEXT NOT NULL UNIQUE,
   director    TEXT NOT NULL,
   genre       TEXT NOT NULL,
-  quantity    INT NOT NULL,
-  price       FLOAT NOT NULL
+  quantity    INT NOT NULL
 );
 
 -- +goose Down
