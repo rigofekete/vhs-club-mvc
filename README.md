@@ -93,25 +93,23 @@ The easiest way to run the entire application stack is using Docker Compose. Thi
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/vhs-club.git
+   git clone https://github.com/rigofekete/vhs-club.git
    cd vhs-club
    ```
 
 2. **Set up environment variables:**
 
-   Create a `.env` file in the project root (or use the existing one):
+   Create a `.env` file in the project root with a JWT secret:
 
    ```bash
-   # Generate a secure JWT secret (optional - one is provided in the example .env)
-   # JWT_SECRET=$(openssl rand -base64 32)
+   # Generate a secure JWT secret
+   JWT_SECRET=$(openssl rand -base64 32)
+
+   # Create the .env file
+   echo "JWT_SECRET=$JWT_SECRET" > .env
    ```
 
-   The default `.env` file contains:
-
-   ```
-   DB_URL=postgres://postgres:postgres@localhost:5432/vhs_club?sslmode=disable
-   JWT_SECRET=your-jwt-secret-here
-   ```
+   The database connection URL is handled internally by Docker Compose, but the JWT secret must be provided by you.
 
 3. **Build and run with Docker Compose:**
 
@@ -130,6 +128,8 @@ The easiest way to run the entire application stack is using Docker Compose. Thi
    > **Important:** The database seeding happens automatically on first startup. The `Dockerfile.db` copies `sql/seed.sql` into the PostgreSQL initialization directory, which PostgreSQL executes when the container starts for the first time.
 
 4. **Access the application:**
+
+   Open your browser and navigate to: **<http://localhost>**
 
    | Service | URL | Description |
    |---------|-----|-------------|
